@@ -56,3 +56,6 @@ coverage/
 *.tmp
 .cache/
 .temp/
+
+# Git Bash redirection accidents (Windows has a NUL device; in bash `> nul` creates a file)
+nul
