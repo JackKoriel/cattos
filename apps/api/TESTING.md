@@ -40,10 +40,12 @@ yarn test:coverage
 ## Test Coverage
 
 ### Services
+
 - **postService**: 8 test suites covering CRUD, hashtags, and replies
 - **userService**: 7 test suites covering CRUD, search, and uniqueness validation
 
 ### Controllers
+
 - **postController**: 7 test suites for all endpoints with validation
 - **userController**: 7 test suites for all endpoints with business logic
 - **errorMiddleware**: Error handling and 404 responses
@@ -51,6 +53,7 @@ yarn test:coverage
 ## Mocking Strategy
 
 All services are mocked in controller tests to isolate controller logic:
+
 ```typescript
 vi.mock('../services/post.service.js')
 ```
@@ -60,6 +63,7 @@ MongoDB models are mocked in service tests to avoid database dependency.
 ## Test Examples
 
 ### Service Test
+
 ```typescript
 describe('postService', () => {
   describe('findAll', () => {
@@ -79,6 +83,7 @@ describe('postService', () => {
 ```
 
 ### Controller Test
+
 ```typescript
 describe('postController', () => {
   describe('create', () => {
@@ -110,6 +115,7 @@ describe('postController', () => {
 ## Key Test Scenarios
 
 ### Post Service
+
 - ✓ Fetch all public posts with pagination
 - ✓ Filter posts by author or visibility
 - ✓ Create posts with auto-extracted hashtags/mentions
@@ -119,6 +125,7 @@ describe('postController', () => {
 - ✓ Update posts (marks as edited)
 
 ### User Service
+
 - ✓ Fetch all active users
 - ✓ Find user by ID, username, or email
 - ✓ Create new user with validation
@@ -127,6 +134,7 @@ describe('postController', () => {
 - ✓ Email/username uniqueness enforcement
 
 ### Controllers
+
 - ✓ Request validation (required fields, data types)
 - ✓ Authorization checks (user ownership)
 - ✓ HTTP status codes (201 for create, 404 for not found, 409 for conflicts)
@@ -135,6 +143,7 @@ describe('postController', () => {
 - ✓ Business logic (hashtag extraction, text search)
 
 ### Error Middleware
+
 - ✓ MongoDB CastError → 400 "Invalid ID format"
 - ✓ ValidationError → 400 with error message
 - ✓ Duplicate key (11000) → 409 "Duplicate entry"
