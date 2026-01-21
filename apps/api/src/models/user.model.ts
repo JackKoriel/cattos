@@ -52,9 +52,6 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 )
 
-userSchema.index({ email: 1 })
-userSchema.index({ username: 1 })
-userSchema.index({ cognitoId: 1 })
 userSchema.index({ createdAt: -1 })
 userSchema.index({ followersCount: -1 })
 userSchema.index({ username: 'text', displayName: 'text' })

@@ -17,7 +17,6 @@ const hashtagSchema = new Schema<IHashtag>(
   { timestamps: true }
 )
 
-hashtagSchema.index({ tag: 1 }, { unique: true })
 hashtagSchema.index({ postsCount: -1 })
 hashtagSchema.index({ lastUsedAt: -1 })
 
