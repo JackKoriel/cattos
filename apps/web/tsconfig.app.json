@@ -3,6 +3,8 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "./dist",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "types": ["vite/client"],
     "paths": {
       "@/*": ["./src/*"],
