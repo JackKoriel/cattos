@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint src --ext ts",
+    "seed:dev": "tsx src/scripts/seed.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
