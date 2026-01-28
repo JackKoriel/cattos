@@ -14,7 +14,10 @@ const getLikeByPostAndUser = async (postId: string, userId: Types.ObjectId) => {
   return Like.findOne({ postId, userId }).lean()
 }
 
-const listLikesForPost = async (postId: string, options: { limit?: number; skip?: number } = {}) => {
+const listLikesForPost = async (
+  postId: string,
+  options: { limit?: number; skip?: number } = {}
+) => {
   const { limit = 100, skip = 0 } = options
   return Like.find({ postId }).skip(skip).limit(limit).lean()
 }

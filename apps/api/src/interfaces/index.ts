@@ -8,3 +8,5 @@ export type { IBlock } from './block.interface.js'
 export type { IMute } from './mute.interface.js'
 export type { IReport, ReportReason, ReportStatus } from './report.interface.js'
 export type { IHashtag } from './hashtag.interface.js'
+export type { IRefreshToken } from './refreshToken.interface.js'
+

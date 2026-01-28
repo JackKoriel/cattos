@@ -8,5 +8,7 @@ export { Block } from './block.model.js'
 export { Mute } from './mute.model.js'
 export { Report } from './report.model.js'
 export { Hashtag } from './hashtag.model.js'
+export { RefreshToken } from './refreshToken.model.js'
 
 export * from '../interfaces/index.js'
+

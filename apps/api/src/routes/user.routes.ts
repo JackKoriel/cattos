@@ -1,13 +1,13 @@
 import { Router } from 'express'
 import { userController } from '../controllers/index.js'
+import { requireAuth } from '../middleware/auth.middleware.js'
 
 const router = Router()
 
-router.get('/', userController.getAll)
-router.get('/search', userController.search)
-router.get('/username/:username', userController.getByUsername)
-router.get('/:id', userController.getById)
-router.post('/', userController.create)
-router.patch('/:id', userController.update)
+router.get('/search', userController.searchUsers)
+router.get('/username/:username', userController.getUserByUsername)
+router.get('/:id', userController.getUserById)
+router.patch('/:id', requireAuth, userController.updateUser)
 
 export default router
+

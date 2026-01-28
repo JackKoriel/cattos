@@ -14,7 +14,10 @@ const getBookmarkByPostAndUser = async (postId: string, userId: Types.ObjectId) 
   return Bookmark.findOne({ postId, userId }).lean()
 }
 
-const listBookmarksForUser = async (userId: Types.ObjectId, options: { limit?: number; skip?: number } = {}) => {
+const listBookmarksForUser = async (
+  userId: Types.ObjectId,
+  options: { limit?: number; skip?: number } = {}
+) => {
   const { limit = 20, skip = 0 } = options
   return Bookmark.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean()
 }

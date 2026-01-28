@@ -62,7 +62,12 @@ const createAndStoreRefreshToken = async (userId: string) => {
   return { refreshToken, tokenHash, expiresAt }
 }
 
-const register = async (input: { email: string; username: string; password: string; displayName?: string }) => {
+const register = async (input: {
+  email: string
+  username: string
+  password: string
+  displayName?: string
+}) => {
   const email = input.email.toLowerCase().trim()
   const username = input.username.trim()
 
