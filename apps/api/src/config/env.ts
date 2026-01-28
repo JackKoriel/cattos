@@ -2,8 +2,6 @@ import dotenv from 'dotenv'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// In a monorepo, scripts may run with different CWDs (repo root vs package root).
-// Load env files from both `apps/api` and the repo root to avoid "it works in dev but not in start".
 dotenv.config()
 
 const thisFilePath = fileURLToPath(import.meta.url)

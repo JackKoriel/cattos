@@ -2,7 +2,9 @@ import { Post } from '../models/index.js'
 import type { IPost } from '../interfaces/index.js'
 import type { Types } from 'mongoose'
 
-const findAll = async (options: { limit?: number; skip?: number; authorId?: Types.ObjectId } = {}) => {
+const findAll = async (
+  options: { limit?: number; skip?: number; authorId?: Types.ObjectId } = {}
+) => {
   const { limit = 20, skip = 0, authorId } = options
   const query: Record<string, unknown> = { isDeleted: false, visibility: 'public' }
   if (authorId) query.authorId = authorId

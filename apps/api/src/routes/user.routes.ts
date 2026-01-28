@@ -10,4 +10,3 @@ router.get('/:id', userController.getUserById)
 router.patch('/:id', requireAuth, userController.updateUser)
 
 export default router
-

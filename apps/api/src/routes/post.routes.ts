@@ -17,4 +17,3 @@ router.use('/:postId/likes', likeRoutes)
 router.use('/:postId/bookmarks', bookmarkRoutes)
 
 export default router
-

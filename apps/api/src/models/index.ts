@@ -11,4 +11,3 @@ export { Hashtag } from './hashtag.model.js'
 export { RefreshToken } from './refreshToken.model.js'
 
 export * from '../interfaces/index.js'
-

@@ -1,7 +1,13 @@
 import type { Request, Response, NextFunction } from 'express'
 import { Types } from 'mongoose'
 import { postService } from '../services/index.js'
-import { getBody, getQuery, getString, getStringArray, parsePagination } from '../utils/request.utils.js'
+import {
+  getBody,
+  getQuery,
+  getString,
+  getStringArray,
+  parsePagination,
+} from '../utils/request.utils.js'
 
 type PostVisibility = 'public' | 'followers' | 'mentioned' | 'private'
 
@@ -80,7 +86,8 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
       return
     }
 
-    const hashtags = (content || '').match(/#\w+/g)?.map((tag: string) => tag.slice(1).toLowerCase()) || []
+    const hashtags =
+      (content || '').match(/#\w+/g)?.map((tag: string) => tag.slice(1).toLowerCase()) || []
     const mentions = (content || '').match(/@\w+/g)?.map((m: string) => m.slice(1)) || []
 
     const post = await postService.create({
@@ -201,4 +208,3 @@ export const postController = {
   listPostsByHashtag,
   listRepliesForPost,
 }
-

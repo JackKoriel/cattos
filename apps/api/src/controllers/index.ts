@@ -4,4 +4,3 @@ export { userController } from './user.controller.js'
 export { authController } from './auth.controller.js'
 export { likeController } from './like.controller.js'
 export { bookmarkController } from './bookmark.controller.js'
-
