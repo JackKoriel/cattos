@@ -107,6 +107,28 @@ yarn install
 
 ## 💻 Development
 
+### Backend environment variables
+
+The API requires MongoDB + a JWT signing secret. Copy the example file and fill it in:
+
+```bash
+# Option A (recommended): put it at repo root for turbo commands
+copy apps\api\.env.example .env
+
+# Option B: put it in the API package if you run commands from there
+copy apps\api\.env.example apps\api\.env
+```
+
+Required keys:
+
+- `MONGODB_URI` (Mongo connection string)
+- `JWT_ACCESS_SECRET` (random long secret used to sign access tokens)
+
+Notes:
+
+- The API loads `.env` from either the repo root or `apps/api` (plus optional `.env.local`).
+- If these vars are missing, the API will exit on startup instead of running and later returning generic 500s.
+
 ### Start Development Servers
 
 ```bash
