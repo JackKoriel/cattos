@@ -32,7 +32,7 @@ describe('User Controller', () => {
     vi.clearAllMocks()
   })
 
-  describe('getAll', () => {
+  describe('listUsers', () => {
     it('should return all users with pagination', async () => {
       const mockUsers = [
         { _id: '1', username: 'cat1' },
@@ -42,7 +42,7 @@ describe('User Controller', () => {
 
       vi.mocked(userService.findAll).mockResolvedValue(mockUsers as unknown as FindAllResult)
 
-      await userController.getAll(
+      await userController.listUsers(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -56,14 +56,14 @@ describe('User Controller', () => {
     })
   })
 
-  describe('getById', () => {
+  describe('getUserById', () => {
     it('should return a user by ID', async () => {
       const mockUser = { _id: '1', username: 'testcat' }
       mockReq.params = { id: '1' }
 
       vi.mocked(userService.findById).mockResolvedValue(mockUser as unknown as FindByIdResult)
 
-      await userController.getById(
+      await userController.getUserById(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -80,7 +80,7 @@ describe('User Controller', () => {
 
       vi.mocked(userService.findById).mockResolvedValue(null)
 
-      await userController.getById(
+      await userController.getUserById(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -94,7 +94,7 @@ describe('User Controller', () => {
     })
   })
 
-  describe('getByUsername', () => {
+  describe('getUserByUsername', () => {
     it('should return a user by username', async () => {
       const mockUser = { _id: '1', username: 'testcat' }
       mockReq.params = { username: 'testcat' }
@@ -103,7 +103,7 @@ describe('User Controller', () => {
         mockUser as unknown as FindByUsernameResult
       )
 
-      await userController.getByUsername(
+      await userController.getUserByUsername(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -116,7 +116,7 @@ describe('User Controller', () => {
     })
   })
 
-  describe('create', () => {
+  describe('createUser', () => {
     it('should create a new user', async () => {
       const userData = {
         email: 'newcat@example.com',
@@ -131,7 +131,7 @@ describe('User Controller', () => {
       vi.mocked(userService.findByUsername).mockResolvedValue(null)
       vi.mocked(userService.create).mockResolvedValue(mockCreatedUser as unknown as CreateResult)
 
-      await userController.create(
+      await userController.createUser(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -154,7 +154,7 @@ describe('User Controller', () => {
       vi.mocked(userService.findByUsername).mockResolvedValue(null)
       vi.mocked(userService.create).mockResolvedValue({} as unknown as CreateResult)
 
-      await userController.create(
+      await userController.createUser(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -170,7 +170,7 @@ describe('User Controller', () => {
     it('should return 400 if email or username missing', async () => {
       mockReq.body = { email: 'cat@example.com' } // missing username
 
-      await userController.create(
+      await userController.createUser(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -193,7 +193,7 @@ describe('User Controller', () => {
         _id: 'other',
       } as unknown as FindByEmailResult)
 
-      await userController.create(
+      await userController.createUser(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -217,7 +217,7 @@ describe('User Controller', () => {
         _id: 'other',
       } as unknown as FindByUsernameResult)
 
-      await userController.create(
+      await userController.createUser(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -231,16 +231,17 @@ describe('User Controller', () => {
     })
   })
 
-  describe('update', () => {
+  describe('updateUser', () => {
     it('should update user profile', async () => {
       const updateData = { displayName: 'Updated', bio: 'New bio' }
       mockReq.params = { id: '1' }
       mockReq.body = updateData
+      mockReq.user = { id: '1' }
 
       const mockUpdatedUser = { _id: '1', ...updateData }
       vi.mocked(userService.update).mockResolvedValue(mockUpdatedUser as unknown as UpdateResult)
 
-      await userController.update(
+      await userController.updateUser(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -252,13 +253,49 @@ describe('User Controller', () => {
       })
     })
 
+    it('should return 401 if not authenticated', async () => {
+      mockReq.params = { id: '1' }
+      mockReq.body = { displayName: 'Updated' }
+
+      await userController.updateUser(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.status).toHaveBeenCalledWith(401)
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        error: 'Unauthorized',
+      })
+    })
+
+    it('should return 403 if updating another user', async () => {
+      mockReq.params = { id: '1' }
+      mockReq.body = { displayName: 'Updated' }
+      mockReq.user = { id: '2' }
+
+      await userController.updateUser(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.status).toHaveBeenCalledWith(403)
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        error: 'Forbidden',
+      })
+    })
+
     it('should return 404 if user not found', async () => {
       mockReq.params = { id: 'nonexistent' }
       mockReq.body = { displayName: 'Test' }
+      mockReq.user = { id: 'nonexistent' }
 
       vi.mocked(userService.update).mockResolvedValue(null)
 
-      await userController.update(
+      await userController.updateUser(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -268,7 +305,7 @@ describe('User Controller', () => {
     })
   })
 
-  describe('search', () => {
+  describe('searchUsers', () => {
     it('should search users by query', async () => {
       const mockResults = [
         { _id: '1', username: 'catfan' },
@@ -278,7 +315,7 @@ describe('User Controller', () => {
 
       vi.mocked(userService.search).mockResolvedValue(mockResults as unknown as SearchResult)
 
-      await userController.search(
+      await userController.searchUsers(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -294,7 +331,7 @@ describe('User Controller', () => {
     it('should return 400 if query not provided', async () => {
       mockReq.query = {}
 
-      await userController.search(
+      await userController.searchUsers(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction

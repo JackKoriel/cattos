@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { postController } from '../post.controller.js'
 import { postService } from '../../services/post.service.js'
 import type { Request, Response, NextFunction } from 'express'
+import { Types } from 'mongoose'
 
 vi.mock('../../services/post.service.js')
 
@@ -16,8 +17,10 @@ describe('Post Controller', () => {
   let mockReq: Partial<Request>
   let mockRes: Partial<Response>
   let mockNext: ReturnType<typeof vi.fn>
+  let userId: string
 
   beforeEach(() => {
+    userId = new Types.ObjectId().toHexString()
     mockReq = {
       params: {},
       query: {},
@@ -31,7 +34,7 @@ describe('Post Controller', () => {
     vi.clearAllMocks()
   })
 
-  describe('getAll', () => {
+  describe('listPosts', () => {
     it('should return all posts with default pagination', async () => {
       const mockPosts = [
         { _id: '1', content: 'Post 1' },
@@ -40,7 +43,7 @@ describe('Post Controller', () => {
 
       vi.mocked(postService.findAll).mockResolvedValue(mockPosts as unknown as FindAllResult)
 
-      await postController.getAll(
+      await postController.listPosts(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -58,7 +61,7 @@ describe('Post Controller', () => {
 
       vi.mocked(postService.findAll).mockResolvedValue([])
 
-      await postController.getAll(
+      await postController.listPosts(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -76,7 +79,7 @@ describe('Post Controller', () => {
 
       vi.mocked(postService.findAll).mockResolvedValue([])
 
-      await postController.getAll(
+      await postController.listPosts(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -89,7 +92,7 @@ describe('Post Controller', () => {
       const error = new Error('Database error')
       vi.mocked(postService.findAll).mockRejectedValue(error)
 
-      await postController.getAll(
+      await postController.listPosts(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -99,14 +102,14 @@ describe('Post Controller', () => {
     })
   })
 
-  describe('getById', () => {
+  describe('getPostById', () => {
     it('should return a post by ID', async () => {
       const mockPost = { _id: '1', content: 'Test Post' }
       mockReq.params = { id: '1' }
 
       vi.mocked(postService.findById).mockResolvedValue(mockPost as unknown as FindByIdResult)
 
-      await postController.getById(
+      await postController.getPostById(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -123,7 +126,7 @@ describe('Post Controller', () => {
 
       vi.mocked(postService.findById).mockResolvedValue(null)
 
-      await postController.getById(
+      await postController.getPostById(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -137,19 +140,19 @@ describe('Post Controller', () => {
     })
   })
 
-  describe('create', () => {
+  describe('createPost', () => {
     it('should create a post with content', async () => {
       const postData = {
-        authorId: 'user1',
         content: 'Test post #hello @user',
         visibility: 'public',
       }
       mockReq.body = postData
+      mockReq.user = { id: userId }
 
       const mockCreatedPost = { _id: '1', ...postData, hashtags: ['hello'], mentions: ['user'] }
       vi.mocked(postService.create).mockResolvedValue(mockCreatedPost as unknown as CreateResult)
 
-      await postController.create(
+      await postController.createPost(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -164,14 +167,14 @@ describe('Post Controller', () => {
 
     it('should extract hashtags and mentions from content', async () => {
       mockReq.body = {
-        authorId: 'user1',
         content: '#cats #cute @meow @purr',
         visibility: 'public',
       }
+      mockReq.user = { id: userId }
 
       vi.mocked(postService.create).mockResolvedValue({} as unknown as CreateResult)
 
-      await postController.create(
+      await postController.createPost(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -186,9 +189,10 @@ describe('Post Controller', () => {
     })
 
     it('should reject if no content and no media', async () => {
-      mockReq.body = { authorId: 'user1', mediaUrls: [] }
+      mockReq.body = { mediaUrls: [] }
+      mockReq.user = { id: userId }
 
-      await postController.create(
+      await postController.createPost(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -200,19 +204,31 @@ describe('Post Controller', () => {
         error: 'Content or media is required',
       })
     })
+
+    it('should return 401 if not authenticated', async () => {
+      mockReq.body = { content: 'Hello' }
+
+      await postController.createPost(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.status).toHaveBeenCalledWith(401)
+    })
   })
 
-  describe('delete', () => {
+  describe('deletePost', () => {
     it('should delete a post by author', async () => {
       mockReq.params = { id: '1' }
-      mockReq.body = { authorId: 'user1' }
+      mockReq.user = { id: userId }
 
       vi.mocked(postService.delete).mockResolvedValue({
         _id: '1',
         isDeleted: true,
       } as unknown as DeleteResult)
 
-      await postController.delete(
+      await postController.deletePost(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -228,7 +244,7 @@ describe('Post Controller', () => {
       mockReq.params = { id: '1' }
       mockReq.body = {}
 
-      await postController.delete(
+      await postController.deletePost(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -239,11 +255,11 @@ describe('Post Controller', () => {
 
     it('should return 404 if post not found or unauthorized', async () => {
       mockReq.params = { id: '1' }
-      mockReq.body = { authorId: 'user1' }
+      mockReq.user = { id: userId }
 
       vi.mocked(postService.delete).mockResolvedValue(null)
 
-      await postController.delete(
+      await postController.deletePost(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -253,7 +269,7 @@ describe('Post Controller', () => {
     })
   })
 
-  describe('getByHashtag', () => {
+  describe('listPostsByHashtag', () => {
     it('should return posts filtered by hashtag', async () => {
       const mockPosts = [{ _id: '1', hashtags: ['cats'] }]
       mockReq.params = { hashtag: 'cats' }
@@ -263,7 +279,7 @@ describe('Post Controller', () => {
         mockPosts as unknown as GetByHashtagResult
       )
 
-      await postController.getByHashtag(
+      await postController.listPostsByHashtag(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction
@@ -277,7 +293,7 @@ describe('Post Controller', () => {
     })
   })
 
-  describe('getReplies', () => {
+  describe('listRepliesForPost', () => {
     it('should return replies to a post', async () => {
       const mockReplies = [
         { _id: '2', content: 'Reply 1', parentPostId: '1' },
@@ -289,7 +305,7 @@ describe('Post Controller', () => {
         mockReplies as unknown as GetRepliesResult
       )
 
-      await postController.getReplies(
+      await postController.listRepliesForPost(
         mockReq as Request,
         mockRes as Response,
         mockNext as unknown as NextFunction

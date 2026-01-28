@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { postService } from '../post.service.js'
 import { Post } from '../../models/index.js'
+import { Types } from 'mongoose'
 
 vi.mock('../../models/index.js', () => ({
   Post: {
@@ -41,7 +42,7 @@ describe('Post Service', () => {
     })
 
     it('should filter posts by authorId when provided', async () => {
-      const authorId = 'user123'
+      const authorId = new Types.ObjectId()
       vi.mocked(Post.find).mockReturnValue({
         sort: vi.fn().mockReturnThis(),
         skip: vi.fn().mockReturnThis(),
@@ -112,7 +113,7 @@ describe('Post Service', () => {
   describe('update', () => {
     it('should update a post by author', async () => {
       const postId = '1'
-      const authorId = 'user1'
+      const authorId = new Types.ObjectId()
       const updateData: PostUpdateInput = { content: 'Updated content', visibility: 'private' }
       const mockUpdatedPost = { _id: postId, ...updateData, isEdited: true }
 
@@ -135,7 +136,7 @@ describe('Post Service', () => {
         lean: vi.fn().mockResolvedValue(null),
       } as unknown as PostFindOneAndUpdateReturn)
 
-      const result = await postService.update('1', 'wrong-user', { content: 'Hacked!' })
+      const result = await postService.update('1', new Types.ObjectId(), { content: 'Hacked!' })
 
       expect(result).toBeNull()
     })
@@ -144,7 +145,7 @@ describe('Post Service', () => {
   describe('delete', () => {
     it('should soft delete a post by author', async () => {
       const postId = '1'
-      const authorId = 'user1'
+      const authorId = new Types.ObjectId()
 
       vi.mocked(Post.findOneAndUpdate).mockReturnValue({
         lean: vi.fn().mockResolvedValue({ _id: postId, isDeleted: true }),
