@@ -73,8 +73,9 @@ Cattos/
 - **Node.js 20+** - JavaScript runtime
 - **Express 4** - Web framework
 - **TypeScript 5.3** - Type safety
-- **MongoDB** _(Phase 2)_ - Database
-- **Mongoose** _(Phase 2)_ - ODM
+- **MongoDB** - Database
+- **Mongoose** - ODM
+- **Vitest** - Unit testing
 
 ### Monorepo Tools
 
@@ -83,10 +84,10 @@ Cattos/
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
 
-### Authentication _(Phase 2)_
+### Authentication
 
-- **AWS Cognito** - User authentication
-- **JWT** - Token-based auth
+- **JWT** - Access tokens via `Authorization: Bearer ...`
+- **Refresh tokens** - Rotating refresh tokens stored hashed, delivered via httpOnly cookie
 
 ## 🛠️ Prerequisites
 
@@ -157,6 +158,9 @@ yarn prod         # Build and start in one command
 yarn lint         # Lint all code
 yarn format       # Format code with Prettier
 yarn format:check # Check code formatting
+yarn lint:api     # Lint backend only
+yarn format:api   # Format backend only
+yarn format:check:api # Check backend formatting only
 ```
 
 ## 📋 Development Phases
@@ -193,29 +197,29 @@ yarn format:check # Check code formatting
 - Backend returns "Hello World from Cattos API! 🐱" from health endpoint
 - Both servers run simultaneously with `yarn dev`
 
-### 🔄 Phase 2: Backend Core & Authentication (PLANNED)
+### ✅ Phase 2: Backend Core & Authentication (COMPLETED)
 
-**Goal:** Add database, authentication, and basic API endpoints
+**Goal:** Add database, authentication, and core API endpoints
 
-**Planned Tasks:**
+**Completed Tasks:**
 
-- [ ] MongoDB setup
-  - [ ] Database connection with Mongoose
-  - [ ] User schema/model
-  - [ ] Post schema/model
-- [ ] AWS Cognito integration
-  - [ ] User registration
-  - [ ] User login/logout
-  - [ ] JWT token validation middleware
-- [ ] API endpoints
-  - [ ] `POST /api/auth/register` - Register new user
-  - [ ] `POST /api/auth/login` - User login
-  - [ ] `GET /api/posts` - Get all posts
-  - [ ] `POST /api/posts` - Create new post
-  - [ ] `GET /api/posts/:id` - Get single post
-  - [ ] `DELETE /api/posts/:id` - Delete post
-- [ ] Error handling middleware
-- [ ] Environment variables setup (.env)
+- [x] MongoDB setup
+  - [x] Database connection with Mongoose
+  - [x] Core models (User, Post, RefreshToken, Like, Bookmark)
+- [x] Authentication
+  - [x] Register/login/logout
+  - [x] Access JWT (Bearer) + rotating refresh token (httpOnly cookie)
+  - [x] `GET /api/auth/me`
+- [x] API endpoints (core)
+  - [x] Users, Posts, Likes, Bookmarks
+  - [x] Protected write endpoints
+- [x] Centralized error handling middleware
+- [x] Environment variables setup (.env) + fail-fast startup when required vars are missing
+- [x] Backend tests (Vitest) + strict TypeScript/ESLint hygiene
+
+**TODO (later):**
+
+- [ ] Set up a dedicated MongoDB test database for integration tests (to cover real “create” flows end-to-end)
 
 ### 🔄 Phase 3: Frontend Features (PLANNED)
 
@@ -340,7 +344,7 @@ MIT
 
 ## 🐛 Known Issues
 
-None currently - Phase 1 complete and working!
+- Some “create” unit tests are intentionally skipped until we add MongoDB-backed integration tests.
 
 ## 📚 Learning Resources
 
@@ -352,6 +356,6 @@ None currently - Phase 1 complete and working!
 
 ---
 
-**Current Phase:** Phase 1 ✅ Complete  
-**Next Phase:** Phase 2 - Backend Core & Authentication  
-**Last Updated:** January 15, 2026
+**Current Phase:** Phase 2 ✅ Complete  
+**Next Phase:** Phase 3 - Frontend Features  
+**Last Updated:** January 28, 2026
