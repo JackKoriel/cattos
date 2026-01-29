@@ -14,7 +14,7 @@ type GetByHashtagResult = Awaited<ReturnType<(typeof postService)['getByHashtag'
 type GetRepliesResult = Awaited<ReturnType<(typeof postService)['getReplies']>>
 
 describe('Post Controller', () => {
-  let mockReq: Partial<Request>
+  let mockReq: Partial<Request> & { user?: { id: string } }
   let mockRes: Partial<Response>
   let mockNext: ReturnType<typeof vi.fn>
   let userId: string

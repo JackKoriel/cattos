@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type { Request, Response, NextFunction } from 'express'
+import type { ParsedQs } from 'qs'
+import { Types } from 'mongoose'
 import { authController } from '../auth.controller.js'
 import { authService } from '../../services/auth.service.js'
 import { userService } from '../../services/user.service.js'
@@ -7,8 +9,24 @@ import { userService } from '../../services/user.service.js'
 vi.mock('../../services/auth.service.js')
 vi.mock('../../services/user.service.js')
 
+type FindByIdResult = Awaited<ReturnType<(typeof userService)['findById']>>
+
+interface AuthenticatedRequest extends Partial<TestRequest> {
+  user?: { id: string }
+}
+
+type TestRequest = Request<
+  Record<string, string>,
+  unknown,
+  Record<string, unknown>,
+  ParsedQs,
+  Record<string, unknown>
+>
+
+type TestResponse = Response<unknown, Record<string, unknown>>
+
 describe('Auth Controller', () => {
-  let mockReq: Partial<Request>
+  let mockReq: AuthenticatedRequest
   let mockRes: Partial<Response>
   let mockNext: ReturnType<typeof vi.fn>
 
@@ -32,8 +50,8 @@ describe('Auth Controller', () => {
   describe('getMe', () => {
     it('should return 401 when not authenticated', async () => {
       await authController.getMe(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 
@@ -43,11 +61,14 @@ describe('Auth Controller', () => {
     it('should return current user when authenticated', async () => {
       mockReq.user = { id: 'u1' }
 
-      vi.mocked(userService.findById).mockResolvedValue({ _id: 'u1', username: 'cat' })
+      vi.mocked(userService.findById).mockResolvedValue({
+        _id: new Types.ObjectId(),
+        username: 'cat',
+      } as unknown as FindByIdResult)
 
       await authController.getMe(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 
@@ -63,8 +84,8 @@ describe('Auth Controller', () => {
       mockReq.body = { email: 'a@b.com' }
 
       await authController.registerUser(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 
@@ -82,8 +103,8 @@ describe('Auth Controller', () => {
       })
 
       await authController.registerUser(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 
@@ -106,8 +127,8 @@ describe('Auth Controller', () => {
       mockReq.body = { identifier: 'cat' }
 
       await authController.loginUser(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 
@@ -125,8 +146,8 @@ describe('Auth Controller', () => {
       })
 
       await authController.loginUser(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 
@@ -145,8 +166,8 @@ describe('Auth Controller', () => {
       mockReq.body = {}
 
       await authController.refreshSession(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 
@@ -163,8 +184,8 @@ describe('Auth Controller', () => {
       })
 
       await authController.refreshSession(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 
@@ -185,8 +206,8 @@ describe('Auth Controller', () => {
       vi.mocked(authService.logout).mockResolvedValue({ ok: true })
 
       await authController.logoutUser(
-        mockReq as Request,
-        mockRes as Response,
+        mockReq as TestRequest,
+        mockRes as TestResponse,
         mockNext as unknown as NextFunction
       )
 

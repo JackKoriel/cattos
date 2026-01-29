@@ -13,9 +13,13 @@ type CreateResult = Awaited<ReturnType<(typeof userService)['create']>>
 type UpdateResult = Awaited<ReturnType<(typeof userService)['update']>>
 type SearchResult = Awaited<ReturnType<(typeof userService)['search']>>
 
+interface AuthenticatedRequest extends Partial<Request> {
+  user?: { id: string }
+}
+
 describe('User Controller', () => {
-  let mockReq: Partial<Request>
-  let mockRes: Partial<Response>
+  let mockReq: AuthenticatedRequest
+  let mockRes: Partial<Response> & { user?: { id: string } }
   let mockNext: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
