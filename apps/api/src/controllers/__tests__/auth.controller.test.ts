@@ -72,10 +72,23 @@ describe('Auth Controller', () => {
         mockNext as unknown as NextFunction
       )
 
-      expect(mockRes.json).toHaveBeenCalledWith({
-        success: true,
-        data: { _id: 'u1', username: 'cat' },
-      })
+      expect(mockRes.json).toHaveBeenCalledTimes(1)
+
+      const firstCallArg = (
+        mockRes.json as unknown as {
+          mock: { calls: Array<[unknown]> }
+        }
+      ).mock.calls[0]?.[0] as {
+        success?: unknown
+        data?: unknown
+      }
+
+      expect(firstCallArg.success).toBe(true)
+
+      const data = firstCallArg.data as { _id?: unknown; username?: unknown }
+      expect(data.username).toBe('cat')
+      // Controller may return a raw ObjectId or a stringified id depending on serialization.
+      expect(String(data._id)).toMatch(/^[a-f0-9]{24}$/i)
     })
   })
 

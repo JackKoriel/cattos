@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest'
 import { errorHandler, notFoundHandler } from '../error.middleware.js'
 import type { Request, Response, NextFunction } from 'express'
 
@@ -6,14 +6,20 @@ describe('Error Middleware', () => {
   let mockReq: Partial<Request>
   let mockRes: Partial<Response>
   let mockNext: ReturnType<typeof vi.fn>
+  let consoleErrorSpy: MockInstance
 
   beforeEach(() => {
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockReq = {}
     mockRes = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
     }
     mockNext = vi.fn()
+  })
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore()
   })
 
   describe('errorHandler', () => {
