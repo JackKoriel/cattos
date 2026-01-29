@@ -8,6 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint src --ext ts",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,md}\"",
     "seed:dev": "tsx src/scripts/seed.ts",
     "test": "vitest run",
     "test:watch": "vitest",
