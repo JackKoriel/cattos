@@ -152,6 +152,11 @@ const refresh = async (input: { refreshToken: string }) => {
     return { ok: false as const, status: 401 as const, error: 'Refresh token expired' }
   }
 
+  const user = await User.findById(tokenDoc.userId).lean().exec()
+  if (!user) {
+    return { ok: false as const, status: 401 as const, error: 'Invalid refresh token' }
+  }
+
   const accessToken = issueAccessToken(String(tokenDoc.userId))
 
   const rotated = await createAndStoreRefreshToken(String(tokenDoc.userId))
@@ -161,6 +166,7 @@ const refresh = async (input: { refreshToken: string }) => {
 
   return {
     ok: true as const,
+    user: toPublicUser(user),
     accessToken,
     refreshToken: rotated.refreshToken,
   }

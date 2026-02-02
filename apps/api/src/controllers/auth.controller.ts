@@ -135,6 +135,7 @@ const refreshSession = async (req: Request, res: Response, next: NextFunction) =
     res.json({
       success: true,
       data: {
+        user: result.user,
         accessToken: result.accessToken,
         ...(env.NODE_ENV !== 'production' ? { refreshToken: result.refreshToken } : {}),
       },

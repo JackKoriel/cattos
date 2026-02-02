@@ -41,6 +41,7 @@ vi.mock('../../utils/auth.utils.js', () => ({
 vi.mock('../../models/index.js', () => {
   const UserCtor = vi.fn()
   ;(UserCtor as unknown as { findOne: unknown }).findOne = vi.fn()
+  ;(UserCtor as unknown as { findById: unknown }).findById = vi.fn()
 
   const RefreshTokenModel = {
     create: vi.fn(),
@@ -281,9 +282,32 @@ describe('Auth Service', () => {
 
       vi.mocked(RefreshToken.create).mockResolvedValue({ _id: 'rt-2' } as unknown)
 
+      vi.mocked(User.findById).mockReturnValue({
+        lean: vi.fn().mockReturnValue({
+          exec: vi.fn().mockResolvedValue({
+            _id: 'user-id',
+            email: 'cat@example.com',
+            username: 'cat',
+            displayName: 'Cat',
+          }),
+        }),
+      } as unknown as ReturnType<(typeof User)['findById']>)
+
       const result = await authService.refresh({ refreshToken: 'rt' })
 
-      expect(result).toEqual({ ok: true, accessToken: 'access-token', refreshToken: 'new-refresh' })
+      expect(result).toEqual({
+        ok: true,
+        user: {
+          id: 'user-id',
+          email: 'cat@example.com',
+          username: 'cat',
+          displayName: 'Cat',
+          avatar: undefined,
+          bio: undefined,
+        },
+        accessToken: 'access-token',
+        refreshToken: 'new-refresh',
+      })
       expect(tokenDoc.revokedAt).toBeInstanceOf(Date)
       expect(tokenDoc.replacedByTokenHash).toBe('new-hash')
       expect(tokenDoc.save).toHaveBeenCalled()
