@@ -1,9 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-const bcryptHashMock = vi.fn<[string, string | number], Promise<string>>()
-const bcryptCompareMock = vi.fn<[string, string], Promise<boolean>>()
-const jwtSignMock = vi.fn<unknown[], string>()
-const refreshTokenCreateMock = vi.fn<unknown[], unknown>()
+const mocks = vi.hoisted(() => ({
+  bcryptHash: vi.fn<[string, string | number], Promise<string>>(),
+  bcryptCompare: vi.fn<[string, string], Promise<boolean>>(),
+  jwtSign: vi.fn<unknown[], string>(),
+  refreshTokenCreate: vi.fn<unknown[], unknown>(),
+  generateRefreshToken: vi.fn<[], string>(),
+  hashToken: vi.fn<[string], string>(),
+}))
 
 vi.mock('../../config/env.js', () => ({
   env: {
@@ -25,21 +29,21 @@ vi.mock('../../config/env.js', () => ({
 
 vi.mock('bcrypt', () => ({
   default: {
-    hash: bcryptHashMock,
-    compare: bcryptCompareMock,
+    hash: mocks.bcryptHash,
+    compare: mocks.bcryptCompare,
   },
 }))
 
 vi.mock('jsonwebtoken', () => ({
   default: {
-    sign: jwtSignMock,
+    sign: mocks.jwtSign,
   },
 }))
 
 vi.mock('../../utils/auth.utils.js', () => ({
   authUtils: {
-    generateRefreshToken: vi.fn(),
-    hashToken: vi.fn(),
+    generateRefreshToken: mocks.generateRefreshToken,
+    hashToken: mocks.hashToken,
   },
 }))
 
@@ -49,7 +53,7 @@ vi.mock('../../models/index.js', () => {
   ;(UserCtor as unknown as { findById: unknown }).findById = vi.fn<unknown[], unknown>()
 
   const RefreshTokenModel = {
-    create: refreshTokenCreateMock,
+    create: mocks.refreshTokenCreate,
     findOne: vi.fn<unknown[], unknown>(),
   }
 
@@ -61,7 +65,6 @@ vi.mock('../../models/index.js', () => {
 
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { authUtils } from '../../utils/auth.utils.js'
 import { User, RefreshToken } from '../../models/index.js'
 import { authService } from '../auth.service.js'
 
@@ -118,7 +121,7 @@ describe('Auth Service', () => {
           (typeof User)['findOne']
         >)
 
-      bcryptHashMock.mockResolvedValue('hashed-pw')
+      mocks.bcryptHash.mockResolvedValue('hashed-pw')
 
       const savedUser = {
         _id: 'user-id',
@@ -135,12 +138,12 @@ describe('Auth Service', () => {
         User as unknown as (input: unknown) => { save: () => Promise<unknown> }
       ).mockImplementation(() => ({ save }))
 
-      jwtSignMock.mockReturnValue('access-token')
+      mocks.jwtSign.mockReturnValue('access-token')
 
-      vi.mocked(authUtils.generateRefreshToken).mockReturnValue('refresh-token')
-      vi.mocked(authUtils.hashToken).mockReturnValue('refresh-hash')
+      mocks.generateRefreshToken.mockReturnValue('refresh-token')
+      mocks.hashToken.mockReturnValue('refresh-hash')
 
-      refreshTokenCreateMock.mockResolvedValue({ _id: 'rt-1' } as unknown)
+      mocks.refreshTokenCreate.mockResolvedValue({ _id: 'rt-1' } as unknown)
 
       const result = await authService.register({
         email: 'CAT@EXAMPLE.COM',
@@ -211,7 +214,7 @@ describe('Auth Service', () => {
         }),
       } as unknown as ReturnType<(typeof User)['findOne']>)
 
-      bcryptCompareMock.mockResolvedValue(false)
+      mocks.bcryptCompare.mockResolvedValue(false)
 
       const result = await authService.login({ identifier: 'cat', password: 'pw' })
 
@@ -238,11 +241,11 @@ describe('Auth Service', () => {
         }),
       } as unknown as ReturnType<(typeof User)['findOne']>)
 
-      bcryptCompareMock.mockResolvedValue(true)
-      jwtSignMock.mockReturnValue('access-token')
-      vi.mocked(authUtils.generateRefreshToken).mockReturnValue('refresh-token')
-      vi.mocked(authUtils.hashToken).mockReturnValue('refresh-hash')
-      refreshTokenCreateMock.mockResolvedValue({ _id: 'rt-1' } as unknown)
+      mocks.bcryptCompare.mockResolvedValue(true)
+      mocks.jwtSign.mockReturnValue('access-token')
+      mocks.generateRefreshToken.mockReturnValue('refresh-token')
+      mocks.hashToken.mockReturnValue('refresh-hash')
+      mocks.refreshTokenCreate.mockResolvedValue({ _id: 'rt-1' } as unknown)
 
       const result = await authService.login({ identifier: 'cat', password: 'pw' })
 
@@ -257,7 +260,7 @@ describe('Auth Service', () => {
 
   describe('refresh', () => {
     it('should reject invalid refresh token', async () => {
-      vi.mocked(authUtils.hashToken).mockReturnValue('hash')
+      mocks.hashToken.mockReturnValue('hash')
       vi.mocked(RefreshToken.findOne).mockReturnValue({
         exec: vi.fn().mockResolvedValue(null),
       } as unknown as ReturnType<(typeof RefreshToken)['findOne']>)
@@ -276,16 +279,16 @@ describe('Auth Service', () => {
         save: vi.fn().mockResolvedValue(undefined),
       }
 
-      vi.mocked(authUtils.hashToken).mockReturnValue('hash')
+      mocks.hashToken.mockReturnValue('hash')
       vi.mocked(RefreshToken.findOne).mockReturnValue({
         exec: vi.fn().mockResolvedValue(tokenDoc),
       } as unknown as ReturnType<(typeof RefreshToken)['findOne']>)
 
-      jwtSignMock.mockReturnValue('access-token')
-      vi.mocked(authUtils.generateRefreshToken).mockReturnValue('new-refresh')
-      vi.mocked(authUtils.hashToken).mockReturnValueOnce('hash').mockReturnValueOnce('new-hash')
+      mocks.jwtSign.mockReturnValue('access-token')
+      mocks.generateRefreshToken.mockReturnValue('new-refresh')
+      mocks.hashToken.mockReturnValueOnce('hash').mockReturnValueOnce('new-hash')
 
-      refreshTokenCreateMock.mockResolvedValue({ _id: 'rt-2' } as unknown)
+      mocks.refreshTokenCreate.mockResolvedValue({ _id: 'rt-2' } as unknown)
 
       vi.mocked(User.findById).mockReturnValue({
         lean: vi.fn().mockReturnValue({
@@ -326,7 +329,7 @@ describe('Auth Service', () => {
         save: vi.fn().mockResolvedValue(undefined),
       }
 
-      vi.mocked(authUtils.hashToken).mockReturnValue('hash')
+      mocks.hashToken.mockReturnValue('hash')
       vi.mocked(RefreshToken.findOne).mockReturnValue({
         exec: vi.fn().mockResolvedValue(tokenDoc),
       } as unknown as ReturnType<(typeof RefreshToken)['findOne']>)
@@ -339,7 +342,7 @@ describe('Auth Service', () => {
     })
 
     it('should succeed even if token not found', async () => {
-      vi.mocked(authUtils.hashToken).mockReturnValue('hash')
+      mocks.hashToken.mockReturnValue('hash')
       vi.mocked(RefreshToken.findOne).mockReturnValue({
         exec: vi.fn().mockResolvedValue(null),
       } as unknown as ReturnType<(typeof RefreshToken)['findOne']>)
