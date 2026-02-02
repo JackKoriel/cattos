@@ -1,13 +1,50 @@
-import { User } from './user.types'
-
 export interface Post {
-  id: string
-  content: string
-  imageUrl?: string
+  _id: string
   authorId: string
-  author?: User
-  likes: number
-  comments: number
-  createdAt: Date
-  updatedAt: Date
+
+  content: string
+  mediaUrls?: string[]
+  mediaType?: 'image' | 'video' | 'gif' | 'mixed'
+  altText?: string
+
+  parentPostId?: string
+  rootPostId?: string
+  threadDepth?: number
+
+  repostOfId?: string
+  isRepost?: boolean
+  isQuote?: boolean
+
+  likesCount?: number
+  commentsCount?: number
+  repostsCount?: number
+  quotesCount?: number
+  viewsCount?: number
+  bookmarksCount?: number
+
+  hashtags?: string[]
+  mentions?: string[]
+  urls?: string[]
+
+  visibility?: 'public' | 'followers' | 'mentioned' | 'private'
+  isDeleted?: boolean
+  isPinned?: boolean
+  isEdited?: boolean
+  editedAt?: string
+
+  isSensitive?: boolean
+  sensitiveType?: 'nudity' | 'violence' | 'spoiler' | 'other'
+  isHidden?: boolean
+  reportCount?: number
+
+  location?: {
+    name: string
+    coordinates?: {
+      lat: number
+      lng: number
+    }
+  }
+
+  createdAt: string
+  updatedAt: string
 }
