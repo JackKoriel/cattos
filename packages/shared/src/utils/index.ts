@@ -1,13 +1,15 @@
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import axios, { AxiosInstance, AxiosError, CreateAxiosDefaults } from 'axios'
 import { ApiError } from '../types'
 
-const createApiClient = (baseURL: string): AxiosInstance => {
+const createApiClient = (baseURL: string, options: CreateAxiosDefaults = {}): AxiosInstance => {
   return axios.create({
     baseURL,
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
     },
+    withCredentials: true, // Important for cookies (refresh tokens)
+    ...options,
   })
 }
 
