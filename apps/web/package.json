@@ -16,9 +16,11 @@
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.14.0",
+    "formik": "^2.4.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.1"
+    "react-router-dom": "^7.13.0",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@types/node": "^25.0.9",
