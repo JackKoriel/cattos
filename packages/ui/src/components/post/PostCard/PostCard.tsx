@@ -18,7 +18,7 @@ export const PostCard = ({ post }: PostCardProps) => {
   })
 
   return (
-    <Card sx={{ display: 'flex', p: 1, borderBottom: 1, borderColor: 'grey.200' }}>
+    <Card variant="outlined" sx={{ display: 'flex', p: 2, borderRadius: 3 }}>
       <Box sx={{ mr: 2 }}>
         <Avatar alt="user" />
       </Box>
