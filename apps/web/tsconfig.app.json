@@ -1,17 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
     "outDir": "./dist",
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "types": ["vite/client"],
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@cattos/ui": ["../../packages/ui/src"],
       "@cattos/shared": ["../../packages/shared/src"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "../../packages/ui/src", "../../packages/shared/src"],
   "exclude": ["node_modules", "dist"]
 }

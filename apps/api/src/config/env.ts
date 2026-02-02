@@ -6,7 +6,7 @@ dotenv.config()
 
 const thisFilePath = fileURLToPath(import.meta.url)
 const thisDir = path.dirname(thisFilePath)
-const apiRoot = path.resolve(thisDir, '..', '..', '..')
+const apiRoot = path.resolve(thisDir, '..', '..')
 const repoRoot = path.resolve(apiRoot, '..', '..')
 
 dotenv.config({ path: path.join(apiRoot, '.env') })

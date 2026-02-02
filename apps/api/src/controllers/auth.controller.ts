@@ -147,9 +147,12 @@ const refreshSession = async (req: Request, res: Response, next: NextFunction) =
 const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const refreshToken = getRefreshFromRequest(req)
-    if (refreshToken) {
-      await authService.logout({ refreshToken })
+    if (!refreshToken) {
+      res.status(401).json({ success: false, error: 'No active session to logout' })
+      return
     }
+
+    await authService.logout({ refreshToken })
 
     res.clearCookie(env.REFRESH_TOKEN_COOKIE_NAME, authService.getRefreshCookieOptions())
     res.json({ success: true, message: 'Logged out' })
