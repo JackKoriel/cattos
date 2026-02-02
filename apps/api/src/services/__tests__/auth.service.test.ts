@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
+const bcryptHashMock = vi.fn<[string, string | number], Promise<string>>()
+const bcryptCompareMock = vi.fn<[string, string], Promise<boolean>>()
+const jwtSignMock = vi.fn<unknown[], string>()
+const refreshTokenCreateMock = vi.fn<unknown[], unknown>()
+
 vi.mock('../../config/env.js', () => ({
   env: {
     NODE_ENV: 'test',
@@ -20,14 +25,14 @@ vi.mock('../../config/env.js', () => ({
 
 vi.mock('bcrypt', () => ({
   default: {
-    hash: vi.fn(),
-    compare: vi.fn(),
+    hash: bcryptHashMock,
+    compare: bcryptCompareMock,
   },
 }))
 
 vi.mock('jsonwebtoken', () => ({
   default: {
-    sign: vi.fn(),
+    sign: jwtSignMock,
   },
 }))
 
@@ -40,12 +45,12 @@ vi.mock('../../utils/auth.utils.js', () => ({
 
 vi.mock('../../models/index.js', () => {
   const UserCtor = vi.fn()
-  ;(UserCtor as unknown as { findOne: unknown }).findOne = vi.fn()
-  ;(UserCtor as unknown as { findById: unknown }).findById = vi.fn()
+  ;(UserCtor as unknown as { findOne: unknown }).findOne = vi.fn<unknown[], unknown>()
+  ;(UserCtor as unknown as { findById: unknown }).findById = vi.fn<unknown[], unknown>()
 
   const RefreshTokenModel = {
-    create: vi.fn(),
-    findOne: vi.fn(),
+    create: refreshTokenCreateMock,
+    findOne: vi.fn<unknown[], unknown>(),
   }
 
   return {
@@ -113,7 +118,7 @@ describe('Auth Service', () => {
           (typeof User)['findOne']
         >)
 
-      vi.mocked(bcrypt.hash).mockResolvedValue('hashed-pw')
+      bcryptHashMock.mockResolvedValue('hashed-pw')
 
       const savedUser = {
         _id: 'user-id',
@@ -130,12 +135,12 @@ describe('Auth Service', () => {
         User as unknown as (input: unknown) => { save: () => Promise<unknown> }
       ).mockImplementation(() => ({ save }))
 
-      vi.mocked(jwt.sign).mockReturnValue('access-token')
+      jwtSignMock.mockReturnValue('access-token')
 
       vi.mocked(authUtils.generateRefreshToken).mockReturnValue('refresh-token')
       vi.mocked(authUtils.hashToken).mockReturnValue('refresh-hash')
 
-      vi.mocked(RefreshToken.create).mockResolvedValue({ _id: 'rt-1' } as unknown)
+      refreshTokenCreateMock.mockResolvedValue({ _id: 'rt-1' } as unknown)
 
       const result = await authService.register({
         email: 'CAT@EXAMPLE.COM',
@@ -206,7 +211,7 @@ describe('Auth Service', () => {
         }),
       } as unknown as ReturnType<(typeof User)['findOne']>)
 
-      vi.mocked(bcrypt.compare).mockResolvedValue(false)
+      bcryptCompareMock.mockResolvedValue(false)
 
       const result = await authService.login({ identifier: 'cat', password: 'pw' })
 
@@ -233,11 +238,11 @@ describe('Auth Service', () => {
         }),
       } as unknown as ReturnType<(typeof User)['findOne']>)
 
-      vi.mocked(bcrypt.compare).mockResolvedValue(true)
-      vi.mocked(jwt.sign).mockReturnValue('access-token')
+      bcryptCompareMock.mockResolvedValue(true)
+      jwtSignMock.mockReturnValue('access-token')
       vi.mocked(authUtils.generateRefreshToken).mockReturnValue('refresh-token')
       vi.mocked(authUtils.hashToken).mockReturnValue('refresh-hash')
-      vi.mocked(RefreshToken.create).mockResolvedValue({ _id: 'rt-1' } as unknown)
+      refreshTokenCreateMock.mockResolvedValue({ _id: 'rt-1' } as unknown)
 
       const result = await authService.login({ identifier: 'cat', password: 'pw' })
 
@@ -276,11 +281,11 @@ describe('Auth Service', () => {
         exec: vi.fn().mockResolvedValue(tokenDoc),
       } as unknown as ReturnType<(typeof RefreshToken)['findOne']>)
 
-      vi.mocked(jwt.sign).mockReturnValue('access-token')
+      jwtSignMock.mockReturnValue('access-token')
       vi.mocked(authUtils.generateRefreshToken).mockReturnValue('new-refresh')
       vi.mocked(authUtils.hashToken).mockReturnValueOnce('hash').mockReturnValueOnce('new-hash')
 
-      vi.mocked(RefreshToken.create).mockResolvedValue({ _id: 'rt-2' } as unknown)
+      refreshTokenCreateMock.mockResolvedValue({ _id: 'rt-2' } as unknown)
 
       vi.mocked(User.findById).mockReturnValue({
         lean: vi.fn().mockReturnValue({
