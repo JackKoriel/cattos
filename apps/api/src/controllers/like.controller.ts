@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import { Types } from 'mongoose'
-import { likeService } from '../services/index.js'
+import { likeService, postService } from '../services/index.js'
 import { parsePagination } from '../utils/request.utils.js'
 
 const addLike = async (req: Request, res: Response, next: NextFunction) => {
@@ -31,6 +31,7 @@ const addLike = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const like = await likeService.addLike(postId, userObjectId)
+    await postService.incrementLikesCount(postId)
     res.status(201).json({ success: true, data: like })
   } catch (error) {
     next(error)
@@ -58,7 +59,10 @@ const removeLike = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const userObjectId = new Types.ObjectId(userId)
-    await likeService.removeLike(postId, userObjectId)
+    const result = await likeService.removeLike(postId, userObjectId)
+    if (result.deletedCount > 0) {
+      await postService.decrementLikesCount(postId)
+    }
     res.json({ success: true, message: 'Like removed' })
   } catch (error) {
     next(error)

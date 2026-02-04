@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import { Types } from 'mongoose'
-import { bookmarkService } from '../services/index.js'
+import { bookmarkService, postService } from '../services/index.js'
 import { parsePagination } from '../utils/request.utils.js'
 
 const addBookmark = async (req: Request, res: Response, next: NextFunction) => {
@@ -31,6 +31,7 @@ const addBookmark = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const bookmark = await bookmarkService.addBookmark(postId, userObjectId)
+    await postService.incrementBookmarksCount(postId)
     res.status(201).json({ success: true, data: bookmark })
   } catch (error) {
     next(error)
@@ -58,7 +59,10 @@ const removeBookmark = async (req: Request, res: Response, next: NextFunction) =
     }
 
     const userObjectId = new Types.ObjectId(userId)
-    await bookmarkService.removeBookmark(postId, userObjectId)
+    const result = await bookmarkService.removeBookmark(postId, userObjectId)
+    if (result.deletedCount > 0) {
+      await postService.decrementBookmarksCount(postId)
+    }
     res.json({ success: true, message: 'Bookmark removed' })
   } catch (error) {
     next(error)
