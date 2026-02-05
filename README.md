@@ -13,7 +13,12 @@ Cattos/
 ├── apps/
 │   ├── web/                    # React frontend (Vite + TypeScript)
 │   │   ├── src/
-│   │   │   ├── app/           # Main App component
+│   │   │   ├── app/           # App shell + routing
+│   │   │   ├── pages/         # Route-level containers (thin)
+│   │   │   ├── features/      # Feature UI modules (auth, posts, comments, ...)
+│   │   │   ├── hooks/         # Reusable hooks (cross-feature)
+│   │   │   ├── services/      # Web service layer (API calls, uploads, client)
+│   │   │   ├── shared/        # Shared web-only UI/utilities (layout, helpers)
 │   │   │   ├── assets/        # Static assets (images, fonts)
 │   │   │   └── main.tsx       # Entry point
 │   │   ├── vite.config.ts     # Vite configuration
@@ -318,6 +323,14 @@ yarn format:check:api # Check backend formatting only
 - **Colocation:** Components with their styles and tests
 - **Barrel exports:** Clean import paths via index.ts files
 - **Type safety:** Shared types prevent API contract mismatches
+
+### Frontend Structure Conventions (apps/web)
+
+- **`features/` contains UI by domain:** components and feature-specific UI code live under a feature (auth/posts/comments/etc.).
+- **`features/*/screens/` contains page-sized UI:** route-level workflows (forms, fetch + render, stepper flows) live as screens inside the owning feature.
+- **`services/` is the web service layer:** keep HTTP calls and API client setup here (no network calls inside presentation components).
+- **`hooks/` is for reusable hooks:** keep cross-feature hooks here; feature UI can import them, but avoid burying “service” logic in components.
+- **`pages/` stays thin:** pages should mostly render a feature screen and do minimal routing glue (avoid forms/fetching in `pages/`).
 
 ## 🔧 Configuration Notes
 

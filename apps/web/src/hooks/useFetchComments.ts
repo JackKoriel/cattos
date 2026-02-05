@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Post } from '@cattos/shared'
-import { apiClient, handleApiError } from '@/api/client'
-import { useAuth } from '@/context/AuthContext'
+import { apiClient, handleApiError } from '@/services/client'
+import { useAuth } from '@/features/auth/context/AuthContext'
 
 const COMMENTS_PER_PAGE = 10
 

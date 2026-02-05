@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AppLayout } from '../components/layout/AppLayout'
-import { ProtectedRoute } from '../components/auth/ProtectedRoute'
+import { AppLayout } from '../shared/layout/AppLayout'
+import { ProtectedRoute } from '../features/auth/components/ProtectedRoute'
 import { HomePage } from '../pages/HomePage'
 import { LoginPage } from '../pages/LoginPage'
 import { RegisterPage } from '../pages/RegisterPage'
