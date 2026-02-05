@@ -2,6 +2,13 @@ export interface Post {
   _id: string
   authorId: string
 
+  author?: {
+    id: string
+    username: string
+    displayName: string
+    avatar?: string
+  }
+
   content: string
   mediaUrls?: string[]
   mediaType?: 'image' | 'video' | 'gif' | 'mixed'
@@ -15,12 +22,43 @@ export interface Post {
   isRepost?: boolean
   isQuote?: boolean
 
+  // When the backend populates `repostOfId`, it is normalized into `repostOf`
+  repostOf?: {
+    _id: string
+    authorId: string
+    author?: {
+      id: string
+      username: string
+      displayName: string
+      avatar?: string
+    }
+    content: string
+    mediaUrls?: string[]
+    mediaType?: 'image' | 'video' | 'gif' | 'mixed'
+    altText?: string
+
+    likesCount?: number
+    commentsCount?: number
+    repostsCount?: number
+    bookmarksCount?: number
+
+    isLiked?: boolean
+    isBookmarked?: boolean
+
+    createdAt: string
+    updatedAt: string
+  }
+
   likesCount?: number
   commentsCount?: number
   repostsCount?: number
   quotesCount?: number
   viewsCount?: number
   bookmarksCount?: number
+
+  // User-specific interaction state (populated when user is authenticated)
+  isLiked?: boolean
+  isBookmarked?: boolean
 
   hashtags?: string[]
   mentions?: string[]
