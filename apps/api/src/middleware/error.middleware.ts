@@ -8,6 +8,11 @@ interface AppError extends Error {
 export const errorHandler = (err: AppError, _req: Request, res: Response, _next: NextFunction) => {
   console.error('[Error]', err.message, err.stack)
 
+  if (err.name === 'MulterError') {
+    res.status(400).json({ success: false, error: err.message })
+    return
+  }
+
   if (err.name === 'CastError') {
     res.status(400).json({ success: false, error: 'Invalid ID format' })
     return

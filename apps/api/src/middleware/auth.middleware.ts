@@ -2,6 +2,12 @@ import type { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { env } from '../config/env.js'
 
+export type AuthenticatedRequest = Request & {
+  user?: {
+    id: string
+  }
+}
+
 type JwtPayload = {
   sub?: string
 }
@@ -36,4 +42,24 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
   } catch {
     res.status(401).json({ success: false, error: 'Unauthorized' })
   }
+}
+
+export const optionalAuth = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    const token = getBearerToken(req)
+    if (!token) {
+      next()
+      return
+    }
+
+    const secret = env.JWT_ACCESS_SECRET ?? env.requireEnv('JWT_ACCESS_SECRET')
+    const decoded = jwt.verify(token, secret) as JwtPayload
+    if (decoded.sub) {
+      req.user = { id: decoded.sub }
+    }
+  } catch {
+    console.warn('Optional auth failed, proceeding without user info')
+  }
+
+  next()
 }
