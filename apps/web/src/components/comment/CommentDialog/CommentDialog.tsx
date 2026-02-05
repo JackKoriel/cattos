@@ -1,0 +1,51 @@
+import { Dialog, DialogContent, Box, IconButton, Divider } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import { PostCard } from '@cattos/ui'
+import { Post } from '@cattos/shared'
+import { CommentList } from '../CommentList'
+
+interface CommentDialogProps {
+  open: boolean
+  onClose: () => void
+  post: Post | null
+  onLike?: (id: string, isLiked: boolean) => Promise<void>
+  onBookmark?: (id: string, isBookmarked: boolean) => Promise<void>
+  onCommentCreated?: () => void
+}
+
+export const CommentDialog = ({
+  open,
+  onClose,
+  post,
+  onLike,
+  onBookmark,
+  onCommentCreated,
+}: CommentDialogProps) => {
+  if (!post) return null
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          maxHeight: '90vh',
+        },
+      }}
+    >
+      <Box display="flex" alignItems="center" p={1} borderBottom={1} borderColor="divider">
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </Box>
+      <DialogContent sx={{ p: 0, overflowY: 'auto' }}>
+        <PostCard post={post} onLike={onLike} onBookmark={onBookmark} />
+        <Divider />
+        <CommentList postId={post._id} onCommentCreated={onCommentCreated} />
+      </DialogContent>
+    </Dialog>
+  )
+}
