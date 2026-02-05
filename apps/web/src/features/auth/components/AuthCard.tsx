@@ -21,8 +21,9 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
+        pt: 12,
       }}
     >
       <Container component="main" maxWidth="xs">
