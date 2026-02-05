@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>
   register: (credentials: RegisterCredentials) => Promise<void>
   logout: () => Promise<void>
+  setCurrentUser: (user: User | null) => void
   error: string | null
 }
 
@@ -39,19 +40,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initAuth()
   }, [])
 
-  // Set default header when token changes
-  useEffect(() => {
-    if (token) {
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  const applyTokenToClient = (nextToken: string | null) => {
+    if (nextToken) {
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${nextToken}`
     } else {
       delete apiClient.defaults.headers.common['Authorization']
     }
+  }
+
+  useEffect(() => {
+    applyTokenToClient(token)
   }, [token])
 
   const refreshSession = async () => {
-    // Backend should have a refresh endpoint that reads the cookie and returns a new access token
     const response = await apiClient.post<AuthResponse>('/auth/refresh')
     const { user, accessToken } = response.data.data
+    applyTokenToClient(accessToken)
     setToken(accessToken)
     setUser(user as unknown as User)
     return accessToken
@@ -63,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials)
       const { user, accessToken } = response.data.data
+      applyTokenToClient(accessToken)
       setToken(accessToken)
       setUser(user as unknown as User)
     } catch (err) {
@@ -80,6 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/register', credentials)
       const { user, accessToken } = response.data.data
+      applyTokenToClient(accessToken)
       setToken(accessToken)
       setUser(user as unknown as User)
     } catch (err) {
@@ -97,11 +103,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await apiClient.post('/auth/logout')
       setUser(null)
       setToken(null)
+      applyTokenToClient(null)
     } catch (err) {
       console.error('Logout failed', err)
       // Force logout client-side anyway
       setUser(null)
       setToken(null)
+      applyTokenToClient(null)
     } finally {
       setIsLoading(false)
     }
@@ -117,6 +125,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         register,
         logout,
+        setCurrentUser: setUser,
         error,
       }}
     >
