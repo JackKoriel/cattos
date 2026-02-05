@@ -51,7 +51,10 @@ describe('Post Controller', () => {
 
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
-        data: mockPosts,
+        data: [
+          { _id: '1', content: 'Post 1', isLiked: false, isBookmarked: false },
+          { _id: '2', content: 'Post 2', isLiked: false, isBookmarked: false },
+        ],
         count: 2,
       })
     })
@@ -117,7 +120,7 @@ describe('Post Controller', () => {
 
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
-        data: mockPost,
+        data: { _id: '1', content: 'Test Post', isLiked: false, isBookmarked: false },
       })
     })
 
@@ -313,7 +316,10 @@ describe('Post Controller', () => {
 
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
-        data: mockReplies,
+        data: [
+          { _id: '2', content: 'Reply 1', parentPostId: '1', isLiked: false, isBookmarked: false },
+          { _id: '3', content: 'Reply 2', parentPostId: '1', isLiked: false, isBookmarked: false },
+        ],
         count: 2,
       })
     })

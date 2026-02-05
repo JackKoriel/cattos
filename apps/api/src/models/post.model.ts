@@ -4,7 +4,15 @@ import { IPost } from '../interfaces/post.interface.js'
 const postSchema = new Schema<IPost>(
   {
     authorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    content: { type: String, required: true, maxlength: 280, trim: true },
+    content: {
+      type: String,
+      default: '',
+      required: function (this: { isRepost?: boolean }) {
+        return !this.isRepost
+      },
+      maxlength: 280,
+      trim: true,
+    },
     mediaUrls: {
       type: [String],
       default: [],

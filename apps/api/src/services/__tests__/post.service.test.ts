@@ -16,6 +16,25 @@ describe('Post Service', () => {
     vi.clearAllMocks()
   })
 
+  const makeFindChain = (result: unknown) => {
+    const chain = {
+      populate: vi.fn().mockReturnThis(),
+      sort: vi.fn().mockReturnThis(),
+      skip: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      lean: vi.fn().mockResolvedValue(result),
+    }
+    return chain
+  }
+
+  const makeFindOneChain = (result: unknown) => {
+    const chain = {
+      populate: vi.fn().mockReturnThis(),
+      lean: vi.fn().mockResolvedValue(result),
+    }
+    return chain
+  }
+
   type PostFindReturn = ReturnType<(typeof Post)['find']>
   type PostFindOneReturn = ReturnType<(typeof Post)['findOne']>
   type PostFindOneAndUpdateReturn = ReturnType<(typeof Post)['findOneAndUpdate']>
@@ -23,38 +42,74 @@ describe('Post Service', () => {
 
   describe('findAll', () => {
     it('should return all public posts sorted by creation date', async () => {
+      const createdAt1 = new Date('2026-01-01T00:00:00.000Z')
+      const createdAt2 = new Date('2026-01-02T00:00:00.000Z')
       const mockPosts = [
-        { _id: '1', content: 'Post 1', visibility: 'public', createdAt: new Date() },
-        { _id: '2', content: 'Post 2', visibility: 'public', createdAt: new Date() },
+        {
+          _id: '1',
+          authorId: 'a1',
+          content: 'Post 1',
+          visibility: 'public',
+          createdAt: createdAt1,
+          updatedAt: createdAt1,
+        },
+        {
+          _id: '2',
+          authorId: 'a2',
+          content: 'Post 2',
+          visibility: 'public',
+          createdAt: createdAt2,
+          updatedAt: createdAt2,
+        },
       ]
 
-      vi.mocked(Post.find).mockReturnValue({
-        sort: vi.fn().mockReturnThis(),
-        skip: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        lean: vi.fn().mockResolvedValue(mockPosts),
-      } as unknown as PostFindReturn)
+      vi.mocked(Post.find).mockReturnValue(makeFindChain(mockPosts) as unknown as PostFindReturn)
 
       const result = await postService.findAll({ limit: 20, skip: 0 })
 
-      expect(result).toEqual(mockPosts)
-      expect(Post.find).toHaveBeenCalledWith({ isDeleted: false, visibility: 'public' })
+      expect(result).toEqual([
+        {
+          _id: '1',
+          authorId: 'a1',
+          content: 'Post 1',
+          visibility: 'public',
+          likesCount: 0,
+          bookmarksCount: 0,
+          commentsCount: 0,
+          repostsCount: 0,
+          createdAt: createdAt1.toISOString(),
+          updatedAt: createdAt1.toISOString(),
+        },
+        {
+          _id: '2',
+          authorId: 'a2',
+          content: 'Post 2',
+          visibility: 'public',
+          likesCount: 0,
+          bookmarksCount: 0,
+          commentsCount: 0,
+          repostsCount: 0,
+          createdAt: createdAt2.toISOString(),
+          updatedAt: createdAt2.toISOString(),
+        },
+      ])
+      expect(Post.find).toHaveBeenCalledWith({
+        isDeleted: false,
+        visibility: 'public',
+        parentPostId: { $exists: false },
+      })
     })
 
     it('should filter posts by authorId when provided', async () => {
       const authorId = new Types.ObjectId()
-      vi.mocked(Post.find).mockReturnValue({
-        sort: vi.fn().mockReturnThis(),
-        skip: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        lean: vi.fn().mockResolvedValue([]),
-      } as unknown as PostFindReturn)
+      vi.mocked(Post.find).mockReturnValue(makeFindChain([]) as unknown as PostFindReturn)
 
       await postService.findAll({ limit: 20, skip: 0, authorId })
 
       expect(Post.find).toHaveBeenCalledWith({
         isDeleted: false,
         visibility: 'public',
+        parentPostId: { $exists: false },
         authorId,
       })
     })
@@ -65,6 +120,7 @@ describe('Post Service', () => {
       const limitMock = vi.fn()
 
       vi.mocked(Post.find).mockReturnValue({
+        populate: vi.fn().mockReturnThis(),
         sort: sortMock.mockReturnThis(),
         skip: skipMock.mockReturnThis(),
         limit: limitMock.mockReturnThis(),
@@ -80,20 +136,42 @@ describe('Post Service', () => {
 
   describe('findById', () => {
     it('should return a single post by ID', async () => {
-      const mockPost = { _id: '1', content: 'Test Post', isDeleted: false }
+      const createdAt = new Date('2026-01-01T00:00:00.000Z')
+      const mockPost = {
+        _id: '1',
+        authorId: 'a1',
+        content: 'Test Post',
+        visibility: 'public',
+        isDeleted: false,
+        createdAt,
+        updatedAt: createdAt,
+      }
 
       vi.mocked(Post.findOne).mockReturnValue({
+        populate: vi.fn().mockReturnThis(),
         lean: vi.fn().mockResolvedValue(mockPost),
       } as unknown as PostFindOneReturn)
 
       const result = await postService.findById('1')
 
-      expect(result).toEqual(mockPost)
+      expect(result).toEqual({
+        _id: '1',
+        authorId: 'a1',
+        content: 'Test Post',
+        visibility: 'public',
+        likesCount: 0,
+        bookmarksCount: 0,
+        commentsCount: 0,
+        repostsCount: 0,
+        createdAt: createdAt.toISOString(),
+        updatedAt: createdAt.toISOString(),
+      })
       expect(Post.findOne).toHaveBeenCalledWith({ _id: '1', isDeleted: false })
     })
 
     it('should return null if post not found', async () => {
       vi.mocked(Post.findOne).mockReturnValue({
+        populate: vi.fn().mockReturnThis(),
         lean: vi.fn().mockResolvedValue(null),
       } as unknown as PostFindOneReturn)
 
@@ -164,18 +242,38 @@ describe('Post Service', () => {
 
   describe('getByHashtag', () => {
     it('should return public posts with specific hashtag', async () => {
-      const mockPosts = [{ _id: '1', content: 'Tagged post', hashtags: ['test'] }]
+      const createdAt = new Date('2026-01-01T00:00:00.000Z')
+      const mockPosts = [
+        {
+          _id: '1',
+          authorId: 'a1',
+          content: 'Tagged post',
+          hashtags: ['test'],
+          visibility: 'public',
+          createdAt,
+          updatedAt: createdAt,
+        },
+      ]
 
-      vi.mocked(Post.find).mockReturnValue({
-        sort: vi.fn().mockReturnThis(),
-        skip: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        lean: vi.fn().mockResolvedValue(mockPosts),
-      } as unknown as PostFindReturn)
+      vi.mocked(Post.find).mockReturnValue(makeFindChain(mockPosts) as unknown as PostFindReturn)
 
       const result = await postService.getByHashtag('test', { limit: 20, skip: 0 })
 
-      expect(result).toEqual(mockPosts)
+      expect(result).toEqual([
+        {
+          _id: '1',
+          authorId: 'a1',
+          content: 'Tagged post',
+          hashtags: ['test'],
+          visibility: 'public',
+          likesCount: 0,
+          bookmarksCount: 0,
+          commentsCount: 0,
+          repostsCount: 0,
+          createdAt: createdAt.toISOString(),
+          updatedAt: createdAt.toISOString(),
+        },
+      ])
       expect(Post.find).toHaveBeenCalledWith({
         hashtags: 'test',
         isDeleted: false,
@@ -184,12 +282,7 @@ describe('Post Service', () => {
     })
 
     it('should convert hashtag to lowercase', async () => {
-      vi.mocked(Post.find).mockReturnValue({
-        sort: vi.fn().mockReturnThis(),
-        skip: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        lean: vi.fn().mockResolvedValue([]),
-      } as unknown as PostFindReturn)
+      vi.mocked(Post.find).mockReturnValue(makeFindChain([]) as unknown as PostFindReturn)
 
       await postService.getByHashtag('CATS', { limit: 20, skip: 0 })
 
@@ -199,21 +292,57 @@ describe('Post Service', () => {
 
   describe('getReplies', () => {
     it('should return all replies to a post', async () => {
+      const createdAt1 = new Date('2026-01-01T00:00:00.000Z')
+      const createdAt2 = new Date('2026-01-02T00:00:00.000Z')
       const mockReplies = [
-        { _id: '2', content: 'Reply 1', parentPostId: '1' },
-        { _id: '3', content: 'Reply 2', parentPostId: '1' },
+        {
+          _id: '2',
+          authorId: 'a1',
+          content: 'Reply 1',
+          parentPostId: '1',
+          createdAt: createdAt1,
+          updatedAt: createdAt1,
+        },
+        {
+          _id: '3',
+          authorId: 'a2',
+          content: 'Reply 2',
+          parentPostId: '1',
+          createdAt: createdAt2,
+          updatedAt: createdAt2,
+        },
       ]
 
-      vi.mocked(Post.find).mockReturnValue({
-        sort: vi.fn().mockReturnThis(),
-        skip: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        lean: vi.fn().mockResolvedValue(mockReplies),
-      } as unknown as PostFindReturn)
+      vi.mocked(Post.find).mockReturnValue(makeFindChain(mockReplies) as unknown as PostFindReturn)
 
       const result = await postService.getReplies('1', { limit: 20, skip: 0 })
 
-      expect(result).toEqual(mockReplies)
+      expect(result).toEqual([
+        {
+          _id: '2',
+          authorId: 'a1',
+          content: 'Reply 1',
+          parentPostId: '1',
+          likesCount: 0,
+          bookmarksCount: 0,
+          commentsCount: 0,
+          repostsCount: 0,
+          createdAt: createdAt1.toISOString(),
+          updatedAt: createdAt1.toISOString(),
+        },
+        {
+          _id: '3',
+          authorId: 'a2',
+          content: 'Reply 2',
+          parentPostId: '1',
+          likesCount: 0,
+          bookmarksCount: 0,
+          commentsCount: 0,
+          repostsCount: 0,
+          createdAt: createdAt2.toISOString(),
+          updatedAt: createdAt2.toISOString(),
+        },
+      ])
       expect(Post.find).toHaveBeenCalledWith({
         parentPostId: '1',
         isDeleted: false,

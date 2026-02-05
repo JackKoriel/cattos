@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import { Types } from 'mongoose'
-import { postService } from '../services/index.js'
+import type { Post } from '@cattos/shared'
+import { postService, likeService, bookmarkService } from '../services/index.js'
 import {
   getBody,
   getQuery,
@@ -8,6 +9,73 @@ import {
   getStringArray,
   parsePagination,
 } from '../utils/request.utils.js'
+
+const getRepostOfId = (post: Post): string | undefined => post.repostOf?._id
+
+const getOptionalUserObjectId = (req: Request): Types.ObjectId | undefined => {
+  const userId = req.user?.id
+  if (!userId) return undefined
+  if (!Types.ObjectId.isValid(userId)) return undefined
+  return new Types.ObjectId(userId)
+}
+
+// TODO: Optimize this to batch fetch likes/bookmarks for multiple posts at once
+const enrichPostsWithUserState = async (posts: Post[], userId?: Types.ObjectId): Promise<Post[]> => {
+  if (!userId || posts.length === 0) {
+    return posts.map((post) =>
+      post.repostOf
+        ? {
+            ...post,
+            isLiked: false,
+            isBookmarked: false,
+            repostOf: { ...post.repostOf, isLiked: false, isBookmarked: false },
+          }
+        : { ...post, isLiked: false, isBookmarked: false }
+    )
+  }
+
+  const idSet = new Set<string>()
+  for (const post of posts) {
+    idSet.add(post._id)
+    const repostId = getRepostOfId(post)
+    if (repostId) idSet.add(repostId)
+  }
+
+  const postIds = Array.from(idSet)
+
+  // Batch check likes and bookmarks for all posts
+  const [likes, bookmarks] = await Promise.all([
+    Promise.all(postIds.map((id) => likeService.getLikeByPostAndUser(id, userId))),
+    Promise.all(postIds.map((id) => bookmarkService.getBookmarkByPostAndUser(id, userId))),
+  ])
+
+  const likedById = new Map<string, boolean>()
+  const bookmarkedById = new Map<string, boolean>()
+  postIds.forEach((id, index) => {
+    likedById.set(id, !!likes[index])
+    bookmarkedById.set(id, !!bookmarks[index])
+  })
+
+  return posts.map((post) => {
+    const base: Post = {
+      ...post,
+      isLiked: likedById.get(post._id) ?? false,
+      isBookmarked: bookmarkedById.get(post._id) ?? false,
+    }
+
+    const repostId = getRepostOfId(post)
+    if (!post.repostOf || !repostId) return base
+
+    return {
+      ...base,
+      repostOf: {
+        ...post.repostOf,
+        isLiked: likedById.get(repostId) ?? false,
+        isBookmarked: bookmarkedById.get(repostId) ?? false,
+      },
+    }
+  })
+}
 
 type PostVisibility = 'public' | 'followers' | 'mentioned' | 'private'
 
@@ -39,7 +107,11 @@ const listPosts = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const posts = await postService.findAll({ limit, skip, authorId })
-    res.json({ success: true, data: posts, count: posts.length })
+
+    const userId = getOptionalUserObjectId(req)
+    const enrichedPosts = await enrichPostsWithUserState(posts, userId)
+
+    res.json({ success: true, data: enrichedPosts, count: enrichedPosts.length })
   } catch (error) {
     next(error)
   }
@@ -52,7 +124,11 @@ const getPostById = async (req: Request, res: Response, next: NextFunction) => {
       res.status(404).json({ success: false, error: 'Post not found' })
       return
     }
-    res.json({ success: true, data: post })
+
+    const userId = getOptionalUserObjectId(req)
+    const [enrichedPost] = await enrichPostsWithUserState([post], userId)
+
+    res.json({ success: true, data: enrichedPost })
   } catch (error) {
     next(error)
   }
@@ -63,6 +139,8 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
     const body = getBody(req)
     const content = getString(body.content)
     const mediaUrls = getStringArray(body.mediaUrls) ?? []
+    const parentPostIdRaw = getString(body.parentPostId)
+    const repostOfIdRaw = getString(body.repostOfId)
     const visibilityRaw = getString(body.visibility)
     let visibility: PostVisibility | undefined
     if (visibilityRaw && isPostVisibility(visibilityRaw)) {
@@ -81,25 +159,67 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
 
     const authorId = new Types.ObjectId(req.user.id)
 
-    if (!content && (!mediaUrls || mediaUrls.length === 0)) {
+    let repostOfId: Types.ObjectId | undefined
+    if (repostOfIdRaw) {
+      if (!Types.ObjectId.isValid(repostOfIdRaw)) {
+        res.status(400).json({ success: false, error: 'Invalid repost id' })
+        return
+      }
+      repostOfId = new Types.ObjectId(repostOfIdRaw)
+    }
+
+    // Content or media required, unless it's a repost
+    if (!content && (!mediaUrls || mediaUrls.length === 0) && !repostOfId) {
       res.status(400).json({ success: false, error: 'Content or media is required' })
       return
+    }
+
+    // Validate parentPostId if provided (for comments/replies)
+    let parentPostId: Types.ObjectId | undefined
+    if (parentPostIdRaw) {
+      if (!Types.ObjectId.isValid(parentPostIdRaw)) {
+        res.status(400).json({ success: false, error: 'Invalid parent post id' })
+        return
+      }
+      parentPostId = new Types.ObjectId(parentPostIdRaw)
     }
 
     const hashtags =
       (content || '').match(/#\w+/g)?.map((tag: string) => tag.slice(1).toLowerCase()) || []
     const mentions = (content || '').match(/@\w+/g)?.map((m: string) => m.slice(1)) || []
 
-    const post = await postService.create({
+    const created = await postService.create({
       authorId,
       content,
       mediaUrls,
+      parentPostId,
+      repostOfId,
+      isRepost: !!repostOfId,
       visibility: visibility ?? 'public',
       hashtags,
       mentions,
     })
 
-    res.status(201).json({ success: true, data: post })
+    // If this is a comment/reply, increment the parent's commentsCount
+    if (parentPostId) {
+      await postService.incrementCommentsCount(parentPostId.toString())
+    }
+
+    // If this is a repost, increment the original post's repostsCount
+    if (repostOfId) {
+      await postService.incrementRepostsCount(repostOfId.toString())
+    }
+
+    // Return populated/normalized post so reshares render immediately on the client.
+    const post = await postService.findById(created._id.toString())
+    if (!post) {
+      res.status(201).json({ success: true, data: created })
+      return
+    }
+
+    const userId = getOptionalUserObjectId(req)
+    const [enrichedPost] = await enrichPostsWithUserState([post], userId)
+    res.status(201).json({ success: true, data: enrichedPost })
   } catch (error) {
     next(error)
   }
@@ -193,7 +313,11 @@ const listRepliesForPost = async (req: Request, res: Response, next: NextFunctio
     const { limit, skip } = parsePagination(req, { defaultLimit: 20, maxLimit: 100 })
 
     const replies = await postService.getReplies(req.params.id, { limit, skip })
-    res.json({ success: true, data: replies, count: replies.length })
+
+    const userId = getOptionalUserObjectId(req)
+    const enrichedReplies = await enrichPostsWithUserState(replies, userId)
+
+    res.json({ success: true, data: enrichedReplies, count: enrichedReplies.length })
   } catch (error) {
     next(error)
   }
