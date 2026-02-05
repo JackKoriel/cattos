@@ -375,6 +375,89 @@
       ]
     },
     {
+      "name": "Uploads",
+      "item": [
+        {
+          "name": "Upload Avatar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : null;",
+                  "const url = data && data.url;",
+                  "const publicId = data && data.publicId;",
+                  "if (url) pm.environment.set('uploadedAvatarUrl', url);",
+                  "if (publicId) pm.environment.set('uploadedAvatarPublicId', publicId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "{{avatarFilePath}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/uploads/avatar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "uploads", "avatar"]
+            }
+          }
+        },
+        {
+          "name": "Upload Post Media (up to 4)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : null;",
+                  "if (Array.isArray(data) && data[0] && data[0].url) pm.environment.set('uploadedPostMediaUrl1', data[0].url);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": "{{postMediaFilePath1}}"
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": "{{postMediaFilePath2}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/uploads/post-media",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "uploads", "post-media"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Likes",
       "item": [
         {
