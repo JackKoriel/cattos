@@ -1,7 +1,18 @@
+import { useRef } from 'react'
 import { Box, Typography } from '@mui/material'
-import { PostFeed } from '@/components/post'
+import { PostFeed, CreatePost } from '@/components/post'
+
+export interface PostFeedHandle {
+  refresh: () => void
+}
 
 export const HomePage = () => {
+  const feedRef = useRef<PostFeedHandle>(null)
+
+  const handlePostCreated = () => {
+    feedRef.current?.refresh()
+  }
+
   return (
     <Box display="flex" height="100%">
       <Box flex={1} borderRight={1} borderColor="divider">
@@ -18,10 +29,11 @@ export const HomePage = () => {
             Home
           </Typography>
         </Box>
-        <PostFeed />
+        <CreatePost onPostCreated={handlePostCreated} />
+        <PostFeed ref={feedRef} />
       </Box>
 
-      <Box width={350} p={3} sx={{ display: { xs: 'none', md: 'block' } }}>
+      <Box width={280} p={3} sx={{ display: { xs: 'none', md: 'block' } }}>
         <Typography variant="h6" fontWeight="bold" mb={2}>
           fav ads
         </Typography>

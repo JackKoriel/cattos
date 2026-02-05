@@ -28,9 +28,9 @@ export const RegisterPage = () => {
     onSubmit: async (values, { setSubmitting }) => {
       try {
         await register(values)
-        navigate('/')
+        navigate('/onboarding', { replace: true })
       } catch (err) {
-        // Error is already set in the auth context
+        console.error('Registration error:', err)
       } finally {
         setSubmitting(false)
       }
