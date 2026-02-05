@@ -1,10 +1,18 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Post } from '@cattos/shared'
 import { apiClient, handleApiError } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
 
 const POSTS_PER_PAGE = 10
 
-export const useFetchPosts = () => {
+interface PostsQueryParams {
+  limit: number
+  skip: number
+  authorId?: string
+}
+
+export const useFetchPosts = (authorId?: string) => {
+  const { isLoading: authLoading } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -12,34 +20,43 @@ export const useFetchPosts = () => {
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
 
-  const fetchPosts = useCallback(async (pageNum: number, isLoadMore = false) => {
-    if (isLoadMore) setLoadingMore(true)
-    else setLoading(true)
+  const fetchPosts = useCallback(
+    async (pageNum: number, isLoadMore = false) => {
+      if (isLoadMore) setLoadingMore(true)
+      else setLoading(true)
 
-    try {
-      const skip = (pageNum - 1) * POSTS_PER_PAGE
-      const response = await apiClient.get('/posts', {
-        params: { limit: POSTS_PER_PAGE, skip },
-      })
-      const newPosts = response.data.data
+      try {
+        const skip = (pageNum - 1) * POSTS_PER_PAGE
+        const params: PostsQueryParams = { limit: POSTS_PER_PAGE, skip }
+        if (authorId) params.authorId = authorId
 
-      if (newPosts.length < POSTS_PER_PAGE) {
-        setHasMore(false)
+        const response = await apiClient.get('/posts', { params })
+        const newPosts = response.data.data
+
+        if (newPosts.length < POSTS_PER_PAGE) {
+          setHasMore(false)
+        }
+
+        setPosts((prev) => (pageNum === 1 ? newPosts : [...prev, ...newPosts]))
+      } catch (err) {
+        const errorMessage = handleApiError(err)
+        setError(typeof errorMessage === 'string' ? errorMessage : errorMessage.message)
+      } finally {
+        setLoading(false)
+        setLoadingMore(false)
       }
-
-      setPosts((prev) => (pageNum === 1 ? newPosts : [...prev, ...newPosts]))
-    } catch (err) {
-      const errorMessage = handleApiError(err)
-      setError(typeof errorMessage === 'string' ? errorMessage : errorMessage.message)
-    } finally {
-      setLoading(false)
-      setLoadingMore(false)
-    }
-  }, [])
+    },
+    [authorId]
+  )
 
   useEffect(() => {
+    if (authLoading) return
+
+    setPage(1)
+    setHasMore(true)
+    setPosts([])
     fetchPosts(1)
-  }, [fetchPosts])
+  }, [fetchPosts, authorId, authLoading])
 
   const loadMore = () => {
     if (!loadingMore && hasMore) {
@@ -49,5 +66,45 @@ export const useFetchPosts = () => {
     }
   }
 
-  return { posts, loading, loadingMore, error, hasMore, loadMore }
+  const refresh = useCallback(() => {
+    setPage(1)
+    setHasMore(true)
+    setPosts([])
+    setError(null)
+    fetchPosts(1)
+  }, [fetchPosts])
+
+  const updatePost = useCallback((postId: string, updater: (prev: Post) => Post) => {
+    setPosts((prev) =>
+      prev.map((p) => {
+        // Direct match
+        if (p._id === postId) return updater(p)
+
+        // If this is a reshare of the target post, update the nested repostOf
+        if (p.repostOf && p.repostOf._id === postId) {
+          return {
+            ...p,
+            repostOf: updater(p.repostOf as Post) as typeof p.repostOf,
+          }
+        }
+
+        return p
+      })
+    )
+  }, [])
+
+  const prependPost = useCallback((post: Post) => {
+    setPosts((prev) => {
+      const existingIndex = prev.findIndex((p) => p._id === post._id)
+      if (existingIndex === 0) return prev
+      if (existingIndex > 0) {
+        const next = [...prev]
+        next.splice(existingIndex, 1)
+        return [post, ...next]
+      }
+      return [post, ...prev]
+    })
+  }, [])
+
+  return { posts, loading, loadingMore, error, hasMore, loadMore, refresh, updatePost, prependPost }
 }
