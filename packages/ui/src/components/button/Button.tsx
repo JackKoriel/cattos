@@ -4,10 +4,10 @@ export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   /**
    * Custom variants for Cattos
    */
-  variant?: 'primary' | 'secondary' | 'orange' | 'ghost' | 'contained' | 'outlined' | 'text'
+  variant?: 'contained' | 'outlined' | 'text' | 'secondary' | 'orange'
 }
 
-export const Button = ({ variant = 'primary', sx, ...props }: ButtonProps) => {
+export const Button = ({ variant = 'contained', sx, ...props }: ButtonProps) => {
   let muiVariant: 'contained' | 'outlined' | 'text' = 'contained'
   let customSx = {}
 
@@ -21,15 +21,6 @@ export const Button = ({ variant = 'primary', sx, ...props }: ButtonProps) => {
         boxShadow: 'none',
       }
       break
-    case 'primary':
-      muiVariant = 'contained'
-      customSx = {
-        bgcolor: '#1976d2',
-        color: 'white',
-        '&:hover': { bgcolor: '#1565c0' },
-        boxShadow: 'none',
-      }
-      break
     case 'secondary':
       muiVariant = 'contained'
       customSx = {
@@ -39,25 +30,19 @@ export const Button = ({ variant = 'primary', sx, ...props }: ButtonProps) => {
         boxShadow: 'none',
       }
       break
-    case 'ghost':
-      muiVariant = 'outlined'
-      customSx = {
-        color: '#1976d2',
-        borderColor: '#1976d2',
-        '&:hover': {
-          borderColor: '#115293',
-          bgcolor: 'rgba(25, 118, 210, 0.04)',
-        },
-      }
-      break
     case 'outlined':
       muiVariant = 'outlined'
       break
     case 'text':
       muiVariant = 'text'
       break
+    case 'contained':
     default:
       muiVariant = 'contained'
+      customSx = {
+        boxShadow: 'none',
+        '&:hover': { boxShadow: 'none' },
+      }
       break
   }
 
