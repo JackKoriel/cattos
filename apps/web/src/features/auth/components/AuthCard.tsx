@@ -48,19 +48,20 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
               flexDirection: 'column',
               alignItems: 'center',
               padding: 4,
-              borderRadius: 3,
+              borderRadius: 4,
               width: '100%',
               maxWidth: 400,
+              minHeight: 480,
               userSelect: 'none',
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(5px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.98)',
+              backdropFilter: 'blur(10px)',
             }}
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) e.preventDefault()
             }}
           >
             <Typography component="h1" variant="h5" sx={{ fontWeight: 'bold', mb: 3 }}>
-              Welcome to Cattos!
+              Welcome back!
             </Typography>
 
             <Box

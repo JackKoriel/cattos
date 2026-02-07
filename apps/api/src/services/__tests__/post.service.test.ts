@@ -27,14 +27,6 @@ describe('Post Service', () => {
     return chain
   }
 
-  const makeFindOneChain = (result: unknown) => {
-    const chain = {
-      populate: vi.fn().mockReturnThis(),
-      lean: vi.fn().mockResolvedValue(result),
-    }
-    return chain
-  }
-
   type PostFindReturn = ReturnType<(typeof Post)['find']>
   type PostFindOneReturn = ReturnType<(typeof Post)['findOne']>
   type PostFindOneAndUpdateReturn = ReturnType<(typeof Post)['findOneAndUpdate']>

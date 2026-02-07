@@ -10,6 +10,8 @@ vi.mock('../../services/auth.service.js')
 vi.mock('../../services/user.service.js')
 
 type FindByIdResult = Awaited<ReturnType<(typeof userService)['findById']>>
+type FindByUsernameResult = Awaited<ReturnType<(typeof userService)['findByUsername']>>
+type UpdateUserResult = Awaited<ReturnType<(typeof userService)['update']>>
 
 interface AuthenticatedRequest extends Partial<TestRequest> {
   user?: { id: string }
@@ -152,7 +154,9 @@ describe('Auth Controller', () => {
       mockReq.user = { id: 'me' }
       mockReq.body = { username: 'cat', displayName: 'Cat' }
 
-      vi.mocked(userService.findByUsername).mockResolvedValue({ _id: new Types.ObjectId() } as any)
+      vi.mocked(userService.findByUsername).mockResolvedValue(
+        ({ _id: new Types.ObjectId() }) as unknown as FindByUsernameResult
+      )
 
       await authController.completeOnboarding(
         mockReq as TestRequest,
@@ -167,11 +171,11 @@ describe('Auth Controller', () => {
       mockReq.user = { id: 'me' }
       mockReq.body = { username: 'cat', displayName: 'Cat', location: 'NY' }
 
-      vi.mocked(userService.findByUsername).mockResolvedValue(null as any)
+      vi.mocked(userService.findByUsername).mockResolvedValue(null as unknown as FindByUsernameResult)
       vi.mocked(userService.update).mockResolvedValue({
         _id: new Types.ObjectId(),
         username: 'cat',
-      } as any)
+      } as unknown as UpdateUserResult)
 
       await authController.completeOnboarding(
         mockReq as TestRequest,
@@ -190,7 +194,7 @@ describe('Auth Controller', () => {
 
   describe('checkUsernameAvailable', () => {
     it('should return 401 when not authenticated', async () => {
-      mockReq.query = { username: 'cat' } as any
+      mockReq.query = { username: 'cat' } as unknown as ParsedQs
 
       await authController.checkUsernameAvailable(
         mockReq as TestRequest,
@@ -203,9 +207,9 @@ describe('Auth Controller', () => {
 
     it('should return available=true when username not found', async () => {
       mockReq.user = { id: 'me' }
-      mockReq.query = { username: 'cat' } as any
+      mockReq.query = { username: 'cat' } as unknown as ParsedQs
 
-      vi.mocked(userService.findByUsername).mockResolvedValue(null as any)
+      vi.mocked(userService.findByUsername).mockResolvedValue(null as unknown as FindByUsernameResult)
 
       await authController.checkUsernameAvailable(
         mockReq as TestRequest,
@@ -223,9 +227,11 @@ describe('Auth Controller', () => {
 
     it('should return available=false when username belongs to another user', async () => {
       mockReq.user = { id: 'me' }
-      mockReq.query = { username: 'cat' } as any
+      mockReq.query = { username: 'cat' } as unknown as ParsedQs
 
-      vi.mocked(userService.findByUsername).mockResolvedValue({ _id: new Types.ObjectId() } as any)
+      vi.mocked(userService.findByUsername).mockResolvedValue(
+        ({ _id: new Types.ObjectId() }) as unknown as FindByUsernameResult
+      )
 
       await authController.checkUsernameAvailable(
         mockReq as TestRequest,

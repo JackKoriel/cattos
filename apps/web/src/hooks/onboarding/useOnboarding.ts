@@ -8,13 +8,26 @@ import { uploadAvatar } from '@/services/uploads'
 import { postsService } from '@/services/posts'
 import type { ApiResponse, User } from '@cattos/shared'
 
+import avatar01 from '@/assets/avatars/avatar_01.png'
+import avatar02 from '@/assets/avatars/avatar_02.png'
+import avatar03 from '@/assets/avatars/avatar_03.png'
+import avatar04 from '@/assets/avatars/avatar_04.png'
+import avatar05 from '@/assets/avatars/avatar_05.png'
+import avatar06 from '@/assets/avatars/avatar_06.png'
+import avatar07 from '@/assets/avatars/avatar_07.png'
+import avatar08 from '@/assets/avatars/avatar_08.png'
+
 const steps = ['Profile', 'Avatar', 'First post']
 
 const presetAvatars = [
-  'https://placekitten.com/256/256',
-  'https://placekitten.com/257/257',
-  'https://placekitten.com/258/258',
-  'https://placekitten.com/259/259',
+  avatar01,
+  avatar02,
+  avatar03,
+  avatar04,
+  avatar05,
+  avatar06,
+  avatar07,
+  avatar08,
 ] as const
 
 type OnboardingValues = {
@@ -81,12 +94,21 @@ export const useOnboarding = () => {
           .test('avatar-url', 'Must be a valid URL', (value) => {
             if (avatarFile) return true
             if (!value) return false
-            try {
-              const u = new URL(value)
-              return u.protocol === 'http:' || u.protocol === 'https:'
-            } catch {
-              return false
+
+            // Accept http(s) URLs (uploaded avatars) and Vite asset paths (preset avatars).
+            if (
+              value.startsWith('http://') ||
+              value.startsWith('https://') ||
+              value.startsWith('/') ||
+              value.startsWith('./') ||
+              value.startsWith('../') ||
+              value.startsWith('data:') ||
+              value.startsWith('blob:')
+            ) {
+              return true
             }
+
+            return false
           }),
       })
     }
