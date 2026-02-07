@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type FocusEvent } from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/context/AuthContext'
-import { handleApiError } from '@/services/client'
+import { apiClient, handleApiError } from '@/services/client'
 import { uploadAvatar } from '@/services/uploads'
-import { usersService } from '@/services/users'
 import { postsService } from '@/services/posts'
+import type { ApiResponse, User } from '@cattos/shared'
 
 const steps = ['Profile', 'Avatar', 'First post']
 
@@ -18,11 +18,14 @@ const presetAvatars = [
 ] as const
 
 type OnboardingValues = {
+  username: string
   displayName: string
   location: string
   avatarUrl: string
   firstPostContent: string
 }
+
+type UsernameAvailabilityStatus = 'idle' | 'checking' | 'available' | 'taken' | 'error'
 
 export const useOnboarding = () => {
   const navigate = useNavigate()
@@ -36,6 +39,13 @@ export const useOnboarding = () => {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [usernameAvailability, setUsernameAvailability] =
+    useState<UsernameAvailabilityStatus>('idle')
+  const [usernameAvailabilityMessage, setUsernameAvailabilityMessage] = useState<string | null>(
+    null
+  )
+  const usernameCheckSeqRef = useRef(0)
+
   useEffect(() => {
     return () => {
       if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl)
@@ -45,6 +55,12 @@ export const useOnboarding = () => {
   const validationSchema = useMemo(() => {
     if (activeStep === 0) {
       return Yup.object({
+        username: Yup.string()
+          .trim()
+          .min(3, 'Must be at least 3 characters')
+          .max(30, 'Must be 30 characters or less')
+          .matches(/^[a-zA-Z0-9_]+$/, 'Can only contain letters, numbers, and underscores')
+          .required('Required'),
         displayName: Yup.string()
           .trim()
           .min(2, 'Too short')
@@ -82,6 +98,7 @@ export const useOnboarding = () => {
 
   const formik = useFormik<OnboardingValues>({
     initialValues: {
+      username: user?.username || '',
       displayName: user?.displayName || user?.username || '',
       location: user?.location || '',
       avatarUrl: user?.avatar || '',
@@ -126,13 +143,18 @@ export const useOnboarding = () => {
           avatarUrl = uploaded.url
         }
 
-        const updatedUser = await usersService.update(user.id, {
+        const response = await apiClient.patch<ApiResponse<User>>('/auth/onboarding', {
+          username: values.username.trim(),
           displayName: values.displayName.trim(),
           location: values.location.trim() || undefined,
           avatar: avatarUrl,
         })
 
-        setCurrentUser(updatedUser)
+        if (!response.data.data) {
+          throw new Error(response.data.error || 'Failed to complete onboarding')
+        }
+
+        setCurrentUser(response.data.data)
 
         if (values.firstPostContent.trim()) {
           await postsService.create({
@@ -152,12 +174,82 @@ export const useOnboarding = () => {
     },
   })
 
+  const checkUsernameAvailability = async (rawUsername: string): Promise<boolean> => {
+    const username = rawUsername.trim()
+    if (!username) return false
+
+    // Skip availability check if it doesn't meet basic constraints yet.
+    if (username.length < 3 || username.length > 30 || !/^[a-zA-Z0-9_]+$/.test(username)) {
+      setUsernameAvailability('idle')
+      setUsernameAvailabilityMessage(null)
+      return true
+    }
+
+    const seq = ++usernameCheckSeqRef.current
+    setUsernameAvailability('checking')
+    setUsernameAvailabilityMessage(null)
+
+    try {
+      const response = await apiClient.get<ApiResponse<{ available: boolean }>>(
+        '/auth/username-available',
+        {
+          params: { username },
+        }
+      )
+
+      if (seq !== usernameCheckSeqRef.current) return true
+
+      const available = Boolean(response.data.data?.available)
+
+      if (available) {
+        setUsernameAvailability('available')
+        setUsernameAvailabilityMessage(null)
+        return true
+      }
+
+      setUsernameAvailability('taken')
+      setUsernameAvailabilityMessage('Username already taken')
+      return false
+    } catch {
+      if (seq !== usernameCheckSeqRef.current) return true
+      setUsernameAvailability('error')
+      setUsernameAvailabilityMessage('Unable to verify username right now')
+      return false
+    }
+  }
+
+  useEffect(() => {
+    if (activeStep !== 0) return
+
+    const username = formik.values.username.trim()
+    if (!username) {
+      setUsernameAvailability('idle')
+      setUsernameAvailabilityMessage(null)
+      return
+    }
+
+    // Don't ping the server until it meets basic format rules.
+    if (username.length < 3 || username.length > 30 || !/^[a-zA-Z0-9_]+$/.test(username)) {
+      setUsernameAvailability('idle')
+      setUsernameAvailabilityMessage(null)
+      return
+    }
+
+    const handle = window.setTimeout(() => {
+      void checkUsernameAvailability(username)
+    }, 450)
+
+    return () => {
+      window.clearTimeout(handle)
+    }
+  }, [activeStep, formik.values.username])
+
   const goNext = async () => {
     const errors = await formik.validateForm()
 
     const currentStepFields: Array<keyof OnboardingValues> =
       activeStep === 0
-        ? ['displayName', 'location']
+        ? ['username', 'displayName', 'location']
         : activeStep === 1
           ? ['avatarUrl']
           : ['firstPostContent']
@@ -169,11 +261,24 @@ export const useOnboarding = () => {
       return
     }
 
+    if (activeStep === 0) {
+      const ok = await checkUsernameAvailability(formik.values.username)
+      if (!ok) {
+        formik.setFieldTouched('username', true, false)
+        return
+      }
+    }
+
     setActiveStep((s) => Math.min(s + 1, steps.length - 1))
   }
 
   const goBack = () => {
     setActiveStep((s) => Math.max(s - 1, 0))
+  }
+
+  const onUsernameBlur = async (e: FocusEvent<HTMLInputElement>) => {
+    formik.handleBlur(e)
+    await checkUsernameAvailability(e.currentTarget.value)
   }
 
   const pickPresetAvatar = (url: string) => {
@@ -218,6 +323,8 @@ export const useOnboarding = () => {
     avatarPreviewUrl,
     avatarInputRef,
     formik,
+    usernameAvailability,
+    usernameAvailabilityMessage,
     goNext,
     goBack,
     pickPresetAvatar,
@@ -225,5 +332,6 @@ export const useOnboarding = () => {
     onAvatarInputClick,
     onAvatarFileChange,
     markFinishIntent,
+    onUsernameBlur,
   }
 }

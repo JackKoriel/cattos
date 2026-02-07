@@ -106,7 +106,7 @@ describe('Auth Controller', () => {
     })
 
     it('should set refresh cookie and return access token on success', async () => {
-      mockReq.body = { email: 'a@b.com', username: 'cat', password: 'password123' }
+      mockReq.body = { email: 'a@b.com', password: 'Password123' }
 
       vi.mocked(authService.register).mockResolvedValue({
         ok: true,
@@ -130,6 +130,113 @@ describe('Auth Controller', () => {
             accessToken: 'access',
             user: expect.objectContaining({ id: 'u1' }),
           }),
+        })
+      )
+    })
+  })
+
+  describe('completeOnboarding', () => {
+    it('should return 401 when not authenticated', async () => {
+      mockReq.body = { username: 'cat', displayName: 'Cat', location: 'NY', avatar: 'http://a/b' }
+
+      await authController.completeOnboarding(
+        mockReq as TestRequest,
+        mockRes as TestResponse,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.status).toHaveBeenCalledWith(401)
+    })
+
+    it('should return 409 when username is taken by another user', async () => {
+      mockReq.user = { id: 'me' }
+      mockReq.body = { username: 'cat', displayName: 'Cat' }
+
+      vi.mocked(userService.findByUsername).mockResolvedValue({ _id: new Types.ObjectId() } as any)
+
+      await authController.completeOnboarding(
+        mockReq as TestRequest,
+        mockRes as TestResponse,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.status).toHaveBeenCalledWith(409)
+    })
+
+    it('should update user and return it on success', async () => {
+      mockReq.user = { id: 'me' }
+      mockReq.body = { username: 'cat', displayName: 'Cat', location: 'NY' }
+
+      vi.mocked(userService.findByUsername).mockResolvedValue(null as any)
+      vi.mocked(userService.update).mockResolvedValue({
+        _id: new Types.ObjectId(),
+        username: 'cat',
+      } as any)
+
+      await authController.completeOnboarding(
+        mockReq as TestRequest,
+        mockRes as TestResponse,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.anything(),
+        })
+      )
+    })
+  })
+
+  describe('checkUsernameAvailable', () => {
+    it('should return 401 when not authenticated', async () => {
+      mockReq.query = { username: 'cat' } as any
+
+      await authController.checkUsernameAvailable(
+        mockReq as TestRequest,
+        mockRes as TestResponse,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.status).toHaveBeenCalledWith(401)
+    })
+
+    it('should return available=true when username not found', async () => {
+      mockReq.user = { id: 'me' }
+      mockReq.query = { username: 'cat' } as any
+
+      vi.mocked(userService.findByUsername).mockResolvedValue(null as any)
+
+      await authController.checkUsernameAvailable(
+        mockReq as TestRequest,
+        mockRes as TestResponse,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: { available: true },
+        })
+      )
+    })
+
+    it('should return available=false when username belongs to another user', async () => {
+      mockReq.user = { id: 'me' }
+      mockReq.query = { username: 'cat' } as any
+
+      vi.mocked(userService.findByUsername).mockResolvedValue({ _id: new Types.ObjectId() } as any)
+
+      await authController.checkUsernameAvailable(
+        mockReq as TestRequest,
+        mockRes as TestResponse,
+        mockNext as unknown as NextFunction
+      )
+
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: { available: false },
         })
       )
     })

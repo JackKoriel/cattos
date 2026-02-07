@@ -62,31 +62,55 @@ const createAndStoreRefreshToken = async (userId: string) => {
   return { refreshToken, tokenHash, expiresAt }
 }
 
-const register = async (input: {
-  email: string
-  username: string
-  password: string
-  displayName?: string
-}) => {
+const slugifyUsername = (input: string) =>
+  input
+    .toLowerCase()
+    .replace(/[^a-z0-9_]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 24)
+
+const generateUniqueUsername = async (email: string): Promise<string> => {
+  const localPart = email.split('@')[0] ?? ''
+  const slug = slugifyUsername(localPart)
+  const base = slug.length >= 3 ? slug : 'cat'
+
+  const candidates: string[] = [base]
+  for (let i = 0; i < 12; i += 1) {
+    const suffix = String(Math.floor(Math.random() * 10_000)).padStart(4, '0')
+    candidates.push(`${base}_${suffix}`.slice(0, 30))
+  }
+
+  const uniqueCandidates = Array.from(new Set(candidates)).filter((c) => c.length >= 3)
+  const existing = await User.find({ username: { $in: uniqueCandidates } }, { username: 1 }).lean()
+  const taken = new Set(
+    existing
+      .map((doc) => (doc as { username?: unknown }).username)
+      .filter((u): u is string => typeof u === 'string')
+  )
+
+  for (const candidate of uniqueCandidates) {
+    if (!taken.has(candidate)) return candidate
+  }
+
+  return `cat_${Date.now().toString(36)}`.slice(0, 30)
+}
+
+const register = async (input: { email: string; password: string }) => {
   const email = input.email.toLowerCase().trim()
-  const username = input.username.trim()
 
   const existingEmail = await User.findOne({ email }).lean()
   if (existingEmail) {
     return { ok: false as const, status: 409 as const, error: 'Email already in use' }
   }
 
-  const existingUsername = await User.findOne({ username }).lean()
-  if (existingUsername) {
-    return { ok: false as const, status: 409 as const, error: 'Username already taken' }
-  }
+  const username = await generateUniqueUsername(email)
 
   const passwordHash = await bcrypt.hash(input.password, env.BCRYPT_ROUNDS)
 
   const user = await new User({
     email,
     username,
-    displayName: input.displayName?.trim() || username,
+    displayName: username,
     passwordHash,
   }).save()
 

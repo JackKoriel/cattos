@@ -16,6 +16,11 @@ export const OnboardingScreen = () => {
       avatarPreviewUrl={onboarding.avatarPreviewUrl}
       avatarInputRef={onboarding.avatarInputRef}
       formik={onboarding.formik}
+      usernameAvailability={onboarding.usernameAvailability}
+      usernameAvailabilityMessage={onboarding.usernameAvailabilityMessage}
+      onUsernameBlur={(e) => {
+        void onboarding.onUsernameBlur(e)
+      }}
       onBack={onboarding.goBack}
       onNext={() => {
         void onboarding.goNext()

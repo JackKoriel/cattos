@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { authService } from '../services/auth.service.js'
 import { env } from '../config/env.js'
 import { userService } from '../services/user.service.js'
-import { getBody, getCookieString, getString } from '../utils/request.utils.js'
+import { getBody, getCookieString, getQuery, getString } from '../utils/request.utils.js'
 
 const getRefreshFromRequest = (req: Request): string | undefined => {
   const cookieName = env.REFRESH_TOKEN_COOKIE_NAME
@@ -37,12 +37,10 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const body = getBody(req)
     const email = getString(body.email)
-    const username = getString(body.username)
     const password = getString(body.password)
-    const displayName = getString(body.displayName)
 
-    if (!email || !username || !password) {
-      res.status(400).json({ success: false, error: 'Email, username, and password are required' })
+    if (!email || !password) {
+      res.status(400).json({ success: false, error: 'Email and password are required' })
       return
     }
 
@@ -51,7 +49,14 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
       return
     }
 
-    const result = await authService.register({ email, username, password, displayName })
+    if (!/(?=.*[a-z])(?=.*[A-Z])/.test(password)) {
+      res
+        .status(400)
+        .json({ success: false, error: 'Password must include upper and lower case letters' })
+      return
+    }
+
+    const result = await authService.register({ email, password })
     if (!result.ok) {
       res.status(result.status).json({ success: false, error: result.error })
       return
@@ -71,6 +76,87 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
         ...(env.NODE_ENV !== 'production' ? { refreshToken: result.refreshToken } : {}),
       },
     })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const completeOnboarding = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user?.id) {
+      res.status(401).json({ success: false, error: 'Unauthorized' })
+      return
+    }
+
+    const body = getBody(req)
+    const username = getString(body.username)?.trim()
+    const displayName = getString(body.displayName)?.trim()
+    const location = getString(body.location)?.trim()
+    const avatar = getString(body.avatar)?.trim()
+
+    if (!username) {
+      res.status(400).json({ success: false, error: 'Username is required' })
+      return
+    }
+
+    if (username.length < 3 || username.length > 30 || !/^[a-zA-Z0-9_]+$/.test(username)) {
+      res.status(400).json({ success: false, error: 'Invalid username' })
+      return
+    }
+
+    if (!displayName) {
+      res.status(400).json({ success: false, error: 'Display name is required' })
+      return
+    }
+
+    const existing = await userService.findByUsername(username)
+    if (existing && String((existing as { _id?: unknown })._id) !== req.user.id) {
+      res.status(409).json({ success: false, error: 'Username already taken' })
+      return
+    }
+
+    const updated = await userService.update(req.user.id, {
+      username,
+      displayName,
+      location: location || undefined,
+      avatar: avatar || undefined,
+    })
+
+    if (!updated) {
+      res.status(404).json({ success: false, error: 'User not found' })
+      return
+    }
+
+    res.json({ success: true, data: updated })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const checkUsernameAvailable = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user?.id) {
+      res.status(401).json({ success: false, error: 'Unauthorized' })
+      return
+    }
+
+    const query = getQuery(req)
+    const username = getString(query.username)?.trim()
+
+    if (!username) {
+      res.status(400).json({ success: false, error: 'Username is required' })
+      return
+    }
+
+    if (username.length < 3 || username.length > 30 || !/^[a-zA-Z0-9_]+$/.test(username)) {
+      res.status(400).json({ success: false, error: 'Invalid username' })
+      return
+    }
+
+    const existing = await userService.findByUsername(username)
+    const available = !existing || String((existing as { _id?: unknown })._id) === req.user.id
+
+    res.json({ success: true, data: { available } })
   } catch (error) {
     next(error)
   }
@@ -168,4 +254,6 @@ export const authController = {
   loginUser,
   refreshSession,
   logoutUser,
+  completeOnboarding,
+  checkUsernameAvailable,
 }

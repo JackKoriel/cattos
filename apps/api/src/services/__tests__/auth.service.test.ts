@@ -50,6 +50,7 @@ vi.mock('../../utils/auth.utils.js', () => ({
 vi.mock('../../models/index.js', () => {
   const UserCtor = vi.fn()
   ;(UserCtor as unknown as { findOne: unknown }).findOne = vi.fn<unknown[], unknown>()
+  ;(UserCtor as unknown as { find: unknown }).find = vi.fn<unknown[], unknown>()
   ;(UserCtor as unknown as { findById: unknown }).findById = vi.fn<unknown[], unknown>()
 
   const RefreshTokenModel = {
@@ -81,7 +82,6 @@ describe('Auth Service', () => {
 
       const result = await authService.register({
         email: 'cat@example.com',
-        username: 'cat',
         password: 'pw',
       })
 
@@ -89,37 +89,14 @@ describe('Auth Service', () => {
       expect(User.findOne).toHaveBeenCalledWith({ email: 'cat@example.com' })
     })
 
-    it('should reject if username already exists', async () => {
-      const findOne = vi.mocked(User.findOne)
-
-      findOne
-        .mockReturnValueOnce({ lean: vi.fn().mockResolvedValue(null) } as unknown as ReturnType<
-          (typeof User)['findOne']
-        >)
-        .mockReturnValueOnce({
-          lean: vi.fn().mockResolvedValue({ _id: 'u2' }),
-        } as unknown as ReturnType<(typeof User)['findOne']>)
-
-      const result = await authService.register({
-        email: 'cat@example.com',
-        username: 'cat',
-        password: 'pw',
-      })
-
-      expect(result).toEqual({ ok: false, status: 409, error: 'Username already taken' })
-      expect(findOne).toHaveBeenNthCalledWith(1, { email: 'cat@example.com' })
-      expect(findOne).toHaveBeenNthCalledWith(2, { username: 'cat' })
-    })
-
     it('should create user, issue tokens, and store refresh token', async () => {
-      const findOne = vi.mocked(User.findOne)
-      findOne
-        .mockReturnValueOnce({ lean: vi.fn().mockResolvedValue(null) } as unknown as ReturnType<
-          (typeof User)['findOne']
-        >)
-        .mockReturnValueOnce({ lean: vi.fn().mockResolvedValue(null) } as unknown as ReturnType<
-          (typeof User)['findOne']
-        >)
+      vi.mocked(User.findOne).mockReturnValue({
+        lean: vi.fn().mockResolvedValue(null),
+      } as unknown as ReturnType<(typeof User)['findOne']>)
+
+      vi.mocked(User.find).mockReturnValue({
+        lean: vi.fn().mockResolvedValue([]),
+      } as unknown as ReturnType<(typeof User)['find']>)
 
       mocks.bcryptHash.mockResolvedValue('hashed-pw')
 
@@ -147,7 +124,6 @@ describe('Auth Service', () => {
 
       const result = await authService.register({
         email: 'CAT@EXAMPLE.COM',
-        username: 'cat',
         password: 'pw',
       })
 

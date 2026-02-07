@@ -64,12 +64,44 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{newUserEmail}}\",\n  \"username\": \"{{newUserUsername}}\",\n  \"password\": \"{{newUserPassword}}\",\n  \"displayName\": \"{{newUserDisplayName}}\"\n}"
+              "raw": "{\n  \"email\": \"{{newUserEmail}}\",\n  \"password\": \"{{newUserPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
               "host": ["{{baseUrl}}"],
               "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Username Available",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/username-available?username={{onboardingUsername}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "username-available"],
+              "query": [{ "key": "username", "value": "{{onboardingUsername}}" }]
+            }
+          }
+        },
+        {
+          "name": "Complete Onboarding",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{onboardingUsername}}\",\n  \"displayName\": \"{{onboardingDisplayName}}\",\n  \"location\": \"{{onboardingLocation}}\",\n  \"avatar\": \"{{onboardingAvatar}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/onboarding",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "onboarding"]
             }
           }
         },
@@ -99,7 +131,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"identifier\": \"{{loginIdentifier}}\",\n  \"password\": \"{{loginPassword}}\"\n}"
+              "raw": "{\n  \"identifier\": \"{{username}}\",\n  \"password\": \"{{newUserPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",

@@ -25,6 +25,8 @@ router.post('/register', registerLimiter, authController.registerUser)
 router.post('/login', loginLimiter, authController.loginUser)
 router.post('/refresh', refreshLimiter, authController.refreshSession)
 router.get('/me', requireAuth, authController.getMe)
+router.get('/username-available', requireAuth, authController.checkUsernameAvailable)
+router.patch('/onboarding', requireAuth, authController.completeOnboarding)
 router.post('/logout', requireAuth, authController.logoutUser)
 
 export default router

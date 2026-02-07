@@ -3,6 +3,7 @@ import {
   Button,
   CircularProgress,
   Container,
+  InputAdornment,
   Paper,
   Stack,
   Step,
@@ -13,10 +14,13 @@ import {
   Alert,
   Avatar,
 } from '@mui/material'
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined'
 import type { FormikProps } from 'formik'
-import type { MouseEventHandler, RefObject } from 'react'
+import type { FocusEventHandler, MouseEventHandler, RefObject } from 'react'
 
 type OnboardingValues = {
+  username: string
   displayName: string
   location: string
   avatarUrl: string
@@ -32,6 +36,9 @@ export type OnboardingScreenPresentationProps = {
   avatarPreviewUrl: string | null
   avatarInputRef: RefObject<HTMLInputElement>
   formik: FormikProps<OnboardingValues>
+  usernameAvailability: 'idle' | 'checking' | 'available' | 'taken' | 'error'
+  usernameAvailabilityMessage: string | null
+  onUsernameBlur: FocusEventHandler<HTMLInputElement>
   onBack: () => void
   onNext: () => void
   onUploadAvatarClick: () => void
@@ -50,6 +57,9 @@ export const OnboardingScreenPresentation = ({
   avatarPreviewUrl,
   avatarInputRef,
   formik,
+  usernameAvailability,
+  usernameAvailabilityMessage,
+  onUsernameBlur,
   onBack,
   onNext,
   onUploadAvatarClick,
@@ -58,6 +68,25 @@ export const OnboardingScreenPresentation = ({
   onPickPresetAvatar,
   onFinishIntent,
 }: OnboardingScreenPresentationProps) => {
+  const usernameStatusAdornment =
+    usernameAvailability === 'checking' ? (
+      <CircularProgress size={18} />
+    ) : usernameAvailability === 'available' ? (
+      <CheckCircleOutlineIcon fontSize="small" color="success" />
+    ) : usernameAvailability === 'taken' || usernameAvailability === 'error' ? (
+      <CancelOutlinedIcon fontSize="small" color="error" />
+    ) : null
+
+  const usernameFieldErrorText =
+    formik.touched.username && formik.errors.username
+      ? (formik.errors.username as string)
+      : usernameAvailabilityMessage
+
+  const showUsernameFieldError =
+    (formik.touched.username && Boolean(formik.errors.username)) ||
+    (Boolean(usernameAvailabilityMessage) &&
+      (usernameAvailability === 'taken' || usernameAvailability === 'error'))
+
   return (
     <Container component="main" maxWidth="sm" sx={{ py: 6 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
@@ -82,6 +111,29 @@ export const OnboardingScreenPresentation = ({
           <Box component="form" onSubmit={formik.handleSubmit} noValidate>
             {activeStep === 0 && (
               <Stack spacing={2}>
+                <TextField
+                  fullWidth
+                  required
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  value={formik.values.username}
+                  onChange={formik.handleChange}
+                  onBlur={onUsernameBlur}
+                  error={showUsernameFieldError}
+                  helperText={usernameFieldErrorText}
+                  InputProps={
+                    usernameStatusAdornment
+                      ? {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {usernameStatusAdornment}
+                            </InputAdornment>
+                          ),
+                        }
+                      : undefined
+                  }
+                />
                 <TextField
                   fullWidth
                   label="Display name"
