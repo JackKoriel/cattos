@@ -1,4 +1,13 @@
-import { Box, Typography, Avatar, Button, Stack, CircularProgress, ArrowBackIcon } from '@cattos/ui'
+import {
+  Box,
+  Typography,
+  Avatar,
+  Button,
+  IconButton,
+  Stack,
+  CircularProgress,
+  ArrowBackIcon,
+} from '@cattos/ui'
 import type { User } from '@cattos/shared'
 import { PostFeed } from '@/features/posts/components'
 
@@ -29,9 +38,9 @@ export const ProfileScreenPresentation = ({ user, onBack }: { user: User; onBack
   return (
     <Box>
       <Box p={2} borderBottom={1} borderColor="divider" display="flex" alignItems="center" gap={2}>
-        <Button onClick={onBack} sx={{ minWidth: 'auto', p: 1, borderRadius: '50%' }}>
+        <IconButton onClick={onBack} sx={{ p: 1 }}>
           <ArrowBackIcon />
-        </Button>
+        </IconButton>
         <Box>
           <Typography variant="h6" fontWeight="bold">
             {user.username}

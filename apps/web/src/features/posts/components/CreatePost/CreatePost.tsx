@@ -89,6 +89,7 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
                 </Typography>
                 <Button
                   size="small"
+                  variant="text"
                   onClick={() => setMediaFiles([])}
                   disabled={loading}
                   sx={{ textTransform: 'none' }}

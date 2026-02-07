@@ -4,13 +4,13 @@ import {
   CircularProgress,
   LinearProgress,
   Container,
-  InputAdornment,
   Paper,
   Stack,
-  TextField,
+  FormTextField,
   Typography,
   Alert,
   Avatar,
+  AvatarButton,
   CheckCircleOutlineIcon,
   CancelOutlinedIcon,
   AccountCircleIcon,
@@ -20,7 +20,7 @@ import {
 import type { FormikProps } from 'formik'
 import type { FocusEventHandler, MouseEventHandler, RefObject } from 'react'
 import backgroundCity from '@/assets/backgrounds/background_city.jpg'
-import appLogoSmall from '@/assets/logos/app_logo_small.png'
+import appLogoBig from '@/assets/logos/app_logo_big.png'
 
 type OnboardingValues = {
   username: string
@@ -121,7 +121,7 @@ export const OnboardingScreenPresentation = ({
             sx={{
               width: '100%',
               background: 'linear-gradient(135deg, #42a5f5 0%, #1976d2 100%)',
-              height: 100,
+              height: 120,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -141,12 +141,11 @@ export const OnboardingScreenPresentation = ({
           >
             <Box
               sx={{
-                width: 70,
-                height: 70,
+                width: '90px',
+                height: '90px',
                 borderRadius: '50%',
-                border: '4px solid white',
+                outline: '4px solid white',
                 boxShadow: 2,
-                bgcolor: 'white',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -154,9 +153,14 @@ export const OnboardingScreenPresentation = ({
               }}
             >
               <img
-                src={appLogoSmall}
+                src={appLogoBig}
                 alt="Cattos Logo"
-                style={{ width: '150%', height: '150%', display: 'block', objectFit: 'cover' }}
+                style={{
+                  width: '150%',
+                  height: '150%',
+                  display: 'block',
+                  objectFit: 'cover',
+                }}
               />
             </Box>
           </Box>
@@ -216,64 +220,56 @@ export const OnboardingScreenPresentation = ({
               >
                 <Box sx={{ flex: 1 }}>
                   {activeStep === 0 && (
-                    <Stack spacing={2}>
-                      <TextField
+                    <Stack spacing={0} sx={{ width: '100%' }}>
+                      <FormTextField
+                        margin="normal"
                         fullWidth
                         required
-                        placeholder="Username"
+                        outsideLabel
+                        label="Username"
+                        placeholder="e.g. cool_cat"
                         name="username"
                         value={formik.values.username}
                         onChange={formik.handleChange}
                         onBlur={onUsernameBlur}
-                        error={showUsernameFieldError}
-                        helperText={usernameFieldErrorText}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <AccountCircleIcon color="action" fontSize="small" />
-                            </InputAdornment>
-                          ),
-                          endAdornment: usernameStatusAdornment ? (
-                            <InputAdornment position="end">
-                              {usernameStatusAdornment}
-                            </InputAdornment>
-                          ) : null,
-                        }}
+                        errorText={showUsernameFieldError ? usernameFieldErrorText : null}
+                        startIcon={<AccountCircleIcon color="action" fontSize="small" />}
+                        endIcon={usernameStatusAdornment}
                       />
-                      <TextField
+                      <FormTextField
+                        margin="normal"
                         fullWidth
                         required
-                        placeholder="Display Name"
+                        outsideLabel
+                        label="Display Name"
+                        placeholder="What should we call you?"
                         name="displayName"
                         value={formik.values.displayName}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        error={formik.touched.displayName && Boolean(formik.errors.displayName)}
-                        helperText={formik.touched.displayName && formik.errors.displayName}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <AccountCircleIcon color="action" fontSize="small" />
-                            </InputAdornment>
-                          ),
-                        }}
+                        errorText={
+                          formik.touched.displayName && formik.errors.displayName
+                            ? (formik.errors.displayName as string)
+                            : null
+                        }
+                        startIcon={<AccountCircleIcon color="action" fontSize="small" />}
                       />
-                      <TextField
+                      <FormTextField
+                        margin="normal"
                         fullWidth
-                        placeholder="Location (Optional)"
+                        outsideLabel
+                        label="Location"
+                        placeholder="Where are you located? (Optional)"
                         name="location"
                         value={formik.values.location}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        error={formik.touched.location && Boolean(formik.errors.location)}
-                        helperText={formik.touched.location && formik.errors.location}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <LocationOnIcon color="action" fontSize="small" />
-                            </InputAdornment>
-                          ),
-                        }}
+                        errorText={
+                          formik.touched.location && formik.errors.location
+                            ? (formik.errors.location as string)
+                            : null
+                        }
+                        startIcon={<LocationOnIcon color="action" fontSize="small" />}
                       />
                     </Stack>
                   )}
@@ -292,7 +288,6 @@ export const OnboardingScreenPresentation = ({
                         variant="outlined"
                         startIcon={<CloudUploadIcon />}
                         onClick={onUploadAvatarClick}
-                        sx={{ textTransform: 'none', borderRadius: 2 }}
                       >
                         Upload Your Own
                       </Button>
@@ -316,33 +311,12 @@ export const OnboardingScreenPresentation = ({
                         }}
                       >
                         {presetAvatars.map((url) => (
-                          <Box
+                          <AvatarButton
                             key={url}
-                            component="button"
-                            type="button"
+                            src={url}
+                            selected={formik.values.avatarUrl === url}
                             onClick={() => onPickPresetAvatar(url)}
-                            sx={{
-                              p: 0,
-                              border: '4px solid',
-                              borderColor:
-                                formik.values.avatarUrl === url ? 'primary.main' : 'transparent',
-                              borderRadius: '50%',
-                              bgcolor: 'transparent',
-                              cursor: 'pointer',
-                              overflow: 'hidden',
-                              transition: 'all 0.2s',
-                              '&:hover': { transform: 'scale(1.06)' },
-                            }}
-                          >
-                            <Avatar
-                              src={url}
-                              sx={{
-                                width: '100%',
-                                height: '100%',
-                                aspectRatio: '1/1',
-                              }}
-                            />
-                          </Box>
+                          />
                         ))}
                       </Box>
 
@@ -355,21 +329,22 @@ export const OnboardingScreenPresentation = ({
                   )}
 
                   {activeStep === 2 && (
-                    <Stack spacing={2}>
-                      <TextField
+                    <Stack spacing={2} sx={{ width: '100%' }}>
+                      <FormTextField
                         fullWidth
                         multiline
+                        outsideLabel
                         minRows={4}
+                        label="Your First Post"
                         placeholder="What's on your mind, furry friend?"
                         name="firstPostContent"
                         value={formik.values.firstPostContent}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        error={
-                          formik.touched.firstPostContent && Boolean(formik.errors.firstPostContent)
-                        }
-                        helperText={
+                        errorText={
                           formik.touched.firstPostContent && formik.errors.firstPostContent
+                            ? (formik.errors.firstPostContent as string)
+                            : null
                         }
                       />
                     </Stack>
@@ -377,22 +352,20 @@ export const OnboardingScreenPresentation = ({
                 </Box>
 
                 <Stack direction="row" justifyContent="space-between" mt={4}>
-                  <Button
-                    type="button"
-                    variant="text"
-                    disabled={activeStep === 0 || submitting}
-                    onClick={onBack}
-                    sx={{ textTransform: 'none' }}
-                  >
-                    Back
-                  </Button>
+                  {activeStep > 0 ? (
+                    <Button type="button" variant="outlined" disabled={submitting} onClick={onBack}>
+                      Back
+                    </Button>
+                  ) : (
+                    <Box />
+                  )}
 
                   {activeStep === steps.length - 1 ? (
                     <Button
                       type="submit"
-                      variant="contained"
+                      variant="orange"
                       disabled={submitting}
-                      sx={{ minWidth: 120, borderRadius: 2, textTransform: 'none' }}
+                      sx={{ minWidth: 120 }}
                       onClick={onFinishIntent}
                     >
                       {submitting ? <CircularProgress size={22} color="inherit" /> : 'Create Post'}
@@ -403,7 +376,7 @@ export const OnboardingScreenPresentation = ({
                       variant="contained"
                       onClick={onNext}
                       disabled={submitting}
-                      sx={{ minWidth: 100, borderRadius: 2, textTransform: 'none' }}
+                      sx={{ minWidth: 100 }}
                     >
                       Next
                     </Button>

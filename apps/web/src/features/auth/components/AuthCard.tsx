@@ -76,7 +76,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
             >
               <Button
                 fullWidth
-                variant={mode === 'login' ? 'primary' : 'text'}
+                variant={mode === 'login' ? 'contained' : 'text'}
                 onClick={() => navigate('/login')}
                 sx={{
                   borderRadius: 1.5,
@@ -87,7 +87,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
               </Button>
               <Button
                 fullWidth
-                variant={mode === 'register' ? 'primary' : 'text'}
+                variant={mode === 'register' ? 'contained' : 'text'}
                 onClick={() => navigate('/register')}
                 sx={{
                   borderRadius: 1.5,
