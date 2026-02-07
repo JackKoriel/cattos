@@ -2,6 +2,4 @@ import { IconButton as MuiIconButton, IconButtonProps as MuiIconButtonProps } fr
 
 export type IconButtonProps = MuiIconButtonProps
 
-export const IconButton = (props: IconButtonProps) => {
-  return <MuiIconButton {...props} />
-}
+export const IconButton = MuiIconButton

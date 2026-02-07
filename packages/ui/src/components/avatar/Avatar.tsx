@@ -2,6 +2,4 @@ import { Avatar as MuiAvatar, AvatarProps as MuiAvatarProps } from '@mui/materia
 
 export type AvatarProps = MuiAvatarProps
 
-export const Avatar = (props: AvatarProps) => {
-  return <MuiAvatar {...props} />
-}
+export const Avatar = MuiAvatar

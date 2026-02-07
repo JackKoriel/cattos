@@ -8,10 +8,5 @@ import {
 export type DialogProps = MuiDialogProps
 export type DialogContentProps = MuiDialogContentProps
 
-export const Dialog = (props: DialogProps) => {
-  return <MuiDialog {...props} />
-}
-
-export const DialogContent = (props: DialogContentProps) => {
-  return <MuiDialogContent {...props} />
-}
+export const Dialog = MuiDialog
+export const DialogContent = MuiDialogContent

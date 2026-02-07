@@ -2,6 +2,4 @@ import { Container as MuiContainer, ContainerProps as MuiContainerProps } from '
 
 export type ContainerProps = MuiContainerProps
 
-export const Container = (props: ContainerProps) => {
-  return <MuiContainer {...props} />
-}
+export const Container = MuiContainer

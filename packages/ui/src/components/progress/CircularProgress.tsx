@@ -5,6 +5,4 @@ import {
 
 export type CircularProgressProps = MuiCircularProgressProps
 
-export const CircularProgress = (props: CircularProgressProps) => {
-  return <MuiCircularProgress {...props} />
-}
+export const CircularProgress = MuiCircularProgress

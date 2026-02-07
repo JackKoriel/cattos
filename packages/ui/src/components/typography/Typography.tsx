@@ -2,6 +2,4 @@ import { Typography as MuiTypography, TypographyProps as MuiTypographyProps } fr
 
 export type TypographyProps = MuiTypographyProps
 
-export const Typography = (props: TypographyProps) => {
-  return <MuiTypography {...props} />
-}
+export const Typography = MuiTypography

@@ -117,7 +117,6 @@ export const OnboardingScreenPresentation = ({
             flexDirection: 'column',
           }}
         >
-          {/* Blue Header */}
           <Box
             sx={{
               width: '100%',
@@ -171,7 +170,6 @@ export const OnboardingScreenPresentation = ({
                   flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  width: '100%',
                   textAlign: 'center',
                 }}
               >
@@ -183,7 +181,6 @@ export const OnboardingScreenPresentation = ({
                       : 'Your First Post'}
                 </Typography>
 
-                {/* Progress Stepper */}
                 <Box sx={{ width: '70%', mt: 2 }}>
                   <LinearProgress
                     variant="determinate"

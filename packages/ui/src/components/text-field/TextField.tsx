@@ -6,8 +6,6 @@ import {
 
 export type TextFieldProps = MuiTextFieldProps
 
-export const TextField = (props: TextFieldProps) => {
-  return <MuiTextField {...props} />
-}
+export const TextField = MuiTextField
 
 export { InputAdornment }

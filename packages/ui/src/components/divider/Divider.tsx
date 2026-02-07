@@ -2,6 +2,4 @@ import { Divider as MuiDivider, DividerProps as MuiDividerProps } from '@mui/mat
 
 export type DividerProps = MuiDividerProps
 
-export const Divider = (props: DividerProps) => {
-  return <MuiDivider {...props} />
-}
+export const Divider = MuiDivider
