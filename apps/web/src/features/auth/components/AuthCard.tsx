@@ -26,7 +26,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
         pt: 12,
       }}
     >
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="md">
         <Box
           sx={{
             display: 'flex',
@@ -50,7 +50,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
               padding: 4,
               borderRadius: 4,
               width: '100%',
-              maxWidth: 400,
+              maxWidth: 600,
               minHeight: 480,
               userSelect: 'none',
               backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -76,38 +76,22 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
             >
               <Button
                 fullWidth
-                variant={mode === 'login' ? 'contained' : 'text'}
+                variant={mode === 'login' ? 'primary' : 'text'}
                 onClick={() => navigate('/login')}
                 sx={{
                   borderRadius: 1.5,
-                  bgcolor: mode === 'login' ? '#1976d2' : 'transparent',
-                  color: mode === 'login' ? '#ffffff' : '#666666',
-                  boxShadow: mode === 'login' ? 2 : 0,
-                  '&:hover': {
-                    bgcolor: mode === 'login' ? '#1565c0' : 'rgba(0,0,0,0.04)',
-                  },
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  py: 1,
+                  ...(mode === 'login' ? {} : { color: '#666666' }),
                 }}
               >
                 Sign In
               </Button>
               <Button
                 fullWidth
-                variant={mode === 'register' ? 'contained' : 'text'}
+                variant={mode === 'register' ? 'primary' : 'text'}
                 onClick={() => navigate('/register')}
                 sx={{
                   borderRadius: 1.5,
-                  bgcolor: mode === 'register' ? '#1976d2' : 'transparent',
-                  color: mode === 'register' ? '#ffffff' : '#666666',
-                  boxShadow: mode === 'register' ? 2 : 0,
-                  '&:hover': {
-                    bgcolor: mode === 'register' ? '#1565c0' : 'rgba(0,0,0,0.04)',
-                  },
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  py: 1,
+                  ...(mode === 'register' ? {} : { color: '#666666' }),
                 }}
               >
                 Create Account
