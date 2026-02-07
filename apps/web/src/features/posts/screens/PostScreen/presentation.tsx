@@ -1,5 +1,4 @@
-import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { Box, CircularProgress, IconButton, Typography, ArrowBackIcon } from '@cattos/ui'
 import { PostCard } from '@cattos/ui'
 import type { Post } from '@cattos/shared'
 import { CommentList } from '@/features/comments/components'

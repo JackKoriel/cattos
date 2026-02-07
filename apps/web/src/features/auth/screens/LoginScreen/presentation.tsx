@@ -1,4 +1,4 @@
-import { Box, TextField, Button, Alert, Link } from '@mui/material'
+import { Box, TextField, Button, Alert, Link } from '@cattos/ui'
 import type { FormikProps } from 'formik'
 import type { LoginFormValues } from '@/hooks/auth/useLoginForm'
 import { Link as RouterLink } from 'react-router-dom'

@@ -1,5 +1,5 @@
 import { useRef, useCallback, forwardRef, useImperativeHandle, useState } from 'react'
-import { Box, CircularProgress, Stack, Typography, Snackbar } from '@mui/material'
+import { Box, CircularProgress, Stack, Typography, Snackbar } from '@cattos/ui'
 import { PostCard, PostSkeleton } from '@cattos/ui'
 import { useFetchPosts } from '@/hooks/useFetchPosts'
 import { apiClient } from '@/services/client'

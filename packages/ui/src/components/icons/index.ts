@@ -1,0 +1,6 @@
+export { default as CheckCircleOutlineIcon } from '@mui/icons-material/CheckCircleOutline'
+export { default as CancelOutlinedIcon } from '@mui/icons-material/CancelOutlined'
+export { default as ArrowBackIcon } from '@mui/icons-material/ArrowBack'
+export { default as CloseIcon } from '@mui/icons-material/Close'
+export { default as ImageIcon } from '@mui/icons-material/Image'
+export { default as EmojiEmotionsIcon } from '@mui/icons-material/EmojiEmotions'

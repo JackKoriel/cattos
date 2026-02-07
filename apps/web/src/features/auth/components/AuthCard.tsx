@@ -1,4 +1,4 @@
-import { Paper, Typography, Box, Button, Container } from '@mui/material'
+import { Paper, Typography, Box, Button, Container } from '@cattos/ui'
 import { useNavigate } from 'react-router-dom'
 import { ReactNode } from 'react'
 import backgroundCity from '@/assets/backgrounds/background_city.jpg'

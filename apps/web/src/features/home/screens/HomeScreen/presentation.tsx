@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material'
+import { Box, Typography } from '@cattos/ui'
 import type { ForwardedRef } from 'react'
 import { CreatePost, PostFeed, type PostFeedHandle } from '@/features/posts/components'
 

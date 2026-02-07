@@ -1,5 +1,5 @@
 import { Layout } from '@cattos/ui'
-import { Box, Typography, Stack, Button } from '@mui/material'
+import { Box, Typography, Stack, Button } from '@cattos/ui'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/context/AuthContext'
 

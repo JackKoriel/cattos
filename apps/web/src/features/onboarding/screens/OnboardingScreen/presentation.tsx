@@ -13,9 +13,9 @@ import {
   Typography,
   Alert,
   Avatar,
-} from '@mui/material'
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined'
+  CheckCircleOutlineIcon,
+  CancelOutlinedIcon,
+} from '@cattos/ui'
 import type { FormikProps } from 'formik'
 import type { FocusEventHandler, MouseEventHandler, RefObject } from 'react'
 

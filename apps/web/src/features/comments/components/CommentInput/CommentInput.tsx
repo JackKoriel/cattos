@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Avatar, TextField, Button, CircularProgress, Stack } from '@mui/material'
+import { Box, Avatar, TextField, Button, CircularProgress, Stack } from '@cattos/ui'
 import { useAuth } from '@/features/auth/context/AuthContext'
 import { apiClient, handleApiError } from '@/services/client'
 import { Post } from '@cattos/shared'

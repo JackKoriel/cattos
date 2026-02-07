@@ -1,5 +1,4 @@
-import { Dialog, DialogContent, Box, IconButton, Divider } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
+import { Dialog, DialogContent, Box, IconButton, Divider, CloseIcon } from '@cattos/ui'
 import { PostCard } from '@cattos/ui'
 import { Post } from '@cattos/shared'
 import { CommentList } from '../CommentList'

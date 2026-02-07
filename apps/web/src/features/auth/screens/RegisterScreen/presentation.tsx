@@ -1,4 +1,4 @@
-import { Box, TextField, Button, Alert } from '@mui/material'
+import { Box, TextField, Button, Alert } from '@cattos/ui'
 import type { FormikProps } from 'formik'
 import type { RegisterFormValues } from '@/hooks/auth/useRegisterForm'
 import { AuthCard } from '../../components/AuthCard'

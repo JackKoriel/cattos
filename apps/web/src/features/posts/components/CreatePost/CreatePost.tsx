@@ -8,8 +8,9 @@ import {
   CircularProgress,
   IconButton,
   Typography,
-} from '@mui/material'
-import { Image, EmojiEmotions } from '@mui/icons-material'
+  ImageIcon,
+  EmojiEmotionsIcon,
+} from '@cattos/ui'
 import { useAuth } from '@/features/auth/context/AuthContext'
 import { apiClient, handleApiError } from '@/services/client'
 import { uploadPostMedia } from '@/services/uploads'
@@ -132,10 +133,10 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={loading || mediaFiles.length >= 4}
               >
-                <Image fontSize="small" />
+                <ImageIcon fontSize="small" />
               </IconButton>
               <IconButton size="small" color="primary">
-                <EmojiEmotions fontSize="small" />
+                <EmojiEmotionsIcon fontSize="small" />
               </IconButton>
             </Stack>
 

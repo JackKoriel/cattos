@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Stack, Typography, Button } from '@mui/material'
+import { Box, CircularProgress, Stack, Typography, Button } from '@cattos/ui'
 import { PostCard } from '@cattos/ui'
 import { useFetchComments } from '@/hooks/useFetchComments'
 import { CommentInput } from '../CommentInput/CommentInput'
