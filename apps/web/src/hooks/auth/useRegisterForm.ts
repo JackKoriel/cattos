@@ -4,17 +4,14 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/context/AuthContext'
 
 const RegisterSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(3, 'Must be at least 3 characters')
-    .max(20, 'Must be 20 characters or less')
-    .matches(/^[a-zA-Z0-9_]+$/, 'Can only contain letters, numbers, and underscores')
-    .required('Required'),
   email: Yup.string().email('Invalid email').required('Required'),
-  password: Yup.string().min(6, 'Must be at least 6 characters').required('Required'),
+  password: Yup.string()
+    .min(8, 'Must be at least 8 characters')
+    .matches(/(?=.*[a-z])(?=.*[A-Z])/, 'Must include upper and lower case letters')
+    .required('Required'),
 })
 
 export type RegisterFormValues = {
-  username: string
   email: string
   password: string
 }
@@ -24,7 +21,7 @@ export const useRegisterForm = () => {
   const navigate = useNavigate()
 
   const formik = useFormik<RegisterFormValues>({
-    initialValues: { username: '', email: '', password: '' },
+    initialValues: { email: '', password: '' },
     validationSchema: RegisterSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {

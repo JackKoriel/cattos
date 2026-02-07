@@ -5,9 +5,7 @@ export interface LoginCredentials {
 
 export interface RegisterCredentials {
   email: string
-  username: string
   password: string
-  displayName?: string
 }
 
 export interface AuthTokens {

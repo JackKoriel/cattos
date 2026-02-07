@@ -17,30 +17,11 @@ export const RegisterScreenPresentation = ({
           margin="normal"
           required
           fullWidth
-          id="username"
-          label="Username"
-          name="username"
-          autoComplete="username"
-          autoFocus
-          value={formik.values.username}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.username && Boolean(formik.errors.username)}
-          helperText={formik.touched.username && formik.errors.username}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 2,
-            },
-          }}
-        />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
           id="email"
           label="Email Address"
           name="email"
           autoComplete="email"
+          autoFocus
           value={formik.values.email}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
