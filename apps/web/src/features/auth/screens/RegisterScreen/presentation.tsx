@@ -76,7 +76,7 @@ export const RegisterScreenPresentation = ({
           }}
           disabled={formik.isSubmitting}
         >
-          {formik.isSubmitting ? 'Joining...' : 'Enter the Catverse'}
+          {formik.isSubmitting ? 'Joining...' : 'Enter Cattos'}
         </Button>
       </Box>
     </AuthCard>
