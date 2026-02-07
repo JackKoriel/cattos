@@ -1,4 +1,4 @@
-import { Box, CircularProgress, IconButton, Typography, ArrowBackIcon } from '@cattos/ui'
+import { Box, CircularProgress, IconButton, Typography, ArrowBackIcon, PawLoader } from '@cattos/ui'
 import { PostCard } from '@cattos/ui'
 import type { Post } from '@cattos/shared'
 import { CommentList } from '@/features/comments/components'
@@ -77,8 +77,8 @@ export const PostScreenPresentation = ({
 
 export const PostScreenLoading = () => {
   return (
-    <Box display="flex" justifyContent="center" p={4}>
-      <CircularProgress size={28} />
+    <Box display="flex" justifyContent="center" p={8}>
+      <PawLoader size="medium" text="Loading post..." />
     </Box>
   )
 }

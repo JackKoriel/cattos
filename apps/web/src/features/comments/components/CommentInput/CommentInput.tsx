@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Avatar, TextField, Button, CircularProgress, Stack } from '@cattos/ui'
+import { Box, Avatar, TextField, Button, CircularProgress, Stack, PawLoader } from '@cattos/ui'
 import { useAuth } from '@/features/auth/context/AuthContext'
 import { apiClient, handleApiError } from '@/services/client'
 import { Post } from '@cattos/shared'
@@ -83,7 +83,7 @@ export const CommentInput = ({ postId, onCommentAdded }: CommentInputProps) => {
               disabled={!content.trim() || loading}
               sx={{ borderRadius: 20, px: 2, textTransform: 'none', fontWeight: 'bold' }}
             >
-              {loading ? <CircularProgress size={20} color="inherit" /> : 'Reply'}
+              {loading ? <PawLoader size="small" text="" color="inherit" /> : 'Reply'}
             </Button>
           </Box>
         </Box>

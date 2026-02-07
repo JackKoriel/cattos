@@ -7,6 +7,7 @@ import {
   Stack,
   CircularProgress,
   IconButton,
+  PawLoader,
   Typography,
   ImageIcon,
   EmojiEmotionsIcon,
@@ -147,7 +148,7 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               disabled={(!content.trim() && mediaFiles.length === 0) || loading}
               sx={{ borderRadius: 20, px: 3, textTransform: 'none', fontWeight: 'bold' }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Post'}
+              {loading ? <PawLoader size="small" text="" color="inherit" /> : 'Post'}
             </Button>
           </Stack>
         </Box>

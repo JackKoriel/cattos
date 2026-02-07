@@ -1,4 +1,4 @@
-import { Box, FormTextField, Button, Alert, EmailIcon, LockIcon } from '@cattos/ui'
+import { Box, FormTextField, Button, Alert, EmailIcon, LockIcon, PawLoader } from '@cattos/ui'
 import type { FormikProps } from 'formik'
 import type { RegisterFormValues } from '@/hooks/auth/useRegisterForm'
 import { AuthCard } from '../../components/AuthCard'
@@ -53,7 +53,7 @@ export const RegisterScreenPresentation = ({
           </Alert>
         )}
         <Button type="submit" fullWidth variant="orange" disabled={formik.isSubmitting}>
-          {formik.isSubmitting ? 'Joining...' : 'Enter Cattos'}
+          {formik.isSubmitting ? <PawLoader size="xSmall" color="inherit" /> : 'Enter Cattos'}
         </Button>
       </Box>
     </AuthCard>

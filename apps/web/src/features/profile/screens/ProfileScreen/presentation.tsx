@@ -6,6 +6,7 @@ import {
   IconButton,
   Stack,
   CircularProgress,
+  PawLoader,
   ArrowBackIcon,
 } from '@cattos/ui'
 import type { User } from '@cattos/shared'
@@ -13,8 +14,8 @@ import { PostFeed } from '@/features/posts/components'
 
 export const ProfileScreenLoading = () => {
   return (
-    <Box display="flex" justifyContent="center" p={4}>
-      <CircularProgress />
+    <Box display="flex" justifyContent="center" p={8}>
+      <PawLoader size="large" text="Fetching profile..." />
     </Box>
   )
 }

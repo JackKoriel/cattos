@@ -21,6 +21,7 @@ import type { FormikProps } from 'formik'
 import type { FocusEventHandler, MouseEventHandler, RefObject } from 'react'
 import backgroundCity from '@/assets/backgrounds/background_city.jpg'
 import appLogoBig from '@/assets/logos/app_logo_big.png'
+import { OnboardingLoading } from './OnboardingLoading'
 
 type OnboardingValues = {
   username: string
@@ -89,6 +90,10 @@ export const OnboardingScreenPresentation = ({
     (formik.touched.username && Boolean(formik.errors.username)) ||
     (Boolean(usernameAvailabilityMessage) &&
       (usernameAvailability === 'taken' || usernameAvailability === 'error'))
+
+  if (submitting) {
+    return <OnboardingLoading />
+  }
 
   return (
     <Box
@@ -368,7 +373,7 @@ export const OnboardingScreenPresentation = ({
                       sx={{ minWidth: 120 }}
                       onClick={onFinishIntent}
                     >
-                      {submitting ? <CircularProgress size={22} color="inherit" /> : 'Create Post'}
+                      Create Post
                     </Button>
                   ) : (
                     <Button
