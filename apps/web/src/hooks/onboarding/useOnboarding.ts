@@ -42,7 +42,7 @@ type UsernameAvailabilityStatus = 'idle' | 'checking' | 'available' | 'taken' | 
 
 export const useOnboarding = () => {
   const navigate = useNavigate()
-  const { user, setCurrentUser } = useAuth()
+  const { user, setCurrentUser, logout } = useAuth()
 
   const [activeStep, setActiveStep] = useState(0)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
@@ -355,5 +355,6 @@ export const useOnboarding = () => {
     onAvatarFileChange,
     markFinishIntent,
     onUsernameBlur,
+    logout,
   }
 }

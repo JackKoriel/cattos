@@ -16,6 +16,8 @@ import {
   AccountCircleIcon,
   LocationOnIcon,
   CloudUploadIcon,
+  LogoutIcon,
+  EmailIcon,
 } from '@cattos/ui'
 import type { FormikProps } from 'formik'
 import type { FocusEventHandler, MouseEventHandler, RefObject } from 'react'
@@ -32,6 +34,7 @@ type OnboardingValues = {
 }
 
 export type OnboardingScreenPresentationProps = {
+  email: string
   steps: string[]
   presetAvatars: readonly string[]
   activeStep: number
@@ -50,9 +53,11 @@ export type OnboardingScreenPresentationProps = {
   onAvatarFileSelected: (file: File | null) => void
   onPickPresetAvatar: (url: string) => void
   onFinishIntent: () => void
+  onLogout: () => void
 }
 
 export const OnboardingScreenPresentation = ({
+  email,
   steps,
   presetAvatars,
   activeStep,
@@ -71,6 +76,7 @@ export const OnboardingScreenPresentation = ({
   onAvatarFileSelected,
   onPickPresetAvatar,
   onFinishIntent,
+  onLogout,
 }: OnboardingScreenPresentationProps) => {
   const usernameStatusAdornment =
     usernameAvailability === 'checking' ? (
@@ -107,8 +113,15 @@ export const OnboardingScreenPresentation = ({
         alignItems: 'flex-start',
         justifyContent: 'center',
         pt: 12,
+        position: 'relative',
       }}
     >
+      <Box sx={{ position: 'fixed', bottom: 24, left: 24, zIndex: 10 }}>
+        <Button variant="orange" startIcon={<LogoutIcon />} onClick={onLogout}>
+          Logout
+        </Button>
+      </Box>
+
       <Container component="main" maxWidth={false} sx={{ width: '100%', maxWidth: 750 }}>
         <Paper
           elevation={3}
@@ -206,16 +219,26 @@ export const OnboardingScreenPresentation = ({
                     }}
                   />
                   <Typography
-                    variant="caption"
+                    variant="body2"
                     color="text.secondary"
-                    sx={{ mt: 1, display: 'block' }}
+                    sx={{ mt: 1, display: 'block', fontWeight: 500 }}
                   >
                     Step {activeStep + 1} of {steps.length}
                   </Typography>
                 </Box>
               </Box>
 
-              {error && <Alert severity="error">{error}</Alert>}
+              {error && (
+                <Alert
+                  severity="error"
+                  sx={{
+                    '& .MuiAlert-message': { fontSize: '1rem' },
+                    '& .MuiAlert-icon': { fontSize: '1.5rem', alignItems: 'center' },
+                  }}
+                >
+                  {error}
+                </Alert>
+              )}
 
               <Box
                 component="form"
@@ -258,6 +281,16 @@ export const OnboardingScreenPresentation = ({
                             : null
                         }
                         startIcon={<AccountCircleIcon color="action" fontSize="small" />}
+                      />
+                      <FormTextField
+                        margin="normal"
+                        fullWidth
+                        disabled
+                        outsideLabel
+                        label="Email Address"
+                        name="email"
+                        value={email}
+                        startIcon={<EmailIcon color="action" fontSize="small" />}
                       />
                       <FormTextField
                         margin="normal"
@@ -326,7 +359,7 @@ export const OnboardingScreenPresentation = ({
                       </Box>
 
                       {formik.touched.avatarUrl && formik.errors.avatarUrl && (
-                        <Typography color="error" variant="caption" textAlign="center">
+                        <Typography color="error" variant="body2" textAlign="center">
                           {formik.errors.avatarUrl as string}
                         </Typography>
                       )}

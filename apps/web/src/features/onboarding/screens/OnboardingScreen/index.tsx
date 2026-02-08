@@ -8,6 +8,7 @@ export const OnboardingScreen = () => {
 
   return (
     <OnboardingScreenPresentation
+      email={onboarding.user.email}
       steps={onboarding.steps}
       presetAvatars={onboarding.presetAvatars}
       activeStep={onboarding.activeStep}
@@ -30,6 +31,9 @@ export const OnboardingScreen = () => {
       onAvatarFileSelected={onboarding.onAvatarFileChange}
       onPickPresetAvatar={onboarding.pickPresetAvatar}
       onFinishIntent={onboarding.markFinishIntent}
+      onLogout={() => {
+        void onboarding.logout()
+      }}
     />
   )
 }
