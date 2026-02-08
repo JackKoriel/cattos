@@ -1,4 +1,12 @@
-import { Box, Typography, Stack, CssBaseline } from '@cattos/ui'
+import {
+  Box,
+  Typography,
+  Stack,
+  CssBaseline,
+  IconButton,
+  ArrowBackIcon,
+  GRADIENTS,
+} from '@cattos/ui'
 import { Button } from '@cattos/ui'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthLogout, useAuthUser } from '@/stores/authStore'
@@ -15,14 +23,26 @@ export const AppLayout = () => {
   }
 
   const isHome = location.pathname === '/'
-  const isProfile = user?.username ? location.pathname === `/profile/${user.username}` : false
+  const isProfile = user?.username ? location.pathname.startsWith('/profile') : false
 
-  const gradientBackground = 'linear-gradient(180deg, #A088F9 0%, #FFBA93 100%)'
+  const getHeaderInfo = () => {
+    if (location.pathname === '/') return { title: 'Home', showBack: false }
+    if (location.pathname.startsWith('/profile/')) {
+      const parts = location.pathname.split('/')
+      const username = parts[parts.length - 1]
+      return { title: username || 'Profile', showBack: true }
+    }
+    if (location.pathname.startsWith('/post/')) return { title: 'Post', showBack: true }
+    return { title: 'Feed', showBack: false }
+  }
+
+  const { title, showBack } = getHeaderInfo()
 
   return (
     <>
       <CssBaseline />
       <Box display="flex" width="100%" minHeight="100vh">
+        {/* Left Sidebar - 20% */}
         <Box
           component="aside"
           width="20%"
@@ -32,7 +52,7 @@ export const AppLayout = () => {
             position: 'sticky',
             top: 0,
             height: '100vh',
-            background: gradientBackground,
+            background: GRADIENTS.main,
             borderRight: '1px solid rgba(255,255,255,0.2)',
           }}
         >
@@ -78,7 +98,6 @@ export const AppLayout = () => {
                   backgroundColor: isProfile ? undefined : '#f5f5f5',
                 },
               }}
-              // TODO: change to site logo black cat
               startIcon={<span style={{ marginRight: 8 }}>🐱</span>}
             >
               Profile
@@ -104,8 +123,94 @@ export const AppLayout = () => {
           </Stack>
         </Box>
 
-        <Box width={{ xs: '100%', md: '80%' }} minWidth={0}>
-          <Outlet />
+        {/* Middle Section - 60% */}
+        <Box
+          width={{ xs: '100%', md: '60%' }}
+          minWidth={0}
+          borderRight="1px solid rgba(255,255,255,0.2)"
+          sx={{
+            background: GRADIENTS.main,
+            minHeight: '100vh',
+          }}
+        >
+          {/* Persistent Header */}
+          <Box
+            p={2}
+            position="sticky"
+            top={0}
+            zIndex={10}
+            borderBottom="1px solid rgba(255,255,255,0.2)"
+            display="flex"
+            alignItems="center"
+            gap={1}
+            sx={{
+              background: GRADIENTS.main,
+              backdropFilter: 'blur(8px)',
+              cursor: 'default',
+              userSelect: 'none',
+            }}
+          >
+            {showBack && (
+              <IconButton size="small" onClick={() => navigate(-1)} sx={{ color: 'white' }}>
+                <ArrowBackIcon />
+              </IconButton>
+            )}
+            <Typography variant="h6" fontWeight="bold" color="white">
+              {title}
+            </Typography>
+          </Box>
+
+          <Box overflow="auto">
+            <Outlet />
+          </Box>
+        </Box>
+
+        {/* Right Sidebar - 20% */}
+        <Box
+          width="20%"
+          p={3}
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            position: 'sticky',
+            top: 0,
+            height: '100vh',
+            background: GRADIENTS.main,
+          }}
+        >
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            mb={2}
+            color="white"
+            sx={{ cursor: 'default', userSelect: 'none' }}
+          >
+            Purrfect Finds ✨
+          </Typography>
+          <Box bgcolor="white" borderRadius={3} p={2} boxShadow="0 4px 12px rgba(0,0,0,0.1)">
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              gutterBottom
+              sx={{ cursor: 'default', userSelect: 'none' }}
+            >
+              fav ads
+            </Typography>
+            <Box
+              p={2}
+              bgcolor="#f5f5f5"
+              borderRadius={2}
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+            >
+              <Typography variant="h2" mb={1}>
+                🐱
+              </Typography>
+              <Typography variant="caption" color="text.secondary" align="center">
+                Sample test.
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </Box>
     </>

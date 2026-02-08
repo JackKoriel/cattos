@@ -1,6 +1,6 @@
 import { useRef, useCallback, forwardRef, useImperativeHandle, useState } from 'react'
-import { Box, CircularProgress, Stack, Typography, Snackbar } from '@cattos/ui'
-import { PostCard, PostSkeleton } from '@cattos/ui'
+import { Box, Stack, Typography, Snackbar, PostCard } from '@cattos/ui'
+import { FeedSkeleton, LoadingMoreIndicator } from '@/features/posts/components'
 import { useFetchPosts } from '@/hooks/useFetchPosts'
 import { apiClient } from '@/services/client'
 import { Post } from '@cattos/shared'
@@ -161,13 +161,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(({ authorId },
   )
 
   if (loading && posts.length === 0) {
-    return (
-      <Stack spacing={2} p={2}>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <PostSkeleton key={n} />
-        ))}
-      </Stack>
-    )
+    return <FeedSkeleton count={5} />
   }
 
   if (!loading && !error && posts.length === 0) {
@@ -210,20 +204,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(({ authorId },
 
           {hasMore && <div ref={lastPostRef} style={{ height: 1 }} />}
 
-          {loadingMore && (
-            <Box
-              sx={{
-                position: 'sticky',
-                bottom: 12,
-                display: 'flex',
-                justifyContent: 'center',
-                py: 2,
-                pointerEvents: 'none',
-              }}
-            >
-              <CircularProgress size={22} thickness={5} sx={{ opacity: 0.85 }} />
-            </Box>
-          )}
+          {loadingMore && <LoadingMoreIndicator />}
 
           {!hasMore && posts.length > 0 && (
             <Typography variant="body2" color="text.secondary" align="center" py={2}>

@@ -2,6 +2,7 @@ import { Box, CircularProgress, Stack, Typography, Button } from '@cattos/ui'
 import { PostCard } from '@cattos/ui'
 import { useFetchComments } from '@/hooks/useFetchComments'
 import { CommentInput } from '../CommentInput/CommentInput'
+import { CommentSkeleton } from '../CommentSkeleton'
 import { apiClient } from '@/services/client'
 import { useNavigate } from 'react-router-dom'
 
@@ -52,11 +53,7 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
   }
 
   if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" p={4}>
-        <CircularProgress size={24} />
-      </Box>
-    )
+    return <CommentSkeleton />
   }
 
   if (error) {

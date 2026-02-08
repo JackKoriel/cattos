@@ -11,6 +11,7 @@ import {
   Typography,
   ImageIcon,
   EmojiEmotionsIcon,
+  GRADIENTS,
 } from '@cattos/ui'
 import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
@@ -141,7 +142,7 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
                 px: 3,
                 textTransform: 'none',
                 fontWeight: 'bold',
-                background: 'linear-gradient(90deg, #FF8E53 0%, #FF6B6B 100%)',
+                background: GRADIENTS.orange,
                 boxShadow: '0 4px 12px rgba(255, 107, 107, 0.4)',
                 color: 'white',
               }}

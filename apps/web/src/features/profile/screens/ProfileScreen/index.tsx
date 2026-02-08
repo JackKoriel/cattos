@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { ProfileScreenError, ProfileScreenLoading, ProfileScreenPresentation } from './presentation'
+import { ProfileScreenError, ProfileScreenPresentation } from './presentation'
+import { ProfileSkeleton } from '@/features/profile/components'
 import { useProfileByUsername } from '@/hooks/profile/useProfileByUsername'
 
 export const ProfileScreen = () => {
@@ -8,10 +9,10 @@ export const ProfileScreen = () => {
 
   const { user, loading, error } = useProfileByUsername(username)
 
-  if (loading) return <ProfileScreenLoading />
+  if (loading) return <ProfileSkeleton />
   if (error || !user) {
     return <ProfileScreenError message={error ?? 'User not found'} onGoHome={() => navigate('/')} />
   }
 
-  return <ProfileScreenPresentation user={user} onBack={() => navigate(-1)} />
+  return <ProfileScreenPresentation user={user} />
 }

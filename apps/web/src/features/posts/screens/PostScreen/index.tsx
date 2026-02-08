@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { PostScreenError, PostScreenLoading, PostScreenPresentation } from './presentation'
+import { PostScreenError, PostScreenPresentation } from './presentation'
+import { PostDetailSkeleton } from '@/features/posts/components'
 import { usePostById } from '@/hooks/posts/usePostById'
 import { usePostActions } from '@/hooks/posts/usePostActions'
 
@@ -10,13 +11,12 @@ export const PostScreen = () => {
   const { post, setPost, loading, error } = usePostById(id)
   const { like, bookmark, repost, share } = usePostActions()
 
-  if (loading) return <PostScreenLoading />
+  if (loading) return <PostDetailSkeleton />
   if (error || !post) return <PostScreenError message={error ?? 'Post not found'} />
 
   return (
     <PostScreenPresentation
       post={post}
-      onBack={() => navigate(-1)}
       onOpen={(postId) => navigate(`/post/${postId}`)}
       onProfileClick={(username) => navigate(`/profile/${username}`)}
       onLike={like}

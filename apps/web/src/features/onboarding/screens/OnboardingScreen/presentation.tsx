@@ -23,7 +23,7 @@ import type { FormikProps } from 'formik'
 import type { FocusEventHandler, MouseEventHandler, RefObject } from 'react'
 import backgroundCity from '@/assets/backgrounds/background_city.jpg'
 import appLogoBig from '@/assets/logos/app_logo_big.png'
-import { OnboardingLoading } from './OnboardingLoading'
+import { OnboardingLoading } from '@/features/onboarding/components'
 
 type OnboardingValues = {
   username: string
