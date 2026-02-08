@@ -15,7 +15,7 @@ export const AppLayout = () => {
   }
 
   const isHome = location.pathname === '/'
-  const isProfile = location.pathname.startsWith('/profile')
+  const isProfile = user?.username ? location.pathname === `/profile/${user.username}` : false
 
   const gradientBackground = 'linear-gradient(180deg, #A088F9 0%, #FFBA93 100%)'
 
