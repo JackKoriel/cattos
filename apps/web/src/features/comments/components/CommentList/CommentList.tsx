@@ -68,7 +68,7 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
   }
 
   return (
-    <Box>
+    <Stack spacing={2}>
       <CommentInput
         postId={postId}
         onCommentAdded={(comment) => {
@@ -78,35 +78,41 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
       />
 
       {comments.length === 0 ? (
-        <Box p={4} textAlign="center">
+        <Box
+          p={4}
+          textAlign="center"
+          bgcolor="white"
+          borderRadius={3}
+          boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+        >
           <Typography color="text.secondary">No replies yet. Be the first to reply!</Typography>
         </Box>
       ) : (
-        <Stack spacing={0}>
+        <Stack spacing={2}>
           {comments.map((comment) => (
-            <Box key={comment._id} borderBottom={1} borderColor="divider">
-              <PostCard
-                post={comment}
-                onLike={handleLike}
-                onBookmark={handleBookmark}
-                onProfileClick={(username) => navigate(`/profile/${username}`)}
-                showCommentButton={false}
-                showRepostButton={false}
-                showBookmarkButton={false}
-                showShareButton={false}
-              />
-            </Box>
+            <PostCard
+              key={comment._id}
+              post={comment}
+              onLike={handleLike}
+              onBookmark={handleBookmark}
+              onOpen={(id) => navigate(`/post/${id}`)}
+              onProfileClick={(username) => navigate(`/profile/${username}`)}
+              showCommentButton={false}
+              showRepostButton={false}
+              showBookmarkButton={false}
+              showShareButton={false}
+            />
           ))}
 
           {hasMore && (
             <Box display="flex" justifyContent="center" p={2}>
-              <Button onClick={loadMore} disabled={loadingMore} variant="text">
-                {loadingMore ? <CircularProgress size={20} /> : 'Load more replies'}
+              <Button onClick={loadMore} disabled={loadingMore} sx={{ color: 'white' }}>
+                {loadingMore ? <CircularProgress size={20} color="inherit" /> : 'Load more replies'}
               </Button>
             </Box>
           )}
         </Stack>
       )}
-    </Box>
+    </Stack>
   )
 }

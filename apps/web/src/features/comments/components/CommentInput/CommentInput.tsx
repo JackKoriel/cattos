@@ -50,7 +50,13 @@ export const CommentInput = ({ postId, onCommentAdded }: CommentInputProps) => {
   if (!user) return null
 
   return (
-    <Box p={2} borderBottom={1} borderColor="divider">
+    <Box
+      p={2}
+      bgcolor="white"
+      borderRadius={3}
+      boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+      sx={{ transition: 'box-shadow 0.2s' }}
+    >
       <Stack direction="row" spacing={2} alignItems="flex-start">
         <Avatar src={user.avatar} alt={user.username} sx={{ width: 40, height: 40 }}>
           {user.username?.charAt(0).toUpperCase()}
