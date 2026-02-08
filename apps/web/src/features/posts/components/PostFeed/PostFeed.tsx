@@ -190,7 +190,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(({ authorId },
 
   return (
     <>
-      <div ref={listRootRef}>
+      <Box ref={listRootRef}>
         <Stack spacing={2} p={2} pb={4}>
           {posts.map((post) => (
             <PostCard
@@ -230,7 +230,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(({ authorId },
             </Typography>
           )}
         </Stack>
-      </div>
+      </Box>
 
       <CommentDialog
         open={!!commentDialogPost}

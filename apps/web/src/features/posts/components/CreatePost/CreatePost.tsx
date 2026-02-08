@@ -60,17 +60,23 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   if (!user) return null
 
   return (
-    <Box p={2} borderBottom={1} borderColor="divider">
+    <Box
+      p={3}
+      bgcolor="white"
+      borderRadius={3}
+      boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+      sx={{ transition: 'box-shadow 0.2s' }}
+    >
       <Stack direction="row" spacing={2}>
-        <Avatar src={user.avatar} alt={user.username} />
+        <Avatar src={user.avatar} alt={user.username} sx={{ width: 48, height: 48 }} />
         <Box flex={1}>
           <TextField
             fullWidth
-            placeholder="What is happening?!"
+            placeholder="What's happening?!"
             multiline
             minRows={2}
             variant="standard"
-            InputProps={{ disableUnderline: true }}
+            InputProps={{ disableUnderline: true, style: { fontSize: '1.1rem' } }}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={loading}
@@ -80,6 +86,62 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               {error}
             </Box>
           )}
+
+          <Box
+            mt={2}
+            borderTop={1}
+            borderColor="divider"
+            pt={2}
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack direction="row" spacing={1}>
+              <input
+                ref={fileInputRef}
+                hidden
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.currentTarget.files ?? [])
+                  // Allow up to 4 total
+                  const next = [...mediaFiles, ...files].slice(0, 4)
+                  setMediaFiles(next)
+                  e.currentTarget.value = ''
+                }}
+              />
+
+              <IconButton
+                size="small"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading || mediaFiles.length >= 4}
+                sx={{ color: 'text.secondary' }}
+              >
+                <ImageIcon />
+              </IconButton>
+              <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                <EmojiEmotionsIcon />
+              </IconButton>
+            </Stack>
+
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={(!content.trim() && mediaFiles.length === 0) || loading}
+              sx={{
+                borderRadius: 50,
+                px: 3,
+                textTransform: 'none',
+                fontWeight: 'bold',
+                background: 'linear-gradient(90deg, #FF8E53 0%, #FF6B6B 100%)',
+                boxShadow: '0 4px 12px rgba(255, 107, 107, 0.4)',
+                color: 'white',
+              }}
+            >
+              {loading ? <PawLoader size="small" text="" color="inherit" /> : 'Post'}
+            </Button>
+          </Box>
 
           {mediaFiles.length > 0 && (
             <Box mt={1}>
@@ -102,54 +164,6 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               </Typography>
             </Box>
           )}
-
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            mt={2}
-            borderTop={1}
-            borderColor="divider"
-            pt={1}
-          >
-            <Stack direction="row" spacing={1}>
-              <input
-                ref={fileInputRef}
-                hidden
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(e) => {
-                  const files = Array.from(e.currentTarget.files ?? [])
-                  // Allow up to 4 total
-                  const next = [...mediaFiles, ...files].slice(0, 4)
-                  setMediaFiles(next)
-                  e.currentTarget.value = ''
-                }}
-              />
-
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={loading || mediaFiles.length >= 4}
-              >
-                <ImageIcon fontSize="small" />
-              </IconButton>
-              <IconButton size="small" color="primary">
-                <EmojiEmotionsIcon fontSize="small" />
-              </IconButton>
-            </Stack>
-
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
-              disabled={(!content.trim() && mediaFiles.length === 0) || loading}
-              sx={{ borderRadius: 20, px: 3, textTransform: 'none', fontWeight: 'bold' }}
-            >
-              {loading ? <PawLoader size="small" text="" color="inherit" /> : 'Post'}
-            </Button>
-          </Stack>
         </Box>
       </Stack>
     </Box>
