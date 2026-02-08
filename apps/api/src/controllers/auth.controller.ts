@@ -111,7 +111,7 @@ const completeOnboarding = async (req: Request, res: Response, next: NextFunctio
     }
 
     const existing = await userService.findByUsername(username)
-    if (existing && String((existing as { _id?: unknown })._id) !== req.user.id) {
+    if (existing && existing.id !== req.user.id) {
       res.status(409).json({ success: false, error: 'Username already taken' })
       return
     }
@@ -156,7 +156,7 @@ const checkUsernameAvailable = async (req: Request, res: Response, next: NextFun
     }
 
     const existing = await userService.findByUsername(username)
-    const available = !existing || String((existing as { _id?: unknown })._id) === req.user.id
+    const available = !existing || existing.id === req.user.id
 
     res.json({ success: true, data: { available } })
   } catch (error) {

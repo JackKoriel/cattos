@@ -1,10 +1,23 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { postController } from '../post.controller.js'
 import { postService } from '../../services/post.service.js'
+import { likeService } from '../../services/like.service.js'
+import { bookmarkService } from '../../services/bookmark.service.js'
 import type { Request, Response, NextFunction } from 'express'
 import { Types } from 'mongoose'
 
 vi.mock('../../services/post.service.js')
+vi.mock('../../services/like.service.js', () => ({
+  likeService: {
+    getLikeByPostAndUser: vi.fn(),
+  },
+}))
+
+vi.mock('../../services/bookmark.service.js', () => ({
+  bookmarkService: {
+    getBookmarkByPostAndUser: vi.fn(),
+  },
+}))
 
 type FindAllResult = Awaited<ReturnType<(typeof postService)['findAll']>>
 type FindByIdResult = Awaited<ReturnType<(typeof postService)['findById']>>
@@ -32,13 +45,16 @@ describe('Post Controller', () => {
     }
     mockNext = vi.fn()
     vi.clearAllMocks()
+
+    vi.mocked(likeService.getLikeByPostAndUser).mockResolvedValue(null as unknown as never)
+    vi.mocked(bookmarkService.getBookmarkByPostAndUser).mockResolvedValue(null as unknown as never)
   })
 
   describe('listPosts', () => {
     it('should return all posts with default pagination', async () => {
       const mockPosts = [
-        { _id: '1', content: 'Post 1' },
-        { _id: '2', content: 'Post 2' },
+        { id: '1', content: 'Post 1' },
+        { id: '2', content: 'Post 2' },
       ]
 
       vi.mocked(postService.findAll).mockResolvedValue(mockPosts as unknown as FindAllResult)
@@ -52,8 +68,8 @@ describe('Post Controller', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
         data: [
-          { _id: '1', content: 'Post 1', isLiked: false, isBookmarked: false },
-          { _id: '2', content: 'Post 2', isLiked: false, isBookmarked: false },
+          { id: '1', content: 'Post 1', isLiked: false, isBookmarked: false },
+          { id: '2', content: 'Post 2', isLiked: false, isBookmarked: false },
         ],
         count: 2,
       })
@@ -107,7 +123,7 @@ describe('Post Controller', () => {
 
   describe('getPostById', () => {
     it('should return a post by ID', async () => {
-      const mockPost = { _id: '1', content: 'Test Post' }
+      const mockPost = { id: '1', content: 'Test Post' }
       mockReq.params = { id: '1' }
 
       vi.mocked(postService.findById).mockResolvedValue(mockPost as unknown as FindByIdResult)
@@ -120,7 +136,7 @@ describe('Post Controller', () => {
 
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
-        data: { _id: '1', content: 'Test Post', isLiked: false, isBookmarked: false },
+        data: { id: '1', content: 'Test Post', isLiked: false, isBookmarked: false },
       })
     })
 
@@ -152,7 +168,7 @@ describe('Post Controller', () => {
       mockReq.body = postData
       mockReq.user = { id: userId }
 
-      const mockCreatedPost = { _id: '1', ...postData, hashtags: ['hello'], mentions: ['user'] }
+      const mockCreatedPost = { id: '1', ...postData, hashtags: ['hello'], mentions: ['user'] }
       vi.mocked(postService.create).mockResolvedValue(mockCreatedPost as unknown as CreateResult)
 
       await postController.createPost(
@@ -164,7 +180,7 @@ describe('Post Controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(201)
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
-        data: mockCreatedPost,
+        data: { ...mockCreatedPost, isLiked: false, isBookmarked: false },
       })
     })
 
@@ -274,7 +290,7 @@ describe('Post Controller', () => {
 
   describe('listPostsByHashtag', () => {
     it('should return posts filtered by hashtag', async () => {
-      const mockPosts = [{ _id: '1', hashtags: ['cats'] }]
+      const mockPosts = [{ id: '1', hashtags: ['cats'] }]
       mockReq.params = { hashtag: 'cats' }
       mockReq.query = { limit: '20', skip: '0' }
 
@@ -299,8 +315,8 @@ describe('Post Controller', () => {
   describe('listRepliesForPost', () => {
     it('should return replies to a post', async () => {
       const mockReplies = [
-        { _id: '2', content: 'Reply 1', parentPostId: '1' },
-        { _id: '3', content: 'Reply 2', parentPostId: '1' },
+        { id: '2', content: 'Reply 1', parentPostId: '1' },
+        { id: '3', content: 'Reply 2', parentPostId: '1' },
       ]
       mockReq.params = { id: '1' }
 
@@ -317,8 +333,8 @@ describe('Post Controller', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
         data: [
-          { _id: '2', content: 'Reply 1', parentPostId: '1', isLiked: false, isBookmarked: false },
-          { _id: '3', content: 'Reply 2', parentPostId: '1', isLiked: false, isBookmarked: false },
+          { id: '2', content: 'Reply 1', parentPostId: '1', isLiked: false, isBookmarked: false },
+          { id: '3', content: 'Reply 2', parentPostId: '1', isLiked: false, isBookmarked: false },
         ],
         count: 2,
       })

@@ -91,7 +91,7 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
         <Stack spacing={2}>
           {comments.map((comment) => (
             <PostCard
-              key={comment._id}
+              key={comment.id}
               post={comment}
               onLike={handleLike}
               onBookmark={handleBookmark}

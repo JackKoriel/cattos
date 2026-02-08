@@ -48,7 +48,7 @@ const normalizePostShallow = (post: Record<string, unknown>): SharedPost => {
     repostsCount: clampNonNegativeNumber(post.repostsCount),
   }
 
-  const _id = toIdString(post._id) ?? ''
+  const id = toIdString(post._id) ?? ''
   const parentPostId = toIdString(post.parentPostId)
   const rootPostId = toIdString(post.rootPostId)
   const repostOfId = toIdString(post.repostOfId)
@@ -72,7 +72,7 @@ const normalizePostShallow = (post: Record<string, unknown>): SharedPost => {
     const authorId = String(author._id)
 
     return {
-      _id,
+      id,
       authorId,
       author: {
         id: authorId,
@@ -97,7 +97,7 @@ const normalizePostShallow = (post: Record<string, unknown>): SharedPost => {
 
   const authorId = toIdString(post.authorId) ?? ''
   return {
-    _id,
+    id,
     authorId,
     content,
     ...(mediaUrls ? { mediaUrls } : null),
@@ -115,7 +115,6 @@ const normalizePostShallow = (post: Record<string, unknown>): SharedPost => {
 }
 
 const normalizePost = (post: Record<string, unknown>): SharedPost => {
-  // If repostOfId is populated, normalize into `repostOf` + string `repostOfId`
   const repostField = post.repostOfId
   if (repostField && typeof repostField === 'object' && '_id' in repostField) {
     const repostObj = repostField as Record<string, unknown>
@@ -168,17 +167,29 @@ const findById = async (id: string): Promise<SharedPost | null> => {
   return post ? normalizePost(post as unknown as Record<string, unknown>) : null
 }
 
-const create = async (data: Partial<IPost>) => {
+const create = async (data: Partial<IPost>): Promise<SharedPost> => {
   const post = new Post(data)
-  return post.save()
+  const saved = await post.save()
+
+  const hydrated = await findById(saved._id.toString())
+  if (hydrated) return hydrated
+
+  return normalizePost(saved.toObject() as unknown as Record<string, unknown>)
 }
 
-const update = async (id: string, authorId: Types.ObjectId, data: Partial<IPost>) => {
-  return Post.findOneAndUpdate(
+const update = async (
+  id: string,
+  authorId: Types.ObjectId,
+  data: Partial<IPost>
+): Promise<SharedPost | null> => {
+  const updated = await Post.findOneAndUpdate(
     { _id: id, authorId, isDeleted: false },
     { ...data, isEdited: true, editedAt: new Date() },
     { new: true }
   ).lean()
+
+  if (!updated) return null
+  return findById(id)
 }
 
 const remove = async (id: string, authorId: Types.ObjectId) => {

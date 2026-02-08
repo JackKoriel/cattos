@@ -93,7 +93,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(({ authorId },
   }
 
   const handleComment = async (postId: string) => {
-    const existing = posts.find((p) => p._id === postId)
+    const existing = posts.find((p) => p.id === postId)
     if (existing) {
       setCommentDialogPost(existing)
       return
@@ -108,7 +108,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(({ authorId },
   }
 
   const handleCommentCreated = () => {
-    const postId = commentDialogPost?._id
+    const postId = commentDialogPost?.id
     if (!postId) return
 
     updatePost(postId, (prev) => ({ ...prev, commentsCount: (prev.commentsCount ?? 0) + 1 }))
@@ -194,7 +194,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(({ authorId },
         <Stack spacing={2} p={2} pb={4}>
           {posts.map((post) => (
             <PostCard
-              key={post._id}
+              key={post.id}
               post={post}
               onLike={handleLike}
               onRepost={handleRepostWithFeedback}

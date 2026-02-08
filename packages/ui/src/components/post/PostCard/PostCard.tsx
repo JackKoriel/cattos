@@ -46,7 +46,7 @@ export const PostCard = ({
   const actionPost = (isReshare ? post.repostOf : post) as Post
 
   const {
-    _id: targetId,
+    id: targetId,
     content,
     createdAt,
     likesCount,

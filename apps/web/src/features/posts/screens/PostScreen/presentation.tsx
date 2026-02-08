@@ -74,7 +74,7 @@ export const PostScreenPresentation = ({
             onOpen={onOpen}
             onProfileClick={onProfileClick}
           />
-          <CommentList postId={post._id} onCommentCreated={onCommentCreated} />
+          <CommentList postId={post.id} onCommentCreated={onCommentCreated} />
         </Stack>
       </Box>
 

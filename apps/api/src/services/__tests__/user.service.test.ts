@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { userService } from '../user.service.js'
 import { User } from '../../models/index.js'
+import { OnboardingStatus } from '@cattos/shared'
 
 vi.mock('../../models/index.js', () => ({
   User: {
@@ -21,9 +22,28 @@ describe('User Service', () => {
 
   describe('findAll', () => {
     it('should return all active users', async () => {
+      const createdAt = new Date('2024-01-01T00:00:00.000Z')
       const mockUsers = [
-        { _id: '1', username: 'cat1', isDeactivated: false, isSuspended: false },
-        { _id: '2', username: 'cat2', isDeactivated: false, isSuspended: false },
+        {
+          _id: '1',
+          email: 'cat1@example.com',
+          username: 'cat1',
+          displayName: 'cat1',
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+          isDeactivated: false,
+          isSuspended: false,
+        },
+        {
+          _id: '2',
+          email: 'cat2@example.com',
+          username: 'cat2',
+          displayName: 'cat2',
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+          isDeactivated: false,
+          isSuspended: false,
+        },
       ]
 
       vi.mocked(User.find).mockReturnValue({
@@ -35,7 +55,34 @@ describe('User Service', () => {
 
       const result = await userService.findAll({ limit: 20, skip: 0 })
 
-      expect(result).toEqual(mockUsers)
+      expect(result).toEqual([
+        {
+          id: '1',
+          email: 'cat1@example.com',
+          username: 'cat1',
+          displayName: 'cat1',
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+          avatar: undefined,
+          coverImage: undefined,
+          bio: undefined,
+          location: undefined,
+          website: undefined,
+        },
+        {
+          id: '2',
+          email: 'cat2@example.com',
+          username: 'cat2',
+          displayName: 'cat2',
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+          avatar: undefined,
+          coverImage: undefined,
+          bio: undefined,
+          location: undefined,
+          website: undefined,
+        },
+      ])
       expect(User.find).toHaveBeenCalledWith({
         isDeactivated: false,
         isSuspended: false,
@@ -62,7 +109,16 @@ describe('User Service', () => {
 
   describe('findById', () => {
     it('should return a user by ID', async () => {
-      const mockUser = { _id: '1', username: 'testcat', isDeactivated: false }
+      const createdAt = new Date('2024-01-01T00:00:00.000Z')
+      const mockUser = {
+        _id: '1',
+        email: 'testcat@example.com',
+        username: 'testcat',
+        displayName: 'testcat',
+        onboardingStatus: OnboardingStatus.InProgress,
+        createdAt,
+        isDeactivated: false,
+      }
 
       vi.mocked(User.findOne).mockReturnValue({
         lean: vi.fn().mockResolvedValue(mockUser),
@@ -70,7 +126,19 @@ describe('User Service', () => {
 
       const result = await userService.findById('1')
 
-      expect(result).toEqual(mockUser)
+      expect(result).toEqual({
+        id: '1',
+        email: 'testcat@example.com',
+        username: 'testcat',
+        displayName: 'testcat',
+        onboardingStatus: OnboardingStatus.InProgress,
+        createdAt,
+        avatar: undefined,
+        coverImage: undefined,
+        bio: undefined,
+        location: undefined,
+        website: undefined,
+      })
       expect(User.findOne).toHaveBeenCalledWith({ _id: '1', isDeactivated: false })
     })
 
@@ -87,7 +155,16 @@ describe('User Service', () => {
 
   describe('findByUsername', () => {
     it('should return a user by username', async () => {
-      const mockUser = { _id: '1', username: 'testcat', isDeactivated: false }
+      const createdAt = new Date('2024-01-01T00:00:00.000Z')
+      const mockUser = {
+        _id: '1',
+        email: 'testcat@example.com',
+        username: 'testcat',
+        displayName: 'testcat',
+        onboardingStatus: OnboardingStatus.InProgress,
+        createdAt,
+        isDeactivated: false,
+      }
 
       vi.mocked(User.findOne).mockReturnValue({
         lean: vi.fn().mockResolvedValue(mockUser),
@@ -95,14 +172,34 @@ describe('User Service', () => {
 
       const result = await userService.findByUsername('testcat')
 
-      expect(result).toEqual(mockUser)
+      expect(result).toEqual({
+        id: '1',
+        email: 'testcat@example.com',
+        username: 'testcat',
+        displayName: 'testcat',
+        onboardingStatus: OnboardingStatus.InProgress,
+        createdAt,
+        avatar: undefined,
+        coverImage: undefined,
+        bio: undefined,
+        location: undefined,
+        website: undefined,
+      })
       expect(User.findOne).toHaveBeenCalledWith({ username: 'testcat', isDeactivated: false })
     })
   })
 
   describe('findByEmail', () => {
     it('should return a user by email (lowercased)', async () => {
-      const mockUser = { _id: '1', email: 'cat@example.com' }
+      const createdAt = new Date('2024-01-01T00:00:00.000Z')
+      const mockUser = {
+        _id: '1',
+        email: 'cat@example.com',
+        username: 'cat',
+        displayName: 'cat',
+        onboardingStatus: OnboardingStatus.InProgress,
+        createdAt,
+      }
 
       vi.mocked(User.findOne).mockReturnValue({
         lean: vi.fn().mockResolvedValue(mockUser),
@@ -110,7 +207,19 @@ describe('User Service', () => {
 
       const result = await userService.findByEmail('CAT@EXAMPLE.COM')
 
-      expect(result).toEqual(mockUser)
+      expect(result).toEqual({
+        id: '1',
+        email: 'cat@example.com',
+        username: 'cat',
+        displayName: 'cat',
+        onboardingStatus: OnboardingStatus.InProgress,
+        createdAt,
+        avatar: undefined,
+        coverImage: undefined,
+        bio: undefined,
+        location: undefined,
+        website: undefined,
+      })
       expect(User.findOne).toHaveBeenCalledWith({ email: 'cat@example.com' })
     })
   })
@@ -126,14 +235,35 @@ describe('User Service', () => {
     it('should update user profile data', async () => {
       const userId = '1'
       const updateData = { displayName: 'Updated Name', bio: 'New bio' }
+      const createdAt = new Date('2024-01-01T00:00:00.000Z')
 
       vi.mocked(User.findByIdAndUpdate).mockReturnValue({
-        lean: vi.fn().mockResolvedValue({ _id: userId, ...updateData }),
+        lean: vi.fn().mockResolvedValue({
+          _id: userId,
+          email: 'cat@example.com',
+          username: 'cat',
+          displayName: updateData.displayName,
+          bio: updateData.bio,
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+        }),
       } as unknown as UserFindByIdAndUpdateReturn)
 
       const result = await userService.update(userId, updateData)
 
-      expect(result).toEqual({ _id: userId, ...updateData })
+      expect(result).toEqual({
+        id: userId,
+        email: 'cat@example.com',
+        username: 'cat',
+        displayName: updateData.displayName,
+        onboardingStatus: OnboardingStatus.InProgress,
+        createdAt,
+        avatar: undefined,
+        coverImage: undefined,
+        bio: updateData.bio,
+        location: undefined,
+        website: undefined,
+      })
       expect(User.findByIdAndUpdate).toHaveBeenCalledWith(userId, updateData, { new: true })
     })
 
@@ -150,9 +280,24 @@ describe('User Service', () => {
 
   describe('search', () => {
     it('should search users by text query', async () => {
+      const createdAt = new Date('2024-01-01T00:00:00.000Z')
       const mockResults = [
-        { _id: '1', username: 'catfan', displayName: 'Cat Fan' },
-        { _id: '2', username: 'kittycat', displayName: 'Kitty Cat' },
+        {
+          _id: '1',
+          email: 'catfan@example.com',
+          username: 'catfan',
+          displayName: 'Cat Fan',
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+        },
+        {
+          _id: '2',
+          email: 'kittycat@example.com',
+          username: 'kittycat',
+          displayName: 'Kitty Cat',
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+        },
       ]
 
       vi.mocked(User.find).mockReturnValue({
@@ -163,7 +308,34 @@ describe('User Service', () => {
 
       const result = await userService.search('cat', { limit: 20, skip: 0 })
 
-      expect(result).toEqual(mockResults)
+      expect(result).toEqual([
+        {
+          id: '1',
+          email: 'catfan@example.com',
+          username: 'catfan',
+          displayName: 'Cat Fan',
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+          avatar: undefined,
+          coverImage: undefined,
+          bio: undefined,
+          location: undefined,
+          website: undefined,
+        },
+        {
+          id: '2',
+          email: 'kittycat@example.com',
+          username: 'kittycat',
+          displayName: 'Kitty Cat',
+          onboardingStatus: OnboardingStatus.InProgress,
+          createdAt,
+          avatar: undefined,
+          coverImage: undefined,
+          bio: undefined,
+          location: undefined,
+          website: undefined,
+        },
+      ])
       expect(User.find).toHaveBeenCalledWith(
         expect.objectContaining({
           $text: { $search: 'cat' },

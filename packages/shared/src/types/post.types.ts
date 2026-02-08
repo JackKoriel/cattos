@@ -1,5 +1,5 @@
 export interface Post {
-  _id: string
+  id: string
   authorId: string
 
   author?: {
@@ -24,7 +24,7 @@ export interface Post {
 
   // When the backend populates `repostOfId`, it is normalized into `repostOf`
   repostOf?: {
-    _id: string
+    id: string
     authorId: string
     author?: {
       id: string

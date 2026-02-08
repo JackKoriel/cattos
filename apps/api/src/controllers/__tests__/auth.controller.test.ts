@@ -63,9 +63,14 @@ describe('Auth Controller', () => {
     it('should return current user when authenticated', async () => {
       mockReq.user = { id: 'u1' }
 
+      const id = new Types.ObjectId().toHexString()
       vi.mocked(userService.findById).mockResolvedValue({
-        _id: new Types.ObjectId(),
+        id,
+        email: 'cat@example.com',
         username: 'cat',
+        displayName: 'cat',
+        onboardingStatus: undefined,
+        createdAt: new Date(),
       } as unknown as FindByIdResult)
 
       await authController.getMe(
@@ -87,10 +92,9 @@ describe('Auth Controller', () => {
 
       expect(firstCallArg.success).toBe(true)
 
-      const data = firstCallArg.data as { _id?: unknown; username?: unknown }
+      const data = firstCallArg.data as { id?: unknown; username?: unknown }
       expect(data.username).toBe('cat')
-      // Controller may return a raw ObjectId or a stringified id depending on serialization.
-      expect(String(data._id)).toMatch(/^[a-f0-9]{24}$/i)
+      expect(String(data.id)).toMatch(/^[a-f0-9]{24}$/i)
     })
   })
 
@@ -154,9 +158,9 @@ describe('Auth Controller', () => {
       mockReq.user = { id: 'me' }
       mockReq.body = { username: 'cat', displayName: 'Cat' }
 
-      vi.mocked(userService.findByUsername).mockResolvedValue(
-        ({ _id: new Types.ObjectId() }) as unknown as FindByUsernameResult
-      )
+      vi.mocked(userService.findByUsername).mockResolvedValue({
+        id: new Types.ObjectId().toHexString(),
+      } as unknown as FindByUsernameResult)
 
       await authController.completeOnboarding(
         mockReq as TestRequest,
@@ -171,9 +175,11 @@ describe('Auth Controller', () => {
       mockReq.user = { id: 'me' }
       mockReq.body = { username: 'cat', displayName: 'Cat', location: 'NY' }
 
-      vi.mocked(userService.findByUsername).mockResolvedValue(null as unknown as FindByUsernameResult)
+      vi.mocked(userService.findByUsername).mockResolvedValue(
+        null as unknown as FindByUsernameResult
+      )
       vi.mocked(userService.update).mockResolvedValue({
-        _id: new Types.ObjectId(),
+        id: new Types.ObjectId().toHexString(),
         username: 'cat',
       } as unknown as UpdateUserResult)
 
@@ -209,7 +215,9 @@ describe('Auth Controller', () => {
       mockReq.user = { id: 'me' }
       mockReq.query = { username: 'cat' } as unknown as ParsedQs
 
-      vi.mocked(userService.findByUsername).mockResolvedValue(null as unknown as FindByUsernameResult)
+      vi.mocked(userService.findByUsername).mockResolvedValue(
+        null as unknown as FindByUsernameResult
+      )
 
       await authController.checkUsernameAvailable(
         mockReq as TestRequest,
@@ -229,9 +237,9 @@ describe('Auth Controller', () => {
       mockReq.user = { id: 'me' }
       mockReq.query = { username: 'cat' } as unknown as ParsedQs
 
-      vi.mocked(userService.findByUsername).mockResolvedValue(
-        ({ _id: new Types.ObjectId() }) as unknown as FindByUsernameResult
-      )
+      vi.mocked(userService.findByUsername).mockResolvedValue({
+        id: new Types.ObjectId().toHexString(),
+      } as unknown as FindByUsernameResult)
 
       await authController.checkUsernameAvailable(
         mockReq as TestRequest,

@@ -61,7 +61,7 @@ describe('Post Service', () => {
 
       expect(result).toEqual([
         {
-          _id: '1',
+          id: '1',
           authorId: 'a1',
           content: 'Post 1',
           visibility: 'public',
@@ -73,7 +73,7 @@ describe('Post Service', () => {
           updatedAt: createdAt1.toISOString(),
         },
         {
-          _id: '2',
+          id: '2',
           authorId: 'a2',
           content: 'Post 2',
           visibility: 'public',
@@ -147,7 +147,7 @@ describe('Post Service', () => {
       const result = await postService.findById('1')
 
       expect(result).toEqual({
-        _id: '1',
+        id: '1',
         authorId: 'a1',
         content: 'Test Post',
         visibility: 'public',
@@ -186,14 +186,38 @@ describe('Post Service', () => {
       const authorId = new Types.ObjectId()
       const updateData: PostUpdateInput = { content: 'Updated content', visibility: 'private' }
       const mockUpdatedPost = { _id: postId, ...updateData, isEdited: true }
+      const hydrated = {
+        _id: postId,
+        authorId: 'a1',
+        content: 'Updated content',
+        visibility: 'private',
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      }
 
       vi.mocked(Post.findOneAndUpdate).mockReturnValue({
         lean: vi.fn().mockResolvedValue(mockUpdatedPost),
       } as unknown as PostFindOneAndUpdateReturn)
 
+      vi.mocked(Post.findOne).mockReturnValue({
+        populate: vi.fn().mockReturnThis(),
+        lean: vi.fn().mockResolvedValue(hydrated),
+      } as unknown as PostFindOneReturn)
+
       const result = await postService.update(postId, authorId, updateData)
 
-      expect(result).toEqual(mockUpdatedPost)
+      expect(result).toEqual({
+        id: postId,
+        authorId: 'a1',
+        content: 'Updated content',
+        visibility: 'private',
+        likesCount: 0,
+        bookmarksCount: 0,
+        commentsCount: 0,
+        repostsCount: 0,
+        createdAt: hydrated.createdAt.toISOString(),
+        updatedAt: hydrated.updatedAt.toISOString(),
+      })
       expect(Post.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: postId, authorId, isDeleted: false },
         expect.objectContaining({ ...updateData, isEdited: true }),
@@ -253,7 +277,7 @@ describe('Post Service', () => {
 
       expect(result).toEqual([
         {
-          _id: '1',
+          id: '1',
           authorId: 'a1',
           content: 'Tagged post',
           hashtags: ['test'],
@@ -311,7 +335,7 @@ describe('Post Service', () => {
 
       expect(result).toEqual([
         {
-          _id: '2',
+          id: '2',
           authorId: 'a1',
           content: 'Reply 1',
           parentPostId: '1',
@@ -323,7 +347,7 @@ describe('Post Service', () => {
           updatedAt: createdAt1.toISOString(),
         },
         {
-          _id: '3',
+          id: '3',
           authorId: 'a2',
           content: 'Reply 2',
           parentPostId: '1',

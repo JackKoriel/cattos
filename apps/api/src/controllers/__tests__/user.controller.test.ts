@@ -39,8 +39,8 @@ describe('User Controller', () => {
   describe('listUsers', () => {
     it('should return all users with pagination', async () => {
       const mockUsers = [
-        { _id: '1', username: 'cat1' },
-        { _id: '2', username: 'cat2' },
+        { id: '1', username: 'cat1' },
+        { id: '2', username: 'cat2' },
       ]
       mockReq.query = { limit: '20', skip: '0' }
 
@@ -62,7 +62,7 @@ describe('User Controller', () => {
 
   describe('getUserById', () => {
     it('should return a user by ID', async () => {
-      const mockUser = { _id: '1', username: 'testcat' }
+      const mockUser = { id: '1', username: 'testcat' }
       mockReq.params = { id: '1' }
 
       vi.mocked(userService.findById).mockResolvedValue(mockUser as unknown as FindByIdResult)
@@ -100,7 +100,7 @@ describe('User Controller', () => {
 
   describe('getUserByUsername', () => {
     it('should return a user by username', async () => {
-      const mockUser = { _id: '1', username: 'testcat' }
+      const mockUser = { id: '1', username: 'testcat' }
       mockReq.params = { username: 'testcat' }
 
       vi.mocked(userService.findByUsername).mockResolvedValue(
@@ -130,7 +130,7 @@ describe('User Controller', () => {
       }
       mockReq.body = userData
 
-      const mockCreatedUser = { _id: '1', ...userData }
+      const mockCreatedUser = { id: '1', ...userData }
       vi.mocked(userService.findByEmail).mockResolvedValue(null)
       vi.mocked(userService.findByUsername).mockResolvedValue(null)
       vi.mocked(userService.create).mockResolvedValue(mockCreatedUser as unknown as CreateResult)
@@ -194,7 +194,7 @@ describe('User Controller', () => {
       }
 
       vi.mocked(userService.findByEmail).mockResolvedValue({
-        _id: 'other',
+        id: 'other',
       } as unknown as FindByEmailResult)
 
       await userController.createUser(
@@ -218,7 +218,7 @@ describe('User Controller', () => {
 
       vi.mocked(userService.findByEmail).mockResolvedValue(null)
       vi.mocked(userService.findByUsername).mockResolvedValue({
-        _id: 'other',
+        id: 'other',
       } as unknown as FindByUsernameResult)
 
       await userController.createUser(
@@ -242,7 +242,7 @@ describe('User Controller', () => {
       mockReq.body = updateData
       mockReq.user = { id: '1' }
 
-      const mockUpdatedUser = { _id: '1', ...updateData }
+      const mockUpdatedUser = { id: '1', ...updateData }
       vi.mocked(userService.update).mockResolvedValue(mockUpdatedUser as unknown as UpdateResult)
 
       await userController.updateUser(
@@ -312,8 +312,8 @@ describe('User Controller', () => {
   describe('searchUsers', () => {
     it('should search users by query', async () => {
       const mockResults = [
-        { _id: '1', username: 'catfan' },
-        { _id: '2', username: 'kittycat' },
+        { id: '1', username: 'catfan' },
+        { id: '2', username: 'kittycat' },
       ]
       mockReq.query = { q: 'cat' }
 

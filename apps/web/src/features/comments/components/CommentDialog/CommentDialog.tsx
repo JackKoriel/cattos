@@ -51,7 +51,7 @@ export const CommentDialog = ({
           onProfileClick={(username) => navigate(`/profile/${username}`)}
         />
         <Divider />
-        <CommentList postId={post._id} onCommentCreated={onCommentCreated} />
+        <CommentList postId={post.id} onCommentCreated={onCommentCreated} />
       </DialogContent>
     </Dialog>
   )

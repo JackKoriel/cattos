@@ -78,10 +78,10 @@ export const useFetchPosts = (authorId?: string) => {
     setPosts((prev) =>
       prev.map((p) => {
         // Direct match
-        if (p._id === postId) return updater(p)
+        if (p.id === postId) return updater(p)
 
         // If this is a reshare of the target post, update the nested repostOf
-        if (p.repostOf && p.repostOf._id === postId) {
+        if (p.repostOf && p.repostOf.id === postId) {
           return {
             ...p,
             repostOf: updater(p.repostOf as Post) as typeof p.repostOf,
@@ -95,7 +95,7 @@ export const useFetchPosts = (authorId?: string) => {
 
   const prependPost = useCallback((post: Post) => {
     setPosts((prev) => {
-      const existingIndex = prev.findIndex((p) => p._id === post._id)
+      const existingIndex = prev.findIndex((p) => p.id === post.id)
       if (existingIndex === 0) return prev
       if (existingIndex > 0) {
         const next = [...prev]

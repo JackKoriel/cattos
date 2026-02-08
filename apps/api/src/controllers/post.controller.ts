@@ -10,7 +10,7 @@ import {
   parsePagination,
 } from '../utils/request.utils.js'
 
-const getRepostOfId = (post: Post): string | undefined => post.repostOf?._id
+const getRepostOfId = (post: Post): string | undefined => post.repostOf?.id
 
 const getOptionalUserObjectId = (req: Request): Types.ObjectId | undefined => {
   const userId = req.user?.id
@@ -20,7 +20,10 @@ const getOptionalUserObjectId = (req: Request): Types.ObjectId | undefined => {
 }
 
 // TODO: Optimize this to batch fetch likes/bookmarks for multiple posts at once
-const enrichPostsWithUserState = async (posts: Post[], userId?: Types.ObjectId): Promise<Post[]> => {
+const enrichPostsWithUserState = async (
+  posts: Post[],
+  userId?: Types.ObjectId
+): Promise<Post[]> => {
   if (!userId || posts.length === 0) {
     return posts.map((post) =>
       post.repostOf
@@ -36,7 +39,7 @@ const enrichPostsWithUserState = async (posts: Post[], userId?: Types.ObjectId):
 
   const idSet = new Set<string>()
   for (const post of posts) {
-    idSet.add(post._id)
+    idSet.add(post.id)
     const repostId = getRepostOfId(post)
     if (repostId) idSet.add(repostId)
   }
@@ -59,8 +62,8 @@ const enrichPostsWithUserState = async (posts: Post[], userId?: Types.ObjectId):
   return posts.map((post) => {
     const base: Post = {
       ...post,
-      isLiked: likedById.get(post._id) ?? false,
-      isBookmarked: bookmarkedById.get(post._id) ?? false,
+      isLiked: likedById.get(post.id) ?? false,
+      isBookmarked: bookmarkedById.get(post.id) ?? false,
     }
 
     const repostId = getRepostOfId(post)
@@ -210,15 +213,8 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
       await postService.incrementRepostsCount(repostOfId.toString())
     }
 
-    // Return populated/normalized post so reshares render immediately on the client.
-    const post = await postService.findById(created._id.toString())
-    if (!post) {
-      res.status(201).json({ success: true, data: created })
-      return
-    }
-
     const userId = getOptionalUserObjectId(req)
-    const [enrichedPost] = await enrichPostsWithUserState([post], userId)
+    const [enrichedPost] = await enrichPostsWithUserState([created], userId)
     res.status(201).json({ success: true, data: enrichedPost })
   } catch (error) {
     next(error)
