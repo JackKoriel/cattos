@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Avatar, TextField, Button, Stack, PawLoader } from '@cattos/ui'
+import { Box, Avatar, TextField, ActionButton, Stack } from '@cattos/ui'
 import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { Post } from '@cattos/shared'
@@ -82,15 +82,12 @@ export const CommentInput = ({ postId, onCommentAdded }: CommentInputProps) => {
             </Box>
           )}
           <Box display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              size="small"
+            <ActionButton
+              label="Reply"
               onClick={handleSubmit}
-              disabled={!content.trim() || loading}
-              sx={{ borderRadius: 20, px: 2, textTransform: 'none', fontWeight: 'bold' }}
-            >
-              {loading ? <PawLoader size="small" text="" color="inherit" /> : 'Reply'}
-            </Button>
+              loading={loading}
+              disabled={!content.trim()}
+            />
           </Box>
         </Box>
       </Stack>

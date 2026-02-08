@@ -1,4 +1,5 @@
-export { Button } from './button'
+export { Button, ActionButton } from './button'
+export type { ActionButtonProps } from './button'
 export { Card } from './card'
 export { Avatar, AvatarButton } from './avatar'
 export type { AvatarButtonProps } from './avatar'

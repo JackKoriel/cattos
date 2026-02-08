@@ -5,13 +5,12 @@ import {
   Avatar,
   TextField,
   Button,
+  ActionButton,
   Stack,
   IconButton,
-  PawLoader,
   Typography,
   ImageIcon,
   EmojiEmotionsIcon,
-  GRADIENTS,
 } from '@cattos/ui'
 import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
@@ -133,22 +132,12 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               </IconButton>
             </Stack>
 
-            <Button
-              variant="contained"
+            <ActionButton
+              label="Post"
               onClick={handleSubmit}
-              disabled={(!content.trim() && mediaFiles.length === 0) || loading}
-              sx={{
-                borderRadius: 50,
-                px: 3,
-                textTransform: 'none',
-                fontWeight: 'bold',
-                background: GRADIENTS.orange,
-                boxShadow: '0 4px 12px rgba(255, 107, 107, 0.4)',
-                color: 'white',
-              }}
-            >
-              {loading ? <PawLoader size="small" text="" color="inherit" /> : 'Post'}
-            </Button>
+              loading={loading}
+              disabled={!content.trim() && mediaFiles.length === 0}
+            />
           </Box>
 
           {mediaFiles.length > 0 && (
