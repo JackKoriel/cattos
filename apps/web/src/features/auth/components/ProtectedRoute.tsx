@@ -1,18 +1,14 @@
 import type { ReactNode } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { useLocation, Navigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/context/AuthContext'
-import { CircularProgress, Box } from '@cattos/ui'
+import { BackdropLoader } from '@cattos/ui'
 
 export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth()
   const location = useLocation()
 
   if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
-    )
+    return <BackdropLoader open={true} />
   }
 
   if (!isAuthenticated) {
