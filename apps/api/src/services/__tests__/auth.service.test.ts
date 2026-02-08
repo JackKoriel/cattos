@@ -136,6 +136,7 @@ describe('Auth Service', () => {
           email: 'cat@example.com',
           username: 'cat',
           displayName: 'cat',
+          onboardingStatus: 'inProgress',
           avatar: undefined,
           bio: undefined,
         })
@@ -286,6 +287,7 @@ describe('Auth Service', () => {
           email: 'cat@example.com',
           username: 'cat',
           displayName: 'Cat',
+          onboardingStatus: 'inProgress',
           avatar: undefined,
           bio: undefined,
         },

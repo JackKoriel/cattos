@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Post } from '@cattos/shared'
 import { apiClient, handleApiError } from '@/services/client'
-import { useAuth } from '@/features/auth/context/AuthContext'
+import { useAuthIsLoading, useAuthToken } from '@/stores/authStore'
 
 const COMMENTS_PER_PAGE = 10
 
@@ -11,7 +11,8 @@ interface CommentsQueryParams {
 }
 
 export const useFetchComments = (postId: string) => {
-  const { isLoading: authLoading, token } = useAuth()
+  const authLoading = useAuthIsLoading()
+  const token = useAuthToken()
   const [comments, setComments] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)

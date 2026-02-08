@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Post } from '@cattos/shared'
 import { apiClient, handleApiError } from '@/services/client'
-import { useAuth } from '@/features/auth/context/AuthContext'
+import { useAuthIsLoading } from '@/stores/authStore'
 
 const POSTS_PER_PAGE = 10
 
@@ -12,7 +12,7 @@ interface PostsQueryParams {
 }
 
 export const useFetchPosts = (authorId?: string) => {
-  const { isLoading: authLoading } = useAuth()
+  const authLoading = useAuthIsLoading()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)

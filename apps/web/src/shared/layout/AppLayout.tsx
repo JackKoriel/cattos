@@ -1,15 +1,16 @@
 import { Layout } from '@cattos/ui'
 import { Box, Typography, Stack, Button } from '@cattos/ui'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/features/auth/context/AuthContext'
+import { useAuthLogout, useAuthUser } from '@/stores/authStore'
 
 export const AppLayout = () => {
   const navigate = useNavigate()
-  const { logout, user } = useAuth()
+  const logout = useAuthLogout()
+  const user = useAuthUser()
 
   const handleLogout = async () => {
     await logout()
-    navigate('/login')
+    navigate('/login', { replace: true })
   }
 
   return (

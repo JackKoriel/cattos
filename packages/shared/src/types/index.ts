@@ -1,6 +1,7 @@
 export type { User } from './user.types'
 export type { Post } from './post.types'
 export type { ApiResponse, ApiError } from './api.types'
+export { OnboardingStatus } from './onboarding.types'
 export type {
   LoginCredentials,
   RegisterCredentials,

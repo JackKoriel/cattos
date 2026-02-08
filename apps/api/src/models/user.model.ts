@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose'
+import { OnboardingStatus } from '@cattos/shared'
 import { IUser } from '../interfaces/user.interface.js'
 
 const userSchema = new Schema<IUser>(
@@ -15,6 +16,12 @@ const userSchema = new Schema<IUser>(
       match: /^[a-zA-Z0-9_]+$/,
     },
     passwordHash: { type: String, select: false },
+
+    onboardingStatus: {
+      type: String,
+      enum: Object.values(OnboardingStatus),
+      default: OnboardingStatus.InProgress,
+    },
 
     displayName: { type: String, required: true, trim: true, maxlength: 50 },
     avatar: String,

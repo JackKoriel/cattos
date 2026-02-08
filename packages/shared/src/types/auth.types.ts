@@ -12,11 +12,15 @@ export interface AuthTokens {
   accessToken: string
 }
 
+import { OnboardingStatus } from './onboarding.types'
+
 export interface AuthUser {
   id: string
   username: string
   email: string
   displayName?: string
+  // TODO: This is a temporary workaround to ensure old client always has a valid onboardingStatus --- IGNORE ---
+  onboardingStatus?: OnboardingStatus
   avatar?: string
 }
 

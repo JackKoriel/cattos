@@ -5,7 +5,6 @@ import {
   Button,
   IconButton,
   Stack,
-  CircularProgress,
   PawLoader,
   ArrowBackIcon,
 } from '@cattos/ui'

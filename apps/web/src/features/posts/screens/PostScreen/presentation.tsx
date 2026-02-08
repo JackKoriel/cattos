@@ -1,4 +1,4 @@
-import { Box, CircularProgress, IconButton, Typography, ArrowBackIcon, PawLoader } from '@cattos/ui'
+import { Box, IconButton, Typography, ArrowBackIcon, PawLoader } from '@cattos/ui'
 import { PostCard } from '@cattos/ui'
 import type { Post } from '@cattos/shared'
 import { CommentList } from '@/features/comments/components'

@@ -1,7 +1,7 @@
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/features/auth/context/AuthContext'
+import { useAuthError, useAuthRegister } from '@/stores/authStore'
 
 const RegisterSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -17,7 +17,8 @@ export type RegisterFormValues = {
 }
 
 export const useRegisterForm = () => {
-  const { register, error: authError } = useAuth()
+  const register = useAuthRegister()
+  const authError = useAuthError()
   const navigate = useNavigate()
 
   const formik = useFormik<RegisterFormValues>({

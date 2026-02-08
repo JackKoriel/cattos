@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/features/auth/context/AuthContext'
+import { OnboardingStatus } from '@cattos/shared'
+import { useAuthError, useAuthLogin } from '@/stores/authStore'
 
 const LoginSchema = Yup.object().shape({
   identifier: Yup.string().required('Email or username is required'),
@@ -15,19 +16,30 @@ export type LoginFormValues = {
 }
 
 export const useLoginForm = () => {
-  const { login, error: authError } = useAuth()
+  const login = useAuthLogin()
+  const authError = useAuthError()
   const navigate = useNavigate()
   const location = useLocation()
 
   const from = useMemo(() => location.state?.from?.pathname || '/', [location.state])
+
+  const isAuthRoute = (pathname: string) =>
+    pathname === '/login' || pathname === '/register' || pathname === '/onboarding'
 
   const formik = useFormik<LoginFormValues>({
     initialValues: { identifier: '', password: '' },
     validationSchema: LoginSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        await login(values)
-        navigate(from, { replace: true })
+        const user = await login(values)
+
+        if (user.onboardingStatus !== OnboardingStatus.Complete) {
+          navigate('/onboarding', { replace: true })
+          return
+        }
+
+        const target = !from || isAuthRoute(from) ? '/' : from
+        navigate(target, { replace: true })
       } finally {
         setSubmitting(false)
       }

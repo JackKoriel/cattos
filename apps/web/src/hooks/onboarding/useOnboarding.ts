@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type MouseEvent, type FocusEvent 
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/features/auth/context/AuthContext'
+import { useAuthLogout, useAuthSetCurrentUser, useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { uploadAvatar } from '@/services/uploads'
 import { postsService } from '@/services/posts'
@@ -42,7 +42,9 @@ type UsernameAvailabilityStatus = 'idle' | 'checking' | 'available' | 'taken' | 
 
 export const useOnboarding = () => {
   const navigate = useNavigate()
-  const { user, setCurrentUser, logout } = useAuth()
+  const user = useAuthUser()
+  const setCurrentUser = useAuthSetCurrentUser()
+  const logout = useAuthLogout()
 
   const [activeStep, setActiveStep] = useState(0)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)

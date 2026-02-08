@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Box, Avatar, TextField, Button, CircularProgress, Stack, PawLoader } from '@cattos/ui'
-import { useAuth } from '@/features/auth/context/AuthContext'
+import { Box, Avatar, TextField, Button, Stack, PawLoader } from '@cattos/ui'
+import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { Post } from '@cattos/shared'
 
@@ -10,7 +10,7 @@ interface CommentInputProps {
 }
 
 export const CommentInput = ({ postId, onCommentAdded }: CommentInputProps) => {
-  const { user } = useAuth()
+  const user = useAuthUser()
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

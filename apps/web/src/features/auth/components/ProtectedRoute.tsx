@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
 import { useLocation, Navigate } from 'react-router-dom'
-import { useAuth } from '@/features/auth/context/AuthContext'
 import { BackdropLoader } from '@cattos/ui'
+import { useAuthIsLoading, useIsAuthenticated } from '@/stores/authStore'
 
 export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth()
+  const isLoading = useAuthIsLoading()
+  const isAuthenticated = useIsAuthenticated()
   const location = useLocation()
 
   if (isLoading) {

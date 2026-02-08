@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import jwt, { type SignOptions } from 'jsonwebtoken'
 import type { CookieOptions } from 'express'
+import { OnboardingStatus } from '@cattos/shared'
 import { env } from '../config/env.js'
 import { RefreshToken, User } from '../models/index.js'
 import { authUtils } from '../utils/auth.utils.js'
@@ -10,6 +11,7 @@ type PublicUser = {
   email: string
   username: string
   displayName: string
+  onboardingStatus: OnboardingStatus
   avatar?: string
   bio?: string
 }
@@ -19,14 +21,21 @@ const toPublicUser = (user: {
   email: string
   username: string
   displayName: string
+  onboardingStatus?: unknown
   avatar?: unknown
   bio?: unknown
 }): PublicUser => {
+  const onboardingStatus =
+    user.onboardingStatus === OnboardingStatus.Complete
+      ? OnboardingStatus.Complete
+      : OnboardingStatus.InProgress
+
   return {
     id: String(user._id),
     email: user.email,
     username: user.username,
     displayName: user.displayName,
+    onboardingStatus,
     avatar: typeof user.avatar === 'string' ? user.avatar : undefined,
     bio: typeof user.bio === 'string' ? user.bio : undefined,
   }
@@ -110,6 +119,7 @@ const register = async (input: { email: string; password: string }) => {
   const user = await new User({
     email,
     username,
+    onboardingStatus: OnboardingStatus.InProgress,
     displayName: username,
     passwordHash,
   }).save()

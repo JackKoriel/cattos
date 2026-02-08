@@ -5,14 +5,13 @@ import {
   TextField,
   Button,
   Stack,
-  CircularProgress,
   IconButton,
   PawLoader,
   Typography,
   ImageIcon,
   EmojiEmotionsIcon,
 } from '@cattos/ui'
-import { useAuth } from '@/features/auth/context/AuthContext'
+import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { uploadPostMedia } from '@/services/uploads'
 
@@ -21,7 +20,7 @@ interface CreatePostProps {
 }
 
 export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
-  const { user } = useAuth()
+  const user = useAuthUser()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [content, setContent] = useState('')
   const [mediaFiles, setMediaFiles] = useState<File[]>([])

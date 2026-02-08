@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express'
+import { OnboardingStatus } from '@cattos/shared'
 import { authService } from '../services/auth.service.js'
 import { env } from '../config/env.js'
 import { userService } from '../services/user.service.js'
@@ -120,6 +121,7 @@ const completeOnboarding = async (req: Request, res: Response, next: NextFunctio
       displayName,
       location: location || undefined,
       avatar: avatar || undefined,
+      onboardingStatus: OnboardingStatus.Complete,
     })
 
     if (!updated) {

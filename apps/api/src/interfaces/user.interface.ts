@@ -1,4 +1,5 @@
 import { Types } from 'mongoose'
+import { OnboardingStatus } from '@cattos/shared'
 
 export interface IUser {
   _id: Types.ObjectId
@@ -6,6 +7,8 @@ export interface IUser {
   email: string
   username: string
   passwordHash?: string
+
+  onboardingStatus: OnboardingStatus
 
   displayName: string
   avatar?: string
