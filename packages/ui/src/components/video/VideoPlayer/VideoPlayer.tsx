@@ -8,6 +8,7 @@ export type VideoPlayerProps = {
   controls?: boolean
   playsInline?: boolean
   onClick?: React.MouseEventHandler<HTMLVideoElement>
+  height?: string | number
 }
 
 export const VideoPlayer = ({
@@ -18,6 +19,7 @@ export const VideoPlayer = ({
   controls = true,
   playsInline = true,
   onClick,
+  height,
 }: VideoPlayerProps) => {
   return (
     <Box
@@ -26,6 +28,7 @@ export const VideoPlayer = ({
         borderRadius: 2,
         overflow: 'hidden',
         bgcolor: 'grey.200',
+        ...(height ? { height } : {}),
       }}
     >
       <Box
@@ -39,7 +42,8 @@ export const VideoPlayer = ({
         onClick={onClick}
         sx={{
           width: '100%',
-          height: 'auto',
+          height: height ? '100%' : 'auto',
+          objectFit: height ? 'cover' : undefined,
           display: 'block',
         }}
       />

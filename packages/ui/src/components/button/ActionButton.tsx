@@ -7,12 +7,12 @@ export interface ActionButtonProps extends Omit<ButtonProps, 'children'> {
   label: string
 }
 
-export const ActionButton = ({ 
-  loading, 
-  label, 
-  variant = 'orange', 
-  sx, 
-  ...props 
+export const ActionButton = ({
+  loading,
+  label,
+  variant = 'orange',
+  sx,
+  ...props
 }: ActionButtonProps) => {
   return (
     <Button
@@ -30,7 +30,7 @@ export const ActionButton = ({
           boxShadow: '0 4px 12px rgba(255, 107, 107, 0.4)',
           color: 'white',
           '&:hover': {
-            background: GRADIENTS.orange, // Keep gradient on hover
+            background: GRADIENTS.orange,
             opacity: 0.9,
           },
         }),

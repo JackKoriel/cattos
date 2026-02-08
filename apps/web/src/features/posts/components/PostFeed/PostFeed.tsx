@@ -46,6 +46,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
     const seedRef = useRef<number>((Math.random() * 0xffffffff) >>> 0)
     const [commentDialogPost, setCommentDialogPost] = useState<Post | null>(null)
     const [postAds, setPostAds] = useState<Ad[]>([])
+    const [loadingAds, setLoadingAds] = useState(false)
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({
       open: false,
       message: '',
@@ -60,6 +61,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
     useEffect(() => {
       if (!shouldShowFeedAds) return
       let mounted = true
+      setLoadingAds(true)
 
       adsService
         .getPostAds()
@@ -69,6 +71,9 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
         })
         .catch(() => {
           console.warn('Failed to load post ads, feed will be shown without ads')
+        })
+        .finally(() => {
+          if (mounted) setLoadingAds(false)
         })
 
       return () => {
@@ -88,12 +93,13 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
     )
 
     const renderedItems = useMemo(() => {
-      if (!shouldShowFeedAds || postAds.length === 0) {
+      if (!shouldShowFeedAds || (postAds.length === 0 && !loadingAds)) {
         return posts.map((post) => ({ type: 'post' as const, key: post.id, post }))
       }
 
       const items: Array<
-        { type: 'post'; key: string; post: Post } | { type: 'ad'; key: string; ad: Ad }
+        | { type: 'post'; key: string; post: Post }
+        | { type: 'ad'; key: string; ad?: Ad; loading?: boolean }
       > = []
 
       let slotIndex = 0
@@ -103,15 +109,20 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
 
         if ((i + 1) % 3 !== 0) continue
 
-        const ad = pickAdForSlot(slotIndex)
-        if (ad) {
-          items.push({ type: 'ad', key: `ad-${slotIndex}`, ad })
+        if (loadingAds) {
+          items.push({ type: 'ad', key: `ad-loading-${slotIndex}`, loading: true })
           slotIndex++
+        } else {
+          const ad = pickAdForSlot(slotIndex)
+          if (ad) {
+            items.push({ type: 'ad', key: `ad-${slotIndex}`, ad })
+            slotIndex++
+          }
         }
       }
 
       return items
-    }, [posts, pickAdForSlot, postAds.length, shouldShowFeedAds])
+    }, [posts, pickAdForSlot, postAds.length, shouldShowFeedAds, loadingAds])
 
     const getScrollContainer = () => {
       let el = listRootRef.current?.parentElement as HTMLElement | null
@@ -271,6 +282,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
                   <AdPostCard
                     key={item.key}
                     ad={item.ad}
+                    loading={item.loading}
                     onClick={() => {
                       navigate('/coming-soon')
                     }}

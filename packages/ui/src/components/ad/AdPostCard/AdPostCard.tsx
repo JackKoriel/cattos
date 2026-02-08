@@ -4,12 +4,19 @@ import { Card } from '../../card'
 import { Typography } from '../../typography'
 import { VideoPlayer } from '../../video'
 
+import { AdPostCardSkeleton } from './AdPostCardSkeleton'
+
 type AdPostCardProps = {
-  ad: Ad
+  ad?: Ad
   onClick?: (ad: Ad) => void
+  loading?: boolean
 }
 
-export const AdPostCard = ({ ad, onClick }: AdPostCardProps) => {
+export const AdPostCard = ({ ad, onClick, loading }: AdPostCardProps) => {
+  if (loading || !ad) {
+    return <AdPostCardSkeleton />
+  }
+
   return (
     <Card
       sx={{

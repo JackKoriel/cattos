@@ -22,6 +22,7 @@ export const AppLayout = () => {
   const user = useAuthUser()
 
   const [sidebarAds, setSidebarAds] = useState<Ad[]>([])
+  const [loadingAds, setLoadingAds] = useState(true)
 
   const handleLogout = async () => {
     await logout()
@@ -30,6 +31,7 @@ export const AppLayout = () => {
 
   useEffect(() => {
     let mounted = true
+    setLoadingAds(true)
     adsService
       .getSidebarAds()
       .then((ads) => {
@@ -38,6 +40,9 @@ export const AppLayout = () => {
       })
       .catch(() => {
         console.warn('Failed to load sidebar ads, sidebar will be shown without ads')
+      })
+      .finally(() => {
+        if (mounted) setLoadingAds(false)
       })
 
     return () => {
@@ -197,7 +202,7 @@ export const AppLayout = () => {
           }}
         >
           <Box bgcolor="white" borderRadius={3} p={2} boxShadow="0 4px 12px rgba(0,0,0,0.1)">
-            <AdCarousel ads={sidebarAds} title="Purrfect Finds ✨" />
+            <AdCarousel ads={sidebarAds} title="Purrfect Finds ✨" loading={loadingAds} />
           </Box>
         </Box>
       </Box>

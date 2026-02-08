@@ -7,12 +7,15 @@ import { Typography } from '../../typography'
 import { ChevronLeftIcon, ChevronRightIcon } from '../../icons'
 import { VideoPlayer } from '../../video'
 
+import { AdCarouselSkeleton } from './AdCarouselSkeleton'
+
 export type AdCarouselProps = {
   ads: Ad[]
   title?: string
+  loading?: boolean
 }
 
-export const AdCarousel = ({ ads, title = 'Ads' }: AdCarouselProps) => {
+export const AdCarousel = ({ ads, title = 'Ads', loading }: AdCarouselProps) => {
   const [index, setIndex] = useState(0)
 
   const safeAds = useMemo(() => ads ?? [], [ads])
@@ -20,6 +23,10 @@ export const AdCarousel = ({ ads, title = 'Ads' }: AdCarouselProps) => {
   useEffect(() => {
     if (index >= safeAds.length) setIndex(0)
   }, [index, safeAds.length])
+
+  if (loading) {
+    return <AdCarouselSkeleton />
+  }
 
   if (!safeAds.length) {
     return (
@@ -69,8 +76,8 @@ export const AdCarousel = ({ ads, title = 'Ads' }: AdCarouselProps) => {
           <ChevronLeftIcon />
         </IconButton>
 
-        <Box flex={1} sx={{ cursor: 'default' }}>
-          <VideoPlayer src={current.videoUrl} />
+        <Box flex={1}>
+          <VideoPlayer key={current.videoUrl} src={current.videoUrl} height="317px" />
         </Box>
 
         <IconButton aria-label="Next ad" size="small" onClick={goNext}>
