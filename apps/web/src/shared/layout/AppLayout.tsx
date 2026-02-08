@@ -6,10 +6,14 @@ import {
   IconButton,
   ArrowBackIcon,
   GRADIENTS,
+  AdCarousel,
 } from '@cattos/ui'
 import { Button } from '@cattos/ui'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuthLogout, useAuthUser } from '@/stores/authStore'
+import type { Ad } from '@cattos/shared'
+import { adsService } from '@/services/ads'
 
 export const AppLayout = () => {
   const navigate = useNavigate()
@@ -17,10 +21,29 @@ export const AppLayout = () => {
   const logout = useAuthLogout()
   const user = useAuthUser()
 
+  const [sidebarAds, setSidebarAds] = useState<Ad[]>([])
+
   const handleLogout = async () => {
     await logout()
     navigate('/login', { replace: true })
   }
+
+  useEffect(() => {
+    let mounted = true
+    adsService
+      .getSidebarAds()
+      .then((ads) => {
+        if (!mounted) return
+        setSidebarAds(ads)
+      })
+      .catch(() => {
+        console.warn('Failed to load sidebar ads, sidebar will be shown without ads')
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   const isHome = location.pathname === '/'
   const isProfile = user?.username ? location.pathname.startsWith('/profile') : false
@@ -42,7 +65,6 @@ export const AppLayout = () => {
     <>
       <CssBaseline />
       <Box display="flex" width="100%" minHeight="100vh">
-        {/* Left Sidebar - 20% */}
         <Box
           component="aside"
           width="20%"
@@ -123,7 +145,6 @@ export const AppLayout = () => {
           </Stack>
         </Box>
 
-        {/* Middle Section - 60% */}
         <Box
           width={{ xs: '100%', md: '60%' }}
           minWidth={0}
@@ -133,7 +154,6 @@ export const AppLayout = () => {
             minHeight: '100vh',
           }}
         >
-          {/* Persistent Header */}
           <Box
             p={2}
             position="sticky"
@@ -165,7 +185,6 @@ export const AppLayout = () => {
           </Box>
         </Box>
 
-        {/* Right Sidebar - 20% */}
         <Box
           width="20%"
           p={3}
@@ -177,39 +196,8 @@ export const AppLayout = () => {
             background: GRADIENTS.main,
           }}
         >
-          <Typography
-            variant="h6"
-            fontWeight="bold"
-            mb={2}
-            color="white"
-            sx={{ cursor: 'default', userSelect: 'none' }}
-          >
-            Purrfect Finds ✨
-          </Typography>
           <Box bgcolor="white" borderRadius={3} p={2} boxShadow="0 4px 12px rgba(0,0,0,0.1)">
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              gutterBottom
-              sx={{ cursor: 'default', userSelect: 'none' }}
-            >
-              fav ads
-            </Typography>
-            <Box
-              p={2}
-              bgcolor="#f5f5f5"
-              borderRadius={2}
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-            >
-              <Typography variant="h2" mb={1}>
-                🐱
-              </Typography>
-              <Typography variant="caption" color="text.secondary" align="center">
-                Sample test.
-              </Typography>
-            </Box>
+            <AdCarousel ads={sidebarAds} title="Purrfect Finds ✨" />
           </Box>
         </Box>
       </Box>

@@ -13,7 +13,7 @@ export const HomeScreenPresentation = ({
     <Box p={2}>
       <CreatePost onPostCreated={onPostCreated} />
       <Box mt={2}>
-        <PostFeed ref={feedRef} />
+        <PostFeed ref={feedRef} showAds />
       </Box>
     </Box>
   )

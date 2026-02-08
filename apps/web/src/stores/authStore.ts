@@ -3,6 +3,9 @@ import type { LoginCredentials, RegisterCredentials, AuthResponse, User } from '
 import { OnboardingStatus } from '@cattos/shared'
 import { apiClient, handleApiError } from '@/services/client'
 
+// prevents race condition edge case
+let initAuthInFlight: Promise<void> | null = null
+
 type AuthState = {
   user: User | null
   token: string | null
@@ -126,12 +129,19 @@ export const useAuthRefreshSession = () => useAuthStore((s) => s.refreshSession)
 export const useAuthLogout = () => useAuthStore((s) => s.logout)
 
 export const initAuth = async () => {
-  try {
-    await useAuthStore.getState().refreshSession()
-  } catch {
-    useAuthStore.setState({ user: null, token: null })
-    applyTokenToClient(null)
-  } finally {
-    useAuthStore.setState({ isLoading: false })
-  }
+  if (initAuthInFlight) return initAuthInFlight
+
+  initAuthInFlight = (async () => {
+    try {
+      await useAuthStore.getState().refreshSession()
+    } catch {
+      useAuthStore.setState({ user: null, token: null })
+      applyTokenToClient(null)
+    } finally {
+      useAuthStore.setState({ isLoading: false })
+      initAuthInFlight = null
+    }
+  })()
+
+  return initAuthInFlight
 }

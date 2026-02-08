@@ -5,6 +5,7 @@ import userRoutes from './user.routes.js'
 import authRoutes from './auth.routes.js'
 import bookmarksRoutes from './bookmarks.routes.js'
 import uploadRoutes from './upload.routes.js'
+import adsRoutes from './ads.routes.js'
 
 const router = Router()
 
@@ -14,5 +15,6 @@ router.use('/posts', postRoutes)
 router.use('/users', userRoutes)
 router.use('/bookmarks', bookmarksRoutes)
 router.use('/uploads', uploadRoutes)
+router.use('/ads', adsRoutes)
 
 export default router

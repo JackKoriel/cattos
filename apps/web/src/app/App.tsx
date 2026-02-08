@@ -7,6 +7,7 @@ import { RegisterPage } from '../pages/RegisterPage'
 import { ProfilePage } from '../pages/ProfilePage'
 import { PostPage } from '../pages/PostPage'
 import { OnboardingPage } from '../pages/OnboardingPage'
+import { ComingSoonPage } from '../pages/ComingSoonPage'
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/post/:id" element={<PostPage />} />
-        {/* Add more protected routes here */}
+        <Route path="/coming-soon" element={<ComingSoonPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
