@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, Box, IconButton, Divider, CloseIcon } from '@cattos/ui'
 import { PostCard } from '@cattos/ui'
 import { Post } from '@cattos/shared'
+import { useNavigate } from 'react-router-dom'
 import { CommentList } from '../CommentList'
 
 interface CommentDialogProps {
@@ -20,6 +21,8 @@ export const CommentDialog = ({
   onBookmark,
   onCommentCreated,
 }: CommentDialogProps) => {
+  const navigate = useNavigate()
+
   if (!post) return null
 
   return (
@@ -41,7 +44,12 @@ export const CommentDialog = ({
         </IconButton>
       </Box>
       <DialogContent sx={{ p: 0, overflowY: 'auto' }}>
-        <PostCard post={post} onLike={onLike} onBookmark={onBookmark} />
+        <PostCard
+          post={post}
+          onLike={onLike}
+          onBookmark={onBookmark}
+          onProfileClick={(username) => navigate(`/profile/${username}`)}
+        />
         <Divider />
         <CommentList postId={post._id} onCommentCreated={onCommentCreated} />
       </DialogContent>

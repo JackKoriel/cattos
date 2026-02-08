@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Box,
   Avatar,
@@ -20,6 +21,7 @@ interface CreatePostProps {
 }
 
 export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
+  const navigate = useNavigate()
   const user = useAuthUser()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [content, setContent] = useState('')
@@ -68,7 +70,12 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       sx={{ transition: 'box-shadow 0.2s' }}
     >
       <Stack direction="row" spacing={2}>
-        <Avatar src={user.avatar} alt={user.username} sx={{ width: 48, height: 48 }} />
+        <Avatar
+          src={user.avatar}
+          alt={user.username}
+          onClick={() => navigate(`/profile/${user.username}`)}
+          sx={{ width: 48, height: 48, cursor: 'pointer' }}
+        />
         <Box flex={1}>
           <TextField
             fullWidth

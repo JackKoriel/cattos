@@ -3,6 +3,7 @@ import { PostCard } from '@cattos/ui'
 import { useFetchComments } from '@/hooks/useFetchComments'
 import { CommentInput } from '../CommentInput/CommentInput'
 import { apiClient } from '@/services/client'
+import { useNavigate } from 'react-router-dom'
 
 interface CommentListProps {
   postId: string
@@ -10,6 +11,7 @@ interface CommentListProps {
 }
 
 export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
+  const navigate = useNavigate()
   const { comments, loading, loadingMore, error, hasMore, loadMore, addComment } =
     useFetchComments(postId)
 
@@ -87,6 +89,7 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
                 post={comment}
                 onLike={handleLike}
                 onBookmark={handleBookmark}
+                onProfileClick={(username) => navigate(`/profile/${username}`)}
                 showCommentButton={false}
                 showRepostButton={false}
                 showBookmarkButton={false}

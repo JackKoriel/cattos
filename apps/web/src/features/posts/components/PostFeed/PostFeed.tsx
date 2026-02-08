@@ -204,6 +204,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(({ authorId },
               }}
               onShare={handleShare}
               onOpen={(postId) => navigate(`/post/${postId}`)}
+              onProfileClick={(username) => navigate(`/profile/${username}`)}
             />
           ))}
 

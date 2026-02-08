@@ -7,6 +7,7 @@ export type PostScreenPresentationProps = {
   post: Post
   onBack: () => void
   onOpen: (postId: string) => void
+  onProfileClick: (username: string) => void
   onLike: (postId: string, isLiked: boolean) => Promise<void>
   onBookmark: (postId: string, isBookmarked: boolean) => Promise<void>
   onRepost: (postId: string) => Promise<void>
@@ -18,6 +19,7 @@ export const PostScreenPresentation = ({
   post,
   onBack,
   onOpen,
+  onProfileClick,
   onLike,
   onBookmark,
   onRepost,
@@ -55,6 +57,7 @@ export const PostScreenPresentation = ({
             onRepost={onRepost}
             onShare={onShare}
             onOpen={onOpen}
+            onProfileClick={onProfileClick}
           />
         </Box>
 

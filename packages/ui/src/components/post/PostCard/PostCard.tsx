@@ -21,6 +21,7 @@ export interface PostCardProps {
   onShare?: (id: string) => void
 
   onOpen?: (id: string) => void
+  onProfileClick?: (username: string) => void
   showCommentButton?: boolean
   showRepostButton?: boolean
   showBookmarkButton?: boolean
@@ -35,6 +36,7 @@ export const PostCard = ({
   onComment,
   onShare,
   onOpen,
+  onProfileClick,
   showCommentButton = true,
   showRepostButton = true,
   showBookmarkButton = true,
@@ -135,6 +137,13 @@ export const PostCard = ({
     }
   }
 
+  const handleProfileClick = (e: React.MouseEvent) => {
+    if (onProfileClick) {
+      e.stopPropagation()
+      onProfileClick(username)
+    }
+  }
+
   const timeAgo = formatDistanceToNowStrict(new Date(createdAt), {
     addSuffix: false,
   })
@@ -175,10 +184,16 @@ export const PostCard = ({
         p: 2,
         borderRadius: 3,
         cursor: onOpen ? 'pointer' : 'default',
+        bgcolor: 'white', // Ensure it has a background
       }}
     >
       <Box sx={{ mr: 2 }}>
-        <Avatar src={avatarSrc} alt={displayName}>
+        <Avatar
+          src={avatarSrc}
+          alt={displayName}
+          onClick={handleProfileClick}
+          sx={{ cursor: onProfileClick ? 'pointer' : 'inherit' }}
+        >
           {displayName.charAt(0)}
         </Avatar>
       </Box>
@@ -198,10 +213,20 @@ export const PostCard = ({
           sx={{ p: 0, mb: 1 }}
           title={
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography sx={{ fontWeight: 'bold' }}>{displayName}</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                @{username}
-              </Typography>
+              <Box
+                onClick={handleProfileClick}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: onProfileClick ? 'pointer' : 'inherit',
+                  '&:hover': { textDecoration: onProfileClick ? 'underline' : 'none' },
+                }}
+              >
+                <Typography sx={{ fontWeight: 'bold' }}>{displayName}</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                  @{username}
+                </Typography>
+              </Box>
               <Typography variant="body2" color="text.secondary" sx={{ mx: 0.5 }}>
                 ·
               </Typography>

@@ -18,6 +18,7 @@ export const PostScreen = () => {
       post={post}
       onBack={() => navigate(-1)}
       onOpen={(postId) => navigate(`/post/${postId}`)}
+      onProfileClick={(username) => navigate(`/profile/${username}`)}
       onLike={like}
       onBookmark={bookmark}
       onRepost={repost}
