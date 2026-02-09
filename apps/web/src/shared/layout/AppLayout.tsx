@@ -51,14 +51,14 @@ export const AppLayout = () => {
   }, [])
 
   const isHome = location.pathname === '/'
-  const isProfile = user?.username ? location.pathname.startsWith('/profile') : false
+  const isProfileRoute = location.pathname.startsWith('/profile/')
+  const viewedUsername = isProfileRoute ? location.pathname.split('/').pop() : undefined
+  const isOwnProfile = user?.username && viewedUsername === user.username
 
   const getHeaderInfo = () => {
-    if (location.pathname === '/') return { title: 'Home', showBack: false }
-    if (location.pathname.startsWith('/profile/')) {
-      const parts = location.pathname.split('/')
-      const username = parts[parts.length - 1]
-      return { title: username || 'Profile', showBack: true }
+    if (isHome) return { title: 'Home', showBack: false }
+    if (isProfileRoute) {
+      return { title: viewedUsername || 'Profile', showBack: true }
     }
     if (location.pathname.startsWith('/post/')) return { title: 'Post', showBack: true }
     return { title: 'Feed', showBack: false }
@@ -112,17 +112,17 @@ export const AppLayout = () => {
               Home
             </Button>
             <Button
-              variant={isProfile ? 'orange' : 'contained'}
+              variant={isOwnProfile ? 'orange' : 'contained'}
               fullWidth
               onClick={() => navigate(`/profile/${user?.username || 'me'}`)}
               sx={{
                 justifyContent: 'flex-start',
                 px: 3,
-                color: isProfile ? 'white' : 'text.primary',
-                backgroundColor: isProfile ? undefined : 'white',
+                color: isOwnProfile ? 'white' : 'text.primary',
+                backgroundColor: isOwnProfile ? undefined : 'white',
                 fontSize: '1rem',
                 '&:hover': {
-                  backgroundColor: isProfile ? undefined : '#f5f5f5',
+                  backgroundColor: isOwnProfile ? undefined : '#f5f5f5',
                 },
               }}
               startIcon={<span style={{ marginRight: 8 }}>🐱</span>}
