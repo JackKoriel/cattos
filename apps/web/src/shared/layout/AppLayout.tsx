@@ -1,3 +1,4 @@
+import appLogoSmall from '../../assets/logos/app_logo_small.png'
 import {
   Box,
   Typography,
@@ -83,14 +84,24 @@ export const AppLayout = () => {
             borderRight: '1px solid rgba(255,255,255,0.2)',
           }}
         >
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            mb={3}
-            sx={{ color: 'white', ml: 1, cursor: 'default', userSelect: 'none' }}
-          >
-            Cattos 🐱
-          </Typography>
+          <Box display="flex" alignItems="center" mb={3} ml={1}>
+            <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', mr: 1 }}>
+              <img
+                src={appLogoSmall}
+                alt="Cattos Logo"
+                width={35}
+                height={35}
+                style={{ objectFit: 'contain', display: 'block' }}
+              />
+            </Box>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              sx={{ color: 'white', cursor: 'default', userSelect: 'none' }}
+            >
+              Cattos
+            </Typography>
+          </Box>
           <Stack spacing={2}>
             <Button
               variant={isHome ? 'orange' : 'contained'}
