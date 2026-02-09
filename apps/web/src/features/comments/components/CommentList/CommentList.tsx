@@ -85,20 +85,21 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
           <Typography color="text.secondary">No replies yet. Be the first to reply!</Typography>
         </Box>
       ) : (
-        <Stack spacing={2}>
+        <Stack spacing={2} alignItems="flex-start">
           {comments.map((comment) => (
-            <PostCard
-              key={comment.id}
-              post={comment}
-              onLike={handleLike}
-              onBookmark={handleBookmark}
-              onOpen={(id) => navigate(`/post/${id}`)}
-              onProfileClick={(username) => navigate(`/profile/${username}`)}
-              showCommentButton={false}
-              showRepostButton={false}
-              showBookmarkButton={false}
-              showShareButton={false}
-            />
+            <Box key={comment.id} sx={{ width: '80%' }}>
+              <PostCard
+                post={comment}
+                onLike={handleLike}
+                onBookmark={handleBookmark}
+                onOpen={(id) => navigate(`/post/${id}`)}
+                onProfileClick={(username) => navigate(`/profile/${username}`)}
+                showCommentButton={false}
+                showRepostButton={false}
+                showBookmarkButton={false}
+                showShareButton={false}
+              />
+            </Box>
           ))}
 
           {hasMore && (
