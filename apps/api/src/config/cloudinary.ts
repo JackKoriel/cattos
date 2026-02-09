@@ -14,6 +14,7 @@ cloudinary.config({
 export const cloudinaryFolders = {
   avatars: 'cattos/avatars',
   posts: 'cattos/posts',
+  covers: 'cattos/covers',
 } as const
 
 export { cloudinary }

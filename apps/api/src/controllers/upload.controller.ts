@@ -17,64 +17,73 @@ const getManyFiles = (req: Request): Express.Multer.File[] => {
   return Object.values(files).flat()
 }
 
-const uploadAvatar = async (req: Request, res: Response, next: NextFunction) => {
+const uploadImage = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
       res.status(401).json({ success: false, error: 'Unauthorized' })
       return
     }
 
-    const file = getSingleFile(req)
-    if (!file) {
-      res.status(400).json({ success: false, error: 'Avatar file is required' })
-      return
-    }
+    const { type } = req.params
+    let folder: string
+    let files: Express.Multer.File[]
+    let public_id: string | undefined = undefined
+    let overwrite = false
 
-    const uploaded = await uploadImageBuffer(file.buffer, {
-      folder: cloudinaryFolders.avatars,
-      public_id: req.user.id,
-      overwrite: true,
-    })
-
-    res.status(201).json({ success: true, data: uploaded })
-  } catch (error) {
-    next(error)
-  }
-}
-
-const uploadPostMedia = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.user?.id) {
-      res.status(401).json({ success: false, error: 'Unauthorized' })
-      return
-    }
-
-    const files = getManyFiles(req)
-    if (files.length === 0) {
-      res.status(400).json({ success: false, error: 'At least one image file is required' })
-      return
-    }
-
-    if (files.length > 4) {
-      res.status(400).json({ success: false, error: 'You can upload up to 4 images' })
-      return
+    switch (type) {
+      case 'avatar':
+        folder = cloudinaryFolders.avatars
+        files = getSingleFile(req) ? [getSingleFile(req)!] : []
+        public_id = req.user.id
+        overwrite = true
+        if (files.length === 0) {
+          res.status(400).json({ success: false, error: 'Avatar file is required' })
+          return
+        }
+        break
+      case 'cover':
+        folder = cloudinaryFolders.covers
+        files = getSingleFile(req) ? [getSingleFile(req)!] : []
+        public_id = req.user.id
+        overwrite = true
+        if (files.length === 0) {
+          res.status(400).json({ success: false, error: 'Cover image file is required' })
+          return
+        }
+        break
+      case 'post':
+        folder = cloudinaryFolders.posts
+        files = getManyFiles(req)
+        if (files.length === 0) {
+          res.status(400).json({ success: false, error: 'At least one image file is required' })
+          return
+        }
+        if (files.length > 4) {
+          res.status(400).json({ success: false, error: 'You can upload up to 4 images' })
+          return
+        }
+        break
+      default:
+        res.status(400).json({ success: false, error: 'Invalid upload type' })
+        return
     }
 
     const uploaded = await Promise.all(
       files.map((f) =>
         uploadImageBuffer(f.buffer, {
-          folder: cloudinaryFolders.posts,
+          folder,
+          ...(public_id ? { public_id } : {}),
+          ...(overwrite ? { overwrite } : {}),
         })
       )
     )
 
-    res.status(201).json({ success: true, data: uploaded })
+    res.status(201).json({ success: true, data: type === 'post' ? uploaded : uploaded[0] })
   } catch (error) {
     next(error)
   }
 }
 
 export const uploadController = {
-  uploadAvatar,
-  uploadPostMedia,
+  uploadImage,
 }

@@ -12,7 +12,6 @@ export const OnboardingScreen = () => {
       steps={onboarding.steps}
       presetAvatars={onboarding.presetAvatars}
       activeStep={onboarding.activeStep}
-      submitting={onboarding.submitting}
       error={onboarding.error}
       avatarPreviewUrl={onboarding.avatarPreviewUrl}
       avatarInputRef={onboarding.avatarInputRef}

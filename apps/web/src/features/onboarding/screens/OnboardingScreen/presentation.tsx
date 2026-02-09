@@ -38,7 +38,6 @@ export type OnboardingScreenPresentationProps = {
   steps: string[]
   presetAvatars: readonly string[]
   activeStep: number
-  submitting: boolean
   error: string | null
   avatarPreviewUrl: string | null
   avatarInputRef: RefObject<HTMLInputElement>
@@ -61,7 +60,6 @@ export const OnboardingScreenPresentation = ({
   steps,
   presetAvatars,
   activeStep,
-  submitting,
   error,
   avatarPreviewUrl,
   avatarInputRef,
@@ -97,7 +95,7 @@ export const OnboardingScreenPresentation = ({
     (Boolean(usernameAvailabilityMessage) &&
       (usernameAvailability === 'taken' || usernameAvailability === 'error'))
 
-  if (submitting) {
+  if (formik.isSubmitting) {
     return <OnboardingLoading />
   }
 
@@ -391,7 +389,7 @@ export const OnboardingScreenPresentation = ({
 
                 <Stack direction="row" justifyContent="space-between" mt={4}>
                   {activeStep > 0 ? (
-                    <Button type="button" variant="outlined" disabled={submitting} onClick={onBack}>
+                    <Button type="button" variant="outlined" disabled={formik.isSubmitting} onClick={onBack}>
                       Back
                     </Button>
                   ) : (
@@ -402,7 +400,7 @@ export const OnboardingScreenPresentation = ({
                     <Button
                       type="submit"
                       variant="orange"
-                      disabled={submitting}
+                      disabled={formik.isSubmitting}
                       sx={{ minWidth: 120 }}
                       onClick={onFinishIntent}
                     >
@@ -413,7 +411,7 @@ export const OnboardingScreenPresentation = ({
                       type="button"
                       variant="contained"
                       onClick={onNext}
-                      disabled={submitting}
+                      disabled={formik.isSubmitting}
                       sx={{ minWidth: 100 }}
                     >
                       Next

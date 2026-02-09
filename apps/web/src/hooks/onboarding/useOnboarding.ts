@@ -51,7 +51,6 @@ export const useOnboarding = () => {
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null)
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
   const finishIntentRef = useRef(false)
-  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [usernameAvailability, setUsernameAvailability] =
@@ -97,7 +96,6 @@ export const useOnboarding = () => {
             if (avatarFile) return true
             if (!value) return false
 
-            // Accept http(s) URLs (uploaded avatars) and Vite asset paths (preset avatars).
             if (
               value.startsWith('http://') ||
               value.startsWith('https://') ||
@@ -156,7 +154,6 @@ export const useOnboarding = () => {
       if (!finishIntentRef.current) return
       finishIntentRef.current = false
 
-      setSubmitting(true)
       setError(null)
 
       try {
@@ -192,8 +189,6 @@ export const useOnboarding = () => {
       } catch (err) {
         const apiError = handleApiError(err)
         setError(apiError.message)
-      } finally {
-        setSubmitting(false)
       }
     },
   })
@@ -342,7 +337,6 @@ export const useOnboarding = () => {
     steps,
     presetAvatars,
     activeStep,
-    submitting,
     error,
     avatarPreviewUrl,
     avatarInputRef,

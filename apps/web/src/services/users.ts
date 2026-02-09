@@ -14,7 +14,9 @@ export const usersService = {
 
   async update(
     userId: string,
-    payload: Partial<Pick<User, 'displayName' | 'location' | 'avatar' | 'bio'>>
+    payload: Partial<
+      Pick<User, 'displayName' | 'location' | 'avatar' | 'bio' | 'coverImage' | 'website'>
+    >
   ): Promise<User> {
     const response = await apiClient.patch<ApiResponse<User>>(`/users/${userId}`, payload)
 

@@ -1,7 +1,10 @@
+import React from 'react'
+import { updateRegister, type UpdateRegisterPayload } from '@/services/register'
 import { Box, Typography, Avatar, Button, Stack } from '@cattos/ui'
 import type { User } from '@cattos/shared'
 import { PostFeed } from '@/features/posts/components'
 import { useAuthUser } from '@/stores/authStore'
+import { EditProfileModal } from '../../components'
 
 export const ProfileScreenError = ({
   message,
@@ -21,6 +24,25 @@ export const ProfileScreenError = ({
 export const ProfileScreenPresentation = ({ user }: { user: User }) => {
   const currentUser = useAuthUser()
   const isOwnProfile = currentUser && currentUser.username === user.username
+  const [modalOpen, setModalOpen] = React.useState(false)
+  const [profile, setProfile] = React.useState<User>(user)
+
+  const handleEditProfile = () => setModalOpen(true)
+  const handleCloseModal = () => setModalOpen(false)
+
+  const handleSubmit = async (values: UpdateRegisterPayload) => {
+    try {
+      await updateRegister(profile.id, values)
+      const { usersService } = await import('@/services/users')
+      const updated = await usersService.getByUsername(profile.username)
+      setProfile(updated)
+      setModalOpen(false)
+    } catch (err) {
+      setModalOpen(false)
+      console.warn('Failed to update profile', err)
+    }
+  }
+
   return (
     <Box>
       <Box
@@ -36,14 +58,17 @@ export const ProfileScreenPresentation = ({ user }: { user: User }) => {
             height: 150,
             borderTopLeftRadius: 12,
             borderTopRightRadius: 12,
-            backgroundColor: 'grey.300',
+            backgroundColor: profile.coverImage ? undefined : 'grey.300',
+            backgroundImage: profile.coverImage ? `url(${profile.coverImage})` : undefined,
+            backgroundSize: profile.coverImage ? 'cover' : undefined,
+            backgroundPosition: profile.coverImage ? 'center' : undefined,
           }}
         />
         <Box px={2} pb={2}>
           <Box mt={-6} mb={2} display="flex" justifyContent="space-between" alignItems="flex-end">
             <Avatar
-              src={user.avatar}
-              alt={user.username}
+              src={profile.avatar}
+              alt={profile.username}
               sx={{
                 width: 120,
                 height: 120,
@@ -52,32 +77,48 @@ export const ProfileScreenPresentation = ({ user }: { user: User }) => {
               }}
             />
             {isOwnProfile && (
-              <Button
-                variant="contained"
-                sx={{
-                  borderRadius: 20,
-                  backgroundColor: '#ff9800',
-                  color: 'white',
-                  textTransform: 'none',
-                  boxShadow: 'none',
-                  '&:hover': {
-                    backgroundColor: '#f57c00',
+              <>
+                <Button
+                  variant="contained"
+                  sx={{
+                    borderRadius: 20,
+                    backgroundColor: '#ff9800',
+                    color: 'white',
+                    textTransform: 'none',
                     boxShadow: 'none',
-                  },
-                }}
-              >
-                Edit Profile
-              </Button>
+                    '&:hover': {
+                      backgroundColor: '#f57c00',
+                      boxShadow: 'none',
+                    },
+                  }}
+                  onClick={handleEditProfile}
+                >
+                  Edit Profile
+                </Button>
+                <EditProfileModal
+                  open={modalOpen}
+                  initialValues={{
+                    displayName: profile.displayName || '',
+                    bio: profile.bio || '',
+                    avatar: profile.avatar || '',
+                    coverImage: profile.coverImage || '',
+                    location: profile.location || '',
+                    website: profile.website || '',
+                  }}
+                  onClose={handleCloseModal}
+                  onSubmit={handleSubmit}
+                />
+              </>
             )}
           </Box>
           <Typography variant="h6" fontWeight="bold" color="text.primary">
-            {user.displayName || user.username}
+            {profile.displayName || profile.username}
           </Typography>
           <Typography color="text.secondary" variant="body2" gutterBottom>
-            @{user.username}
+            @{profile.username}
           </Typography>
           <Typography variant="body1" paragraph color="text.primary">
-            {user.bio || 'No bio yet.'}
+            {profile.bio || 'No bio yet.'}
           </Typography>
 
           <Stack direction="row" spacing={2}>
@@ -97,7 +138,7 @@ export const ProfileScreenPresentation = ({ user }: { user: User }) => {
         </Box>
       </Box>
       <Box>
-        <PostFeed authorId={user.id} />
+        <PostFeed authorId={profile.id} />
       </Box>
     </Box>
   )
