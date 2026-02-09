@@ -48,6 +48,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Local development
+.local-todo.md
+
 # Testing
 coverage/
 .nyc_output/

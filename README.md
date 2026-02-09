@@ -1,15 +1,20 @@
 # Cattos 🐱
 
-A Twitter-like app for cat photos and interactions - built as a personal training project to learn modern web development practices.
+A lightweight social platform focused on cat photo sharing and interaction, built as an experimental project with a modern monorepo architecture using React, TypeScript, Express, and Turborepo.
 
-## 🎯 Project Overview
+## 🎯 Features
 
-Cattos is a social media platform specifically designed for sharing and interacting with cat photos. Think Twitter, but exclusively for cat content. The project is split into multiple phases for incremental development and learning.
+- **Authentication** – Register, login, and secure JWT-based auth with rotating refresh tokens
+- **Post Management** – Create, like, bookmark, and reply to posts
+- **User Profiles** – View and edit user profiles with follow/unfollow functionality
+- **Real-time Interactions** – Like, bookmark, and comment on posts
+- **Responsive UI** – Built with Material-UI and optimized for all devices
+- **Type-Safe** – Full TypeScript across monorepo for consistency and reliability
 
 ## 📁 Project Structure
 
 ```
-Cattos/
+cattos/
 ├── apps/
 │   ├── web/                    # React frontend (Vite + TypeScript)
 │   │   ├── src/
@@ -30,6 +35,7 @@ Cattos/
 │       │   ├── controllers/   # Request handlers
 │       │   ├── services/      # Business logic
 │       │   ├── middleware/    # Express middleware
+│       │   ├── models/        # Mongoose schemas
 │       │   ├── types/         # Backend-specific types
 │       │   ├── config/        # Configuration files
 │       │   ├── app.ts         # Express app setup
@@ -40,12 +46,8 @@ Cattos/
 ├── packages/
 │   ├── ui/                     # Shared Material-UI components
 │   │   ├── src/
-│   │   │   ├── components/
-│   │   │   │   ├── Button/
-│   │   │   │   ├── Card/
-│   │   │   │   ├── Avatar/
-│   │   │   │   ├── Skeleton/
-│   │   │   │   └── Layout/
+│   │   │   ├── components/    # Reusable UI components
+│   │   │   ├── theme.ts       # MUI theme configuration
 │   │   │   └── index.ts       # Barrel exports
 │   │   └── package.json
 │   │
@@ -71,16 +73,18 @@ Cattos/
 - **Vite 5** - Build tool and dev server
 - **Material-UI 5** - Component library
 - **React Router 6** - Client-side routing
-- **Emotion** - CSS-in-JS styling
+- **Zustand** - State management
+- **Axios** - HTTP client
 
 ### Backend
 
 - **Node.js 20+** - JavaScript runtime
 - **Express 4** - Web framework
 - **TypeScript 5.3** - Type safety
-- **MongoDB** - Database
+- **MongoDB** - Document database
 - **Mongoose** - ODM
 - **Vitest** - Unit testing
+- **JWT** - Authentication tokens
 
 ### Monorepo Tools
 
@@ -89,51 +93,37 @@ Cattos/
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
 
-### Authentication
-
-- **JWT** - Access tokens via `Authorization: Bearer ...`
-- **Refresh tokens** - Rotating refresh tokens stored hashed, delivered via httpOnly cookie
-
 ## 🛠️ Prerequisites
 
 - Node.js 20+ ([Download](https://nodejs.org/))
 - Yarn Classic 1.22+ ([Install](https://classic.yarnpkg.com/en/docs/install))
+- MongoDB (local or Atlas connection string)
 - Git
 
 ## 📦 Installation
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd Cattos
+git clone https://github.com/yourusername/cattos.git
+cd cattos
 
-# Install all dependencies
+# Install dependencies
 yarn install
 ```
 
 ## 💻 Development
 
-### Backend environment variables
+### Backend Setup
 
-The API requires MongoDB + a JWT signing secret. Copy the example file and fill it in:
+Create a `.env` file at the repo root with:
 
-```bash
-# Option A (recommended): put it at repo root for turbo commands
-copy apps\api\.env.example .env
-
-# Option B: put it in the API package if you run commands from there
-copy apps\api\.env.example apps\api\.env
+```env
+MONGODB_URI=mongodb://localhost:27017/cattos
+JWT_ACCESS_SECRET=your-secret-key-here
+JWT_REFRESH_SECRET=your-refresh-secret-here
 ```
 
-Required keys:
-
-- `MONGODB_URI` (Mongo connection string)
-- `JWT_ACCESS_SECRET` (random long secret used to sign access tokens)
-
-Notes:
-
-- The API loads `.env` from either the repo root or `apps/api` (plus optional `.env.local`).
-- If these vars are missing, the API will exit on startup instead of running and later returning generic 500s.
+For MongoDB Atlas cloud database, use your connection string instead.
 
 ### Start Development Servers
 
@@ -143,157 +133,21 @@ yarn dev
 
 This starts:
 
-- Frontend at http://localhost:5173 (auto-opens in browser)
-- Backend at http://localhost:3000
-
-### Stop Servers
-
-```bash
-# Option 1: Press Ctrl+C in the terminal
-# Option 2: Use the stop command
-yarn stop
-```
+- **Frontend:** http://localhost:5173 (auto-opens in browser)
+- **Backend:** http://localhost:3000
 
 ### Other Commands
 
 ```bash
-yarn build        # Build all apps for production
-yarn start        # Run production builds (after yarn build)
-yarn prod         # Build and start in one command
-yarn lint         # Lint all code
-yarn format       # Format code with Prettier
-yarn format:check # Check code formatting
-yarn lint:api     # Lint backend only
-yarn format:api   # Format backend only
-yarn format:check:api # Check backend formatting only
+yarn build                    # Build all apps for production
+yarn start                    # Run production builds (after yarn build)
+yarn prod                     # Build and start in one command
+yarn lint                     # Lint all code
+yarn format                   # Format code with Prettier
+yarn format:check             # Check code formatting
+yarn test                     # Run tests
+yarn test:api                 # Run backend tests only
 ```
-
-## 📋 Development Phases
-
-### ✅ Phase 1: Infrastructure Setup (COMPLETED)
-
-**Goal:** Set up the monorepo structure with a basic "Hello World" UI
-
-**Completed Tasks:**
-
-- [x] Monorepo setup with Yarn workspaces and Turborepo
-- [x] TypeScript configuration with project references
-- [x] Shared types package (`@cattos/shared`)
-  - [x] User, Post, ApiResponse, ApiError types
-  - [x] Axios API client utilities
-- [x] Shared UI components package (`@cattos/ui`)
-  - [x] Material-UI wrapper components (Button, Card, Avatar, Skeleton, Layout)
-- [x] React frontend with Vite
-  - [x] Twitter-like skeleton UI
-  - [x] Sample posts with cat theme
-  - [x] Auto-open browser on `yarn dev`
-- [x] Express backend API
-  - [x] Health check endpoint (`/api/health`)
-  - [x] CORS configuration
-  - [x] Layered architecture (routes → controllers → services)
-- [x] Development tooling
-  - [x] ESLint and Prettier
-  - [x] Hot reload for both frontend and backend
-  - [x] Parallel dev server execution
-
-**Current State:**
-
-- Frontend displays Twitter-like skeleton with mock cat posts
-- Backend returns "Hello World from Cattos API! 🐱" from health endpoint
-- Both servers run simultaneously with `yarn dev`
-
-### ✅ Phase 2: Backend Core & Authentication (COMPLETED)
-
-**Goal:** Add database, authentication, and core API endpoints
-
-**Completed Tasks:**
-
-- [x] MongoDB setup
-  - [x] Database connection with Mongoose
-  - [x] Core models (User, Post, RefreshToken, Like, Bookmark)
-- [x] Authentication
-  - [x] Register/login/logout
-  - [x] Access JWT (Bearer) + rotating refresh token (httpOnly cookie)
-  - [x] `GET /api/auth/me`
-- [x] API endpoints (core)
-  - [x] Users, Posts, Likes, Bookmarks
-  - [x] Protected write endpoints
-- [x] Centralized error handling middleware
-- [x] Environment variables setup (.env) + fail-fast startup when required vars are missing
-- [x] Backend tests (Vitest) + strict TypeScript/ESLint hygiene
-
-**TODO (later):**
-
-- [ ] Set up a dedicated MongoDB test database for integration tests (to cover real “create” flows end-to-end)
-
-### 🔄 Phase 3: Frontend Features (PLANNED)
-
-**Goal:** Connect frontend to backend and implement core features
-
-**Planned Tasks:**
-
-- [ ] Authentication UI
-  - [ ] Login page
-  - [ ] Register page
-  - [ ] Protected routes
-  - [ ] Auth context/state management
-- [ ] Post feed
-  - [ ] Fetch and display real posts from API
-  - [ ] Infinite scroll pagination
-- [ ] Create post
-  - [ ] Post creation form
-  - [ ] Image upload
-  - [ ] Post validation
-- [ ] User profile
-  - [ ] View user profile
-  - [ ] Edit profile
-- [ ] Navigation
-  - [ ] Home feed
-  - [ ] Profile page
-  - [ ] Create post page
-
-### 🔄 Phase 4: Social Features (PLANNED)
-
-**Goal:** Add interactions and social functionality
-
-**Planned Tasks:**
-
-- [ ] Like/unlike posts
-- [ ] Comment on posts
-- [ ] Follow/unfollow users
-- [ ] User feed (posts from followed users)
-- [ ] Notifications
-- [ ] Search functionality (users and posts)
-
-### 🔄 Phase 5: Advanced Features (PLANNED)
-
-**Goal:** Polish and add advanced functionality
-
-**Planned Tasks:**
-
-- [ ] Real-time updates (WebSockets)
-- [ ] Image optimization and CDN
-- [ ] Analytics dashboard
-- [ ] Moderation tools
-- [ ] Dark mode
-- [ ] Mobile responsive design improvements
-- [ ] Performance optimization
-- [ ] SEO optimization
-
-### 🔄 Phase 6: Deployment (PLANNED)
-
-**Goal:** Deploy to production
-
-**Planned Tasks:**
-
-- [ ] Frontend deployment (Vercel/Netlify)
-- [ ] Backend deployment (Railway/AWS/Heroku)
-- [ ] Database hosting (MongoDB Atlas)
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Environment configuration
-- [ ] Domain setup
-- [ ] SSL certificates
-- [ ] Monitoring and logging
 
 ## 🏗️ Architecture Decisions
 
@@ -302,12 +156,12 @@ yarn format:check:api # Check backend formatting only
 - **Code sharing:** Shared types and components between frontend and backend
 - **Consistent tooling:** Single ESLint/Prettier configuration
 - **Atomic changes:** Update types in one place, affects both apps
-- **Learning:** Experience with modern monorepo practices
+- **Scalability:** Easy to add new apps and packages
 
 ### Why Material-UI?
 
 - **Component library:** Pre-built, accessible components
-- **Customizable:** Can be wrapped and customized
+- **Customizable:** Themeable and extensible
 - **Production-ready:** Battle-tested in production apps
 - **TypeScript support:** Full type definitions
 
@@ -315,22 +169,7 @@ yarn format:check:api # Check backend formatting only
 
 - **Fast builds:** Intelligent caching and parallel execution
 - **Task pipelines:** Define dependencies between tasks
-- **Remote caching:** Share cache across team (future)
-
-### Folder Structure Best Practices
-
-- **Separation of concerns:** Routes → Controllers → Services
-- **Colocation:** Components with their styles and tests
-- **Barrel exports:** Clean import paths via index.ts files
-- **Type safety:** Shared types prevent API contract mismatches
-
-### Frontend Structure Conventions (apps/web)
-
-- **`features/` contains UI by domain:** components and feature-specific UI code live under a feature (auth/posts/comments/etc.).
-- **`features/*/screens/` contains page-sized UI:** route-level workflows (forms, fetch + render, stepper flows) live as screens inside the owning feature.
-- **`services/` is the web service layer:** keep HTTP calls and API client setup here (no network calls inside presentation components).
-- **`hooks/` is for reusable hooks:** keep cross-feature hooks here; feature UI can import them, but avoid burying “service” logic in components.
-- **`pages/` stays thin:** pages should mostly render a feature screen and do minimal routing glue (avoid forms/fetching in `pages/`).
+- **Monorepo scaling:** Optimized for multi-package workspaces
 
 ## 🔧 Configuration Notes
 
@@ -340,8 +179,6 @@ yarn format:check:api # Check backend formatting only
 - `@cattos/ui` - Shared UI components
 - `@cattos/shared` - Shared types and utilities
 
-**Note:** `baseUrl` path mapping may be deprecated in future TypeScript versions. Migrate to imports field or other solutions when needed.
-
 ### Port Configuration
 
 - Frontend: `5173` (Vite default)
@@ -349,15 +186,11 @@ yarn format:check:api # Check backend formatting only
 
 ## 🤝 Contributing
 
-This is a personal learning project, but feedback and suggestions are welcome!
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## 📝 License
 
-MIT
-
-## 🐛 Known Issues
-
-- Some “create” unit tests are intentionally skipped until we add MongoDB-backed integration tests.
+This project is licensed under the MIT License.
 
 ## 📚 Learning Resources
 
@@ -366,9 +199,6 @@ MIT
 - [Vite Docs](https://vitejs.dev/)
 - [Express Docs](https://expressjs.com/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [MongoDB Documentation](https://docs.mongodb.com/)
 
 ---
-
-**Current Phase:** Phase 2 ✅ Complete  
-**Next Phase:** Phase 3 - Frontend Features  
-**Last Updated:** January 28, 2026
