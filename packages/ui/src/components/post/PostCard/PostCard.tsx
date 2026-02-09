@@ -184,7 +184,7 @@ export const PostCard = ({
         p: 2,
         borderRadius: 3,
         cursor: onOpen ? 'pointer' : 'default',
-        bgcolor: 'white', // Ensure it has a background
+        bgcolor: 'white',
       }}
     >
       <Box sx={{ mr: 2 }}>
@@ -238,6 +238,61 @@ export const PostCard = ({
         />
         <CardContent sx={{ p: 0, mb: 1 }}>
           <Typography variant="body1">{content}</Typography>
+          {Array.isArray(actionPost.mediaUrls) && actionPost.mediaUrls.length > 0 && (
+            <Box
+              sx={{
+                display: 'grid',
+                gap: 1,
+                mt: 1.5,
+                borderRadius: 2,
+                overflow: 'hidden',
+                gridTemplateColumns:
+                  actionPost.mediaUrls.length === 1
+                    ? '1fr'
+                    : actionPost.mediaUrls.length === 2
+                      ? '1fr 1fr'
+                      : '1fr 1fr',
+                gridTemplateRows:
+                  actionPost.mediaUrls.length < 3
+                    ? 'auto'
+                    : actionPost.mediaUrls.length === 3
+                      ? '1fr 1fr'
+                      : '1fr 1fr',
+                maxWidth: 420,
+                width: '100%',
+                background: '#f7f7f7',
+              }}
+            >
+              {actionPost.mediaUrls.map((url, idx) => (
+                <Box
+                  key={url}
+                  sx={{
+                    position: 'relative',
+                    width: '100%',
+                    aspectRatio: '1 / 1',
+                    gridColumn:
+                      actionPost.mediaUrls.length === 3 && idx === 0 ? '1 / span 2' : undefined,
+                    gridRow: actionPost.mediaUrls.length === 3 && idx === 0 ? '1' : undefined,
+                    overflow: 'hidden',
+                    borderRadius: 2,
+                    background: '#e0e0e0',
+                  }}
+                >
+                  <img
+                    src={url}
+                    alt={`Post media ${idx + 1}`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                    }}
+                    loading="lazy"
+                  />
+                </Box>
+              ))}
+            </Box>
+          )}
         </CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', maxWidth: '425px' }}>
           {showCommentButton && (
