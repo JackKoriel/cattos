@@ -282,7 +282,6 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
                   <AdPostCard
                     key={item.key}
                     ad={item.ad}
-                    loading={item.loading}
                     onClick={() => {
                       navigate('/coming-soon')
                     }}
