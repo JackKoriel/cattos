@@ -1,6 +1,7 @@
 import { Box, Typography, Avatar, Button, Stack } from '@cattos/ui'
 import type { User } from '@cattos/shared'
 import { PostFeed } from '@/features/posts/components'
+import { useAuthUser } from '@/stores/authStore'
 
 export const ProfileScreenError = ({
   message,
@@ -18,6 +19,8 @@ export const ProfileScreenError = ({
 }
 
 export const ProfileScreenPresentation = ({ user }: { user: User }) => {
+  const currentUser = useAuthUser()
+  const isOwnProfile = currentUser && currentUser.username === user.username
   return (
     <Box>
       <Box
@@ -48,22 +51,24 @@ export const ProfileScreenPresentation = ({ user }: { user: User }) => {
                 borderColor: 'background.paper',
               }}
             />
-            <Button
-              variant="contained"
-              sx={{
-                borderRadius: 20,
-                backgroundColor: '#ff9800',
-                color: 'white',
-                textTransform: 'none',
-                boxShadow: 'none',
-                '&:hover': {
-                  backgroundColor: '#f57c00',
+            {isOwnProfile && (
+              <Button
+                variant="contained"
+                sx={{
+                  borderRadius: 20,
+                  backgroundColor: '#ff9800',
+                  color: 'white',
+                  textTransform: 'none',
                   boxShadow: 'none',
-                },
-              }}
-            >
-              Edit Profile
-            </Button>
+                  '&:hover': {
+                    backgroundColor: '#f57c00',
+                    boxShadow: 'none',
+                  },
+                }}
+              >
+                Edit Profile
+              </Button>
+            )}
           </Box>
           <Typography variant="h6" fontWeight="bold" color="text.primary">
             {user.displayName || user.username}
