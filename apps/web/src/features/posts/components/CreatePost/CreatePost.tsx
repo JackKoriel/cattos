@@ -11,10 +11,12 @@ import {
   Typography,
   ImageIcon,
   EmojiEmotionsIcon,
+  Popover,
 } from '@cattos/ui'
 import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { uploadPostMedia } from '@/services/uploads'
+import { emojis } from '../../constants/emojis'
 
 interface CreatePostProps {
   onPostCreated?: () => void
@@ -28,6 +30,12 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const [mediaFiles, setMediaFiles] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [emojiAnchor, setEmojiAnchor] = useState<HTMLButtonElement | null>(null)
+
+  const handleEmojiClick = (emoji: string) => {
+    setContent((prev) => prev + emoji)
+    setEmojiAnchor(null)
+  }
 
   const handleSubmit = async () => {
     if (!content.trim() && mediaFiles.length === 0) return
@@ -127,9 +135,59 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               >
                 <ImageIcon />
               </IconButton>
-              <IconButton size="small" sx={{ color: 'text.secondary' }}>
+              <IconButton
+                size="small"
+                onClick={(e) => setEmojiAnchor(e.currentTarget)}
+                sx={{ color: 'text.secondary' }}
+              >
                 <EmojiEmotionsIcon />
               </IconButton>
+              <Popover
+                open={Boolean(emojiAnchor)}
+                anchorEl={emojiAnchor}
+                onClose={() => setEmojiAnchor(null)}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      p: 1,
+                      mt: 1,
+                      width: 350,
+                      maxHeight: 300,
+                      overflowY: 'auto',
+                      borderRadius: 2,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                    },
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(6, 1fr)',
+                    gap: 0.5,
+                  }}
+                >
+                  {emojis.map((emoji) => (
+                    <Button
+                      key={emoji}
+                      onClick={() => handleEmojiClick(emoji)}
+                      sx={{
+                        minWidth: 40,
+                        height: 40,
+                        fontSize: '1.25rem',
+                        padding: 0,
+                        '&:hover': { bgcolor: 'action.hover' },
+                      }}
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </Box>
+              </Popover>
             </Stack>
 
             <ActionButton
