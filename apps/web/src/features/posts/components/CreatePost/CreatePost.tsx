@@ -16,13 +16,16 @@ import {
 import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { uploadPostMedia } from '@/services/uploads'
+import type { Post } from '@cattos/shared'
 import { emojis } from '../../constants/emojis'
 
 interface CreatePostProps {
-  onPostCreated?: () => void
+  onBeforeCreate?: (tempPost: Post) => void
+  onPostCreated?: (serverPost: Post, tempId: string) => void
+  onPostFailed?: (tempId: string) => void
 }
 
-export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
+export const CreatePost = ({ onBeforeCreate, onPostCreated, onPostFailed }: CreatePostProps) => {
   const navigate = useNavigate()
   const user = useAuthUser()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -42,26 +45,59 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
 
     setLoading(true)
     setError(null)
+    const tempId = `temp-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+
+    const curUser = user!
+
+    const tempPost: Post = {
+      id: tempId,
+      authorId: curUser.id,
+      author: {
+        id: curUser.id,
+        username: curUser.username,
+        displayName: curUser.displayName,
+        avatar: curUser.avatar,
+      },
+      content,
+      mediaUrls: mediaFiles.length > 0 ? undefined : undefined,
+      likesCount: 0,
+      commentsCount: 0,
+      repostsCount: 0,
+      bookmarksCount: 0,
+      isLiked: false,
+      isBookmarked: false,
+      visibility: 'public',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
 
     try {
-      let mediaUrls: string[] | undefined
+      // notify parent to optimistically insert
+      onBeforeCreate?.(tempPost)
 
+      let mediaUrls: string[] | undefined
       if (mediaFiles.length > 0) {
         const uploaded = await uploadPostMedia(mediaFiles)
         mediaUrls = uploaded.map((u) => u.url)
       }
 
-      await apiClient.post('/posts', {
+      const response = await apiClient.post('/posts', {
         content,
         visibility: 'public',
         ...(mediaUrls ? { mediaUrls } : {}),
       })
+
+      const serverPost: Post = response.data.data
+
+      // notify parent to replace temp with server post
+      onPostCreated?.(serverPost, tempId)
       setContent('')
       setMediaFiles([])
-      if (onPostCreated) onPostCreated()
     } catch (err) {
       const apiError = handleApiError(err)
       setError(apiError.message)
+      // notify parent to remove temp post
+      onPostFailed?.(tempId)
     } finally {
       setLoading(false)
     }

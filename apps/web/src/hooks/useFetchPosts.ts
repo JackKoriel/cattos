@@ -76,26 +76,26 @@ export const useFetchPosts = (authorId?: string) => {
 
   const updatePost = useCallback((postId: string, updater: (prev: Post) => Post) => {
     setPosts((prev) =>
-      prev.map((p) => {
+      prev.map((post) => {
         // Direct match
-        if (p.id === postId) return updater(p)
+        if (post.id === postId) return updater(post)
 
         // If this is a reshare of the target post, update the nested repostOf
-        if (p.repostOf && p.repostOf.id === postId) {
+        if (post.repostOf && post.repostOf.id === postId) {
           return {
-            ...p,
-            repostOf: updater(p.repostOf as Post) as typeof p.repostOf,
+            ...post,
+            repostOf: updater(post.repostOf as Post) as typeof post.repostOf,
           }
         }
 
-        return p
+        return post
       })
     )
   }, [])
 
   const prependPost = useCallback((post: Post) => {
     setPosts((prev) => {
-      const existingIndex = prev.findIndex((p) => p.id === post.id)
+      const existingIndex = prev.findIndex((post) => post.id === post.id)
       if (existingIndex === 0) return prev
       if (existingIndex > 0) {
         const next = [...prev]
@@ -106,5 +106,86 @@ export const useFetchPosts = (authorId?: string) => {
     })
   }, [])
 
-  return { posts, loading, loadingMore, error, hasMore, loadMore, refresh, updatePost, prependPost }
+  const replaceTempPost = useCallback((tempId: string, serverPost: Post) => {
+    setPosts((prev) => {
+      // If serverPost already exists elsewhere, remove the temp entry
+      const existingWithServerId = prev.findIndex((post) => post.id === serverPost.id)
+      const tempIndex = prev.findIndex((post) => post.id === tempId)
+
+      if (existingWithServerId !== -1 && tempIndex !== -1 && existingWithServerId !== tempIndex) {
+        return prev.filter((post) => post.id !== tempId)
+      }
+
+      // Replace temp entry if present, otherwise keep posts unchanged and prepend serverPost
+      if (tempIndex !== -1) {
+        const next = [...prev]
+        next[tempIndex] = serverPost
+        return next
+      }
+
+      // If no temp found but server post exists, ensure it's present; otherwise prepend
+      if (existingWithServerId !== -1) return prev
+      return [serverPost, ...prev]
+    })
+  }, [])
+
+  const refreshPost = useCallback(async (postId: string) => {
+    try {
+      const response = await apiClient.get(`/posts/${postId}`)
+      const fetched: Post = response.data.data
+
+      setPosts((prev) => {
+        const idx = prev.findIndex((post) => post.id === postId)
+        if (idx !== -1) {
+          const next = [...prev]
+          next[idx] = fetched
+          return next
+        }
+        // If not present, prepend so user can see it immediately
+        return [fetched, ...prev]
+      })
+    } catch (err) {
+      console.warn('Failed to refresh post', postId, err)
+    }
+  }, [])
+
+  const refreshUser = useCallback(async (userId: string) => {
+    try {
+      const response = await apiClient.get(`/users/${userId}`)
+      const user = response.data.data
+
+      setPosts((prev) =>
+        prev.map((post) => {
+          const nextPost = { ...post }
+          if (nextPost.author && nextPost.author.id === userId) nextPost.author = user
+          if (nextPost.repostOf && (nextPost.repostOf as Post).author?.id === userId) {
+            nextPost.repostOf = { ...(nextPost.repostOf as Post), author: user }
+          }
+          return nextPost
+        })
+      )
+    } catch (err) {
+      console.warn('Failed to refresh user', userId, err)
+    }
+  }, [])
+
+  const removePost = useCallback((postId: string) => {
+    setPosts((prev) => prev.filter((p) => p.id !== postId))
+  }, [])
+
+  return {
+    posts,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    loadMore,
+    refresh,
+    updatePost,
+    prependPost,
+    replaceTempPost,
+    refreshPost,
+    refreshUser,
+    removePost,
+  }
 }
