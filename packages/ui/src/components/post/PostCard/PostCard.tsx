@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
 import { Avatar, Box, Card, CardContent, CardHeader, IconButton, Typography } from '@mui/material'
-import { Post } from '@cattos/shared'
+import type { Post } from '@cattos/shared'
 import {
   ChatBubbleOutline,
   FavoriteBorder,
@@ -13,23 +12,54 @@ import {
 import { formatDistanceToNowStrict } from 'date-fns'
 
 export interface PostCardProps {
-  post: Post
-  onLike?: (id: string, isLiked: boolean) => Promise<void>
-  onRepost?: (id: string) => Promise<void>
-  onBookmark?: (id: string, isBookmarked: boolean) => Promise<void>
-  onComment?: (id: string) => void
-  onShare?: (id: string) => void
+  postId: string
+  content: string
+  createdAt?: string
+  mediaUrls?: string[]
 
-  onOpen?: (id: string) => void
-  onProfileClick?: (username: string) => void
+  isReshare?: boolean
+  displayName: string
+  username?: string
+  avatarSrc?: string
+
+  liked?: boolean
+  bookmarked?: boolean
+  localLikesCount?: number
+  localRepostsCount?: number
+  commentsValue?: number
+
   showCommentButton?: boolean
   showRepostButton?: boolean
   showBookmarkButton?: boolean
   showShareButton?: boolean
+
+  onLike?: () => Promise<void> | void
+  onRepost?: () => Promise<Post | void> | void
+  onBookmark?: () => Promise<void> | void
+  onComment?: () => void
+  onShare?: () => void
+  onOpen?: (id: string) => void
+  onProfileClick?: (username: string) => void
 }
 
 export const PostCard = ({
-  post,
+  postId,
+  content,
+  createdAt,
+  mediaUrls,
+  isReshare = false,
+  displayName,
+  username,
+  avatarSrc,
+  liked = false,
+  bookmarked = false,
+  localLikesCount = 0,
+  localRepostsCount = 0,
+  commentsValue = 0,
+  showCommentButton = true,
+  showRepostButton = true,
+  showBookmarkButton = true,
+  showShareButton = true,
   onLike,
   onRepost,
   onBookmark,
@@ -37,148 +67,31 @@ export const PostCard = ({
   onShare,
   onOpen,
   onProfileClick,
-  showCommentButton = true,
-  showRepostButton = true,
-  showBookmarkButton = true,
-  showShareButton = true,
 }: PostCardProps) => {
-  const isReshare = !!(post.isRepost && post.repostOf)
-  const actionPost = (isReshare ? post.repostOf : post) as Post
+  const timeAgo = createdAt
+    ? formatDistanceToNowStrict(new Date(createdAt), { addSuffix: false })
+    : ''
 
-  const {
-    id: targetId,
-    content,
-    createdAt,
-    likesCount,
-    commentsCount,
-    repostsCount,
-    authorId,
-    isLiked,
-    isBookmarked,
-  } = actionPost
-
-  const [liked, setLiked] = useState(isLiked ?? false)
-  const [bookmarked, setBookmarked] = useState(isBookmarked ?? false)
-  const [localLikesCount, setLocalLikesCount] = useState(likesCount ?? 0)
-  const [localRepostsCount, setLocalRepostsCount] = useState(repostsCount ?? 0)
-  const [shareActive, setShareActive] = useState(false)
-  const shareTimeoutRef = useRef<number | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (shareTimeoutRef.current !== null) {
-        window.clearTimeout(shareTimeoutRef.current)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    setLiked(isLiked ?? false)
-  }, [targetId, isLiked])
-
-  useEffect(() => {
-    setBookmarked(isBookmarked ?? false)
-  }, [targetId, isBookmarked])
-
-  useEffect(() => {
-    setLocalLikesCount(likesCount ?? 0)
-  }, [targetId, likesCount])
-
-  useEffect(() => {
-    setLocalRepostsCount(repostsCount ?? 0)
-  }, [targetId, repostsCount])
-
-  const handleLike = async () => {
-    if (!onLike) return
-    const wasLiked = liked
-    try {
-      setLiked(!wasLiked)
-      setLocalLikesCount((prev) => (wasLiked ? prev - 1 : prev + 1))
-      await onLike(targetId, wasLiked)
-    } catch {
-      setLiked(wasLiked)
-      setLocalLikesCount((prev) => (wasLiked ? prev + 1 : prev - 1))
-    }
-  }
-
-  const handleBookmark = async () => {
-    if (!onBookmark) return
-    const wasBookmarked = bookmarked
-    try {
-      setBookmarked(!wasBookmarked)
-      await onBookmark(targetId, wasBookmarked)
-    } catch {
-      setBookmarked(wasBookmarked)
-    }
-  }
-
-  const handleRepost = async () => {
-    if (!onRepost) return
-    try {
-      await onRepost(targetId)
-      setLocalRepostsCount((prev) => prev + 1)
-    } catch {
-      console.error('Failed to repost')
-    }
-  }
-
-  const handleShare = () => {
-    setShareActive(true)
-    if (shareTimeoutRef.current !== null) {
-      window.clearTimeout(shareTimeoutRef.current)
-    }
-    shareTimeoutRef.current = window.setTimeout(() => setShareActive(false), 900)
-
-    if (onShare) {
-      onShare(targetId)
-    } else {
-      const url = `${window.location.origin}/post/${targetId}`
-      navigator.clipboard.writeText(url)
-    }
-  }
-
-  const handleProfileClick = (e: React.MouseEvent) => {
-    if (onProfileClick) {
-      e.stopPropagation()
-      onProfileClick(username)
-    }
-  }
-
-  const timeAgo = formatDistanceToNowStrict(new Date(createdAt), {
-    addSuffix: false,
-  })
-
-  const wrapperDisplayName = post.author?.displayName ?? 'Cat User'
-  const wrapperUsername =
-    post.author?.username ?? (post.authorId ? `user_${post.authorId.slice(-6)}` : 'anonymous')
-  const displayName = actionPost.author?.displayName ?? wrapperDisplayName
-  const username =
-    actionPost.author?.username ?? (authorId ? `user_${authorId.slice(-6)}` : wrapperUsername)
-  const avatarSrc = actionPost.author?.avatar
-
+  const avatar = avatarSrc
   const inactiveActionColor = 'text.secondary'
-  const commentsValue = commentsCount ?? 0
   const commentColor = commentsValue > 0 ? 'success.main' : inactiveActionColor
   const repostColor = localRepostsCount > 0 ? 'secondary.main' : inactiveActionColor
   const likeColor = liked ? 'error.main' : inactiveActionColor
   const bookmarkColor = bookmarked ? 'primary.main' : inactiveActionColor
-  const shareColor = shareActive ? 'info.main' : inactiveActionColor
+  const shareColor = 'text.secondary'
 
   const actionButtonSx = {
     transition: 'transform 120ms ease, color 120ms ease',
-    '&:hover': {
-      transform: 'scale(1.12)',
-      bgcolor: 'transparent',
-    },
-    '&:active': {
-      transform: 'scale(1.06)',
-    },
+    '&:hover': { transform: 'scale(1.12)', bgcolor: 'transparent' },
+    '&:active': { transform: 'scale(1.06)' },
   } as const
+
+  const mediaCount = mediaUrls?.length ?? 0
 
   return (
     <Card
       variant="outlined"
-      onClick={() => onOpen?.(targetId)}
+      onClick={() => onOpen?.(postId)}
       sx={{
         display: 'flex',
         p: 2,
@@ -189,9 +102,8 @@ export const PostCard = ({
     >
       <Box sx={{ mr: 2 }}>
         <Avatar
-          src={avatarSrc}
+          src={avatar}
           alt={displayName}
-          onClick={handleProfileClick}
           sx={{ cursor: onProfileClick ? 'pointer' : 'inherit' }}
         >
           {displayName.charAt(0)}
@@ -205,7 +117,7 @@ export const PostCard = ({
             sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}
           >
             <Repeat fontSize="small" />
-            <span>{wrapperDisplayName} reshared</span>
+            <span>{displayName} reshared</span>
           </Typography>
         )}
         <CardHeader
@@ -214,7 +126,10 @@ export const PostCard = ({
           title={
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Box
-                onClick={handleProfileClick}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onProfileClick?.(username ?? '')
+                }}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
@@ -238,7 +153,7 @@ export const PostCard = ({
         />
         <CardContent sx={{ p: 0, mb: 1 }}>
           <Typography variant="body1">{content}</Typography>
-          {Array.isArray(actionPost.mediaUrls) && actionPost.mediaUrls.length > 0 && (
+          {mediaCount > 0 && (
             <Box
               sx={{
                 display: 'grid',
@@ -247,32 +162,23 @@ export const PostCard = ({
                 borderRadius: 2,
                 overflow: 'hidden',
                 gridTemplateColumns:
-                  actionPost.mediaUrls.length === 1
-                    ? '1fr'
-                    : actionPost.mediaUrls.length === 2
-                      ? '1fr 1fr'
-                      : '1fr 1fr',
+                  mediaCount === 1 ? '1fr' : mediaCount === 2 ? '1fr 1fr' : '1fr 1fr',
                 gridTemplateRows:
-                  actionPost.mediaUrls.length < 3
-                    ? 'auto'
-                    : actionPost.mediaUrls.length === 3
-                      ? '1fr 1fr'
-                      : '1fr 1fr',
+                  mediaCount < 3 ? 'auto' : mediaCount === 3 ? '1fr 1fr' : '1fr 1fr',
                 maxWidth: 420,
                 width: '100%',
                 background: '#f7f7f7',
               }}
             >
-              {actionPost.mediaUrls.map((url, idx) => (
+              {mediaUrls?.map((url, idx) => (
                 <Box
                   key={url}
                   sx={{
                     position: 'relative',
                     width: '100%',
                     aspectRatio: '1 / 1',
-                    gridColumn:
-                      actionPost.mediaUrls.length === 3 && idx === 0 ? '1 / span 2' : undefined,
-                    gridRow: actionPost.mediaUrls.length === 3 && idx === 0 ? '1' : undefined,
+                    gridColumn: mediaCount === 3 && idx === 0 ? '1 / span 2' : undefined,
+                    gridRow: mediaCount === 3 && idx === 0 ? '1' : undefined,
                     overflow: 'hidden',
                     borderRadius: 2,
                     background: '#e0e0e0',
@@ -281,12 +187,7 @@ export const PostCard = ({
                   <img
                     src={url}
                     alt={`Post media ${idx + 1}`}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block',
-                    }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                     loading="lazy"
                   />
                 </Box>
@@ -300,7 +201,7 @@ export const PostCard = ({
               size="small"
               onClick={(e) => {
                 e.stopPropagation()
-                onComment?.(targetId)
+                onComment?.()
               }}
               sx={{ ...actionButtonSx, color: commentColor }}
             >
@@ -316,7 +217,7 @@ export const PostCard = ({
               size="small"
               onClick={(e) => {
                 e.stopPropagation()
-                void handleRepost()
+                void onRepost?.()
               }}
               sx={{ ...actionButtonSx, color: repostColor }}
             >
@@ -331,7 +232,7 @@ export const PostCard = ({
             size="small"
             onClick={(e) => {
               e.stopPropagation()
-              void handleLike()
+              void onLike?.()
             }}
             sx={{ ...actionButtonSx, color: likeColor }}
           >
@@ -346,7 +247,7 @@ export const PostCard = ({
               size="small"
               onClick={(e) => {
                 e.stopPropagation()
-                void handleBookmark()
+                void onBookmark?.()
               }}
               sx={{ ...actionButtonSx, color: bookmarkColor }}
             >
@@ -359,7 +260,7 @@ export const PostCard = ({
               size="small"
               onClick={(e) => {
                 e.stopPropagation()
-                handleShare()
+                onShare?.()
               }}
               disableRipple
               disableFocusRipple
@@ -379,3 +280,5 @@ export const PostCard = ({
     </Card>
   )
 }
+
+export default PostCard

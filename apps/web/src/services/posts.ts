@@ -74,12 +74,19 @@ export const postsService = {
     }
   },
 
-  async repost(postId: string): Promise<void> {
-    await apiClient.post('/posts', {
+  async repost(postId: string): Promise<Post> {
+    const response = await apiClient.post<ApiResponse<Post>>('/posts', {
       repostOfId: postId,
       content: '',
       visibility: 'public',
     })
+
+    const data = response.data.data
+    if (!data) {
+      throw new Error(response.data.error || 'Failed to repost')
+    }
+
+    return data
   },
 
   shareUrl(postId: string): string {

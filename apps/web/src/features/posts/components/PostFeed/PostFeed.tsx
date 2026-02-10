@@ -7,10 +7,12 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { Box, Stack, Typography, Snackbar, PostCard, AdPostCard } from '@cattos/ui'
+import { Box, Stack, Typography, Snackbar, AdPostCard } from '@cattos/ui'
+import { PostCardContainer as PostCard } from '@/features/posts/components/PostCardContainer'
 import { FeedSkeleton, LoadingMoreIndicator } from '@/features/posts/components'
 import { useFetchPosts } from '@/hooks/useFetchPosts'
 import { apiClient } from '@/services/client'
+import { usePostActions } from '@/hooks/posts/usePostActions'
 import type { Ad, Post } from '@cattos/shared'
 import { CommentDialog } from '@/features/comments/components'
 import { useNavigate } from 'react-router-dom'
@@ -135,50 +137,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
 
     useImperativeHandle(ref, () => ({ refresh }), [refresh])
 
-    const handleLike = async (id: string, isLiked: boolean) => {
-      try {
-        if (isLiked) {
-          await apiClient.delete(`/posts/${id}/likes`)
-        } else {
-          await apiClient.post(`/posts/${id}/likes`)
-        }
-      } catch (err) {
-        if (err && typeof err === 'object' && 'response' in err) {
-          const axiosErr = err as { response?: { status?: number } }
-          if (axiosErr.response?.status === 409 || axiosErr.response?.status === 404) {
-            return // State is already correct, silently succeed
-          }
-        }
-        throw err
-      }
-    }
-
-    const handleRepost = async (id: string) => {
-      const response = await apiClient.post('/posts', {
-        repostOfId: id,
-        content: '',
-        visibility: 'public',
-      })
-      return response.data.data as Post
-    }
-
-    const handleBookmark = async (id: string, isBookmarked: boolean) => {
-      try {
-        if (isBookmarked) {
-          await apiClient.delete(`/posts/${id}/bookmarks`)
-        } else {
-          await apiClient.post(`/posts/${id}/bookmarks`)
-        }
-      } catch (err) {
-        if (err && typeof err === 'object' && 'response' in err) {
-          const axiosErr = err as { response?: { status?: number } }
-          if (axiosErr.response?.status === 409 || axiosErr.response?.status === 404) {
-            return // State is already correct, silently succeed
-          }
-        }
-        throw err
-      }
-    }
+    const { like, bookmark, repost } = usePostActions()
 
     const handleComment = async (postId: string) => {
       const existing = posts.find((p) => p.id === postId)
@@ -212,7 +171,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
     }
 
     const handleRepostWithFeedback = async (id: string) => {
-      const created = await handleRepost(id)
+      const created = await repost(id)
 
       prependPost(created)
       updatePost(id, (prev) => ({ ...prev, repostsCount: (prev.repostsCount ?? 0) + 1 }))
@@ -293,9 +252,9 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
                 <PostCard
                   key={item.key}
                   post={item.post}
-                  onLike={handleLike}
+                  onLike={like}
                   onRepost={handleRepostWithFeedback}
-                  onBookmark={handleBookmark}
+                  onBookmark={bookmark}
                   onComment={(postId) => {
                     void handleComment(postId)
                   }}
@@ -322,8 +281,8 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
           open={!!commentDialogPost}
           onClose={handleCloseCommentDialog}
           post={commentDialogPost}
-          onLike={handleLike}
-          onBookmark={handleBookmark}
+          onLike={like}
+          onBookmark={bookmark}
           onCommentCreated={handleCommentCreated}
         />
 

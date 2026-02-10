@@ -19,7 +19,7 @@ export const usePostActions = () => {
   }, [])
 
   const repost = useCallback(async (postId: string) => {
-    await postsService.repost(postId)
+    return await postsService.repost(postId)
   }, [])
 
   const share = useCallback(async (postId: string) => {
@@ -29,3 +29,5 @@ export const usePostActions = () => {
 
   return { like, bookmark, repost, share }
 }
+
+export type UsePostActions = ReturnType<typeof usePostActions>

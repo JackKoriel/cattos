@@ -1,9 +1,9 @@
 import { Box, CircularProgress, Stack, Typography, Button } from '@cattos/ui'
-import { PostCard } from '@cattos/ui'
+import { PostCardContainer as PostCard } from '@/features/posts/components/PostCardContainer'
 import { useFetchComments } from '@/hooks/useFetchComments'
 import { CommentInput } from '../CommentInput/CommentInput'
 import { CommentSkeleton } from '../CommentSkeleton'
-import { apiClient } from '@/services/client'
+import { usePostActions } from '@/hooks/posts/usePostActions'
 import { useNavigate } from 'react-router-dom'
 
 interface CommentListProps {
@@ -16,41 +16,7 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
   const { comments, loading, loadingMore, error, hasMore, loadMore, addComment } =
     useFetchComments(postId)
 
-  const handleLike = async (id: string, isLiked: boolean) => {
-    try {
-      if (isLiked) {
-        await apiClient.delete(`/posts/${id}/likes`)
-      } else {
-        await apiClient.post(`/posts/${id}/likes`)
-      }
-    } catch (err) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosErr = err as { response?: { status?: number } }
-        if (axiosErr.response?.status === 409 || axiosErr.response?.status === 404) {
-          return
-        }
-      }
-      throw err
-    }
-  }
-
-  const handleBookmark = async (id: string, isBookmarked: boolean) => {
-    try {
-      if (isBookmarked) {
-        await apiClient.delete(`/posts/${id}/bookmarks`)
-      } else {
-        await apiClient.post(`/posts/${id}/bookmarks`)
-      }
-    } catch (err) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosErr = err as { response?: { status?: number } }
-        if (axiosErr.response?.status === 409 || axiosErr.response?.status === 404) {
-          return
-        }
-      }
-      throw err
-    }
-  }
+  const { like, bookmark } = usePostActions()
 
   if (loading) {
     return <CommentSkeleton />
@@ -90,8 +56,8 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
             <Box key={comment.id} sx={{ width: '80%' }}>
               <PostCard
                 post={comment}
-                onLike={handleLike}
-                onBookmark={handleBookmark}
+                onLike={like}
+                onBookmark={bookmark}
                 onOpen={(id) => navigate(`/post/${id}`)}
                 onProfileClick={(username) => navigate(`/profile/${username}`)}
                 showCommentButton={false}

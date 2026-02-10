@@ -1,4 +1,5 @@
-import { Box, Typography, Stack, PostCard } from '@cattos/ui'
+import { Box, Typography, Stack } from '@cattos/ui'
+import { PostCardContainer as PostCard } from '@/features/posts/components/PostCardContainer'
 import type { Post } from '@cattos/shared'
 import { CommentList } from '@/features/comments/components'
 
@@ -8,7 +9,7 @@ export type PostScreenPresentationProps = {
   onProfileClick: (username: string) => void
   onLike: (postId: string, isLiked: boolean) => Promise<void>
   onBookmark: (postId: string, isBookmarked: boolean) => Promise<void>
-  onRepost: (postId: string) => Promise<void>
+  onRepost: (postId: string) => Promise<Post>
   onShare: (postId: string) => void
   onCommentCreated: () => void
 }
