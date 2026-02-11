@@ -1,6 +1,5 @@
-import { Box, CircularProgress } from '@cattos/ui'
+import { Box, PawLoader } from '@cattos/ui'
 
-// TODO: confirm postioning and style of loading - paw or circle
 export const LoadingMoreIndicator = () => {
   return (
     <Box
@@ -13,7 +12,7 @@ export const LoadingMoreIndicator = () => {
         pointerEvents: 'none',
       }}
     >
-      <CircularProgress size={22} thickness={5} sx={{ opacity: 0.85 }} />
+      <PawLoader size="small" />
     </Box>
   )
 }
