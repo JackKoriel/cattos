@@ -1,9 +1,11 @@
 import type { Post } from '@cattos/shared'
 import { PostCard } from '@cattos/ui'
 import usePostCard, { type UsePostActions } from '@/hooks/usePostCard'
+import resolvePostAuthors from '@/utils/resolvePostAuthors'
 
 export interface PostCardContainerProps {
   post: Post
+  resolvedUsers?: Record<string, Post['author']>
   showCommentButton?: boolean
   showRepostButton?: boolean
   showBookmarkButton?: boolean
@@ -19,6 +21,7 @@ export interface PostCardContainerProps {
 
 export const PostCardContainer = ({
   post,
+  resolvedUsers,
   showCommentButton,
   showRepostButton,
   showBookmarkButton,
@@ -40,7 +43,9 @@ export const PostCardContainer = ({
     onOpen,
     onProfileClick,
   }
-  const ui = usePostCard(post, actions)
+  const postWithResolvedAuthors = resolvePostAuthors(post, resolvedUsers)
+
+  const ui = usePostCard(postWithResolvedAuthors, actions)
   return (
     <PostCard
       postId={post.id}

@@ -14,6 +14,7 @@ interface PostsQueryParams {
 export const useFetchPosts = (authorId?: string) => {
   const authLoading = useAuthIsLoading()
   const [posts, setPosts] = useState<Post[]>([])
+  const [usersById, setUsersById] = useState<Record<string, Post['author']>>({})
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,6 +33,18 @@ export const useFetchPosts = (authorId?: string) => {
 
         const response = await apiClient.get('/posts', { params })
         const newPosts = response.data.data
+
+        setUsersById((prev) => {
+          const next = { ...prev }
+          newPosts.forEach((post: Post) => {
+            if (post.author?.id) next[post.author.id] = post.author
+            if (post.repostOf?.author?.id) {
+              const ra = post.repostOf.author
+              next[ra.id] = ra
+            }
+          })
+          return next
+        })
 
         if (newPosts.length < POSTS_PER_PAGE) {
           setHasMore(false)
@@ -74,6 +87,11 @@ export const useFetchPosts = (authorId?: string) => {
     fetchPosts(1)
   }, [fetchPosts])
 
+  const setUser = useCallback((user: Post['author']) => {
+    if (!user?.id) return
+    setUsersById((prev) => ({ ...prev, [user.id]: user }))
+  }, [])
+
   const updatePost = useCallback((postId: string, updater: (prev: Post) => Post) => {
     setPosts((prev) =>
       prev.map((post) => {
@@ -84,7 +102,7 @@ export const useFetchPosts = (authorId?: string) => {
         if (post.repostOf && post.repostOf.id === postId) {
           return {
             ...post,
-            repostOf: updater(post.repostOf as Post) as typeof post.repostOf,
+            repostOf: updater(post.repostOf),
           }
         }
 
@@ -133,7 +151,9 @@ export const useFetchPosts = (authorId?: string) => {
     try {
       const response = await apiClient.get(`/posts/${postId}`)
       const fetched: Post = response.data.data
-
+      const fetchedAuthor = fetched.author
+      if (fetchedAuthor && fetchedAuthor.id)
+        setUsersById((prev) => ({ ...prev, [fetchedAuthor.id]: fetchedAuthor }))
       setPosts((prev) => {
         const idx = prev.findIndex((post) => post.id === postId)
         if (idx !== -1) {
@@ -153,13 +173,13 @@ export const useFetchPosts = (authorId?: string) => {
     try {
       const response = await apiClient.get(`/users/${userId}`)
       const user = response.data.data
-
+      if (user?.id) setUsersById((prev) => ({ ...prev, [user.id]: user }))
       setPosts((prev) =>
         prev.map((post) => {
           const nextPost = { ...post }
-          if (nextPost.author && nextPost.author.id === userId) nextPost.author = user
-          if (nextPost.repostOf && (nextPost.repostOf as Post).author?.id === userId) {
-            nextPost.repostOf = { ...(nextPost.repostOf as Post), author: user }
+          if (nextPost.author?.id === userId) nextPost.author = user
+          if (nextPost.repostOf?.author?.id === userId) {
+            nextPost.repostOf = { ...nextPost.repostOf, author: user }
           }
           return nextPost
         })
@@ -186,6 +206,8 @@ export const useFetchPosts = (authorId?: string) => {
     replaceTempPost,
     refreshPost,
     refreshUser,
+    usersById,
+    setUser,
     removePost,
   }
 }

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.app.json --noEmit && vite build",
+    "test": "vitest",
     "start": "vite preview",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx"
@@ -29,6 +30,7 @@
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^1.6.1"
   }
 }

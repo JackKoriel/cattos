@@ -10,7 +10,8 @@ type AdDto = {
   linkPath: string
 }
 
-const MAX_ADS_PER_PLACEMENT = 3
+// 7 post ads and 3 sidebar ads
+const MAX_ADS_PER_PLACEMENT = 10
 const CACHE_TTL_MS = 5 * 60 * 1000
 
 const folders = {

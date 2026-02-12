@@ -13,8 +13,17 @@ interface CommentListProps {
 
 export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
   const navigate = useNavigate()
-  const { comments, loading, loadingMore, error, hasMore, loadMore, addComment } =
-    useFetchComments(postId)
+  const {
+    comments,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    loadMore,
+    addComment,
+    replaceTempComment,
+    removeComment,
+  } = useFetchComments(postId)
 
   const { like, bookmark } = usePostActions()
 
@@ -34,10 +43,14 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
     <Stack spacing={2}>
       <CommentInput
         postId={postId}
-        onCommentAdded={(comment) => {
+        onBeforeComment={(comment) => {
           addComment(comment)
           onCommentCreated?.()
         }}
+        onCommentCreated={(serverComment, tempId) => {
+          replaceTempComment(tempId, serverComment)
+        }}
+        onCommentFailed={(tempId) => removeComment(tempId)}
       />
 
       {comments.length === 0 ? (

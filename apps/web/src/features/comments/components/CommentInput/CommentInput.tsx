@@ -3,13 +3,21 @@ import { Box, Avatar, TextField, ActionButton, Stack } from '@cattos/ui'
 import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { Post } from '@cattos/shared'
+import { createTempComment } from '@/utils/optimistic'
 
 interface CommentInputProps {
   postId: string
-  onCommentAdded?: (comment: Post) => void
+  onBeforeComment?: (comment: Post) => void
+  onCommentCreated?: (serverComment: Post, tempId: string) => void
+  onCommentFailed?: (tempId: string) => void
 }
 
-export const CommentInput = ({ postId, onCommentAdded }: CommentInputProps) => {
+export const CommentInput = ({
+  postId,
+  onBeforeComment,
+  onCommentCreated,
+  onCommentFailed,
+}: CommentInputProps) => {
   const user = useAuthUser()
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
@@ -20,8 +28,21 @@ export const CommentInput = ({ postId, onCommentAdded }: CommentInputProps) => {
 
     setLoading(true)
     setError(null)
+    const tempComment = createTempComment({
+      author: {
+        id: user!.id,
+        username: user!.username,
+        displayName: user!.displayName,
+        avatar: user!.avatar,
+      },
+      content,
+      parentPostId: postId,
+    })
+    const tempId = tempComment.id
 
     try {
+      onBeforeComment?.(tempComment)
+
       const response = await apiClient.post('/posts', {
         content,
         parentPostId: postId,
@@ -29,12 +50,12 @@ export const CommentInput = ({ postId, onCommentAdded }: CommentInputProps) => {
       })
 
       setContent('')
-      if (onCommentAdded && response.data.data) {
-        onCommentAdded(response.data.data)
-      }
+      const serverComment: Post = response.data.data
+      onCommentCreated?.(serverComment, tempId)
     } catch (err) {
       const apiError = handleApiError(err)
       setError(apiError.message)
+      onCommentFailed?.(tempId)
     } finally {
       setLoading(false)
     }

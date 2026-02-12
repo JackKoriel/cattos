@@ -78,5 +78,40 @@ export const useFetchComments = (postId: string) => {
     setComments((prev) => [comment, ...prev])
   }
 
-  return { comments, loading, loadingMore, error, hasMore, loadMore, refresh, addComment }
+  const replaceTempComment = (tempId: string, serverComment: Post) => {
+    setComments((prev) => {
+      const existingWithServerId = prev.findIndex((c) => c.id === serverComment.id)
+      const tempIndex = prev.findIndex((c) => c.id === tempId)
+
+      if (existingWithServerId !== -1 && tempIndex !== -1 && existingWithServerId !== tempIndex) {
+        return prev.filter((c) => c.id !== tempId)
+      }
+
+      if (tempIndex !== -1) {
+        const next = [...prev]
+        next[tempIndex] = serverComment
+        return next
+      }
+
+      if (existingWithServerId !== -1) return prev
+      return [serverComment, ...prev]
+    })
+  }
+
+  const removeComment = (tempId: string) => {
+    setComments((prev) => prev.filter((c) => c.id !== tempId))
+  }
+
+  return {
+    comments,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    loadMore,
+    refresh,
+    addComment,
+    replaceTempComment,
+    removeComment,
+  }
 }

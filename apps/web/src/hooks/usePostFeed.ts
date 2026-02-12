@@ -3,6 +3,7 @@ import { useFetchPosts } from '@/hooks/useFetchPosts'
 import { adsService } from '@/services/ads'
 import { apiClient } from '@/services/client'
 import type { Ad, Post } from '@cattos/shared'
+import createAdSequence from '@/utils/adSequence'
 
 export function usePostFeed(authorId?: string, showAds = false) {
   const {
@@ -19,12 +20,33 @@ export function usePostFeed(authorId?: string, showAds = false) {
     refreshPost,
     refreshUser,
     removePost,
+    usersById,
+    setUser,
   } = useFetchPosts(authorId)
 
   const listRootRef = useRef<HTMLDivElement | null>(null)
   const observer = useRef<IntersectionObserver | null>(null)
   const loadingMoreRef = useRef(false)
-  const seedRef = useRef<number>((Math.random() * 0xffffffff) >>> 0)
+  const SEED_KEY = 'cattos_ad_seed_v1'
+  const initialSeed = (() => {
+    try {
+      const v = sessionStorage.getItem(SEED_KEY)
+      if (v) return parseInt(v, 10)
+    } catch (e) {
+      console.warn('Failed to read ad seed from sessionStorage, using random seed', e)
+    }
+
+    const s = Math.floor(Math.random() * 1_000_000_000)
+    try {
+      sessionStorage.setItem(SEED_KEY, String(s))
+    } catch (e) {
+      console.warn('Failed to save ad seed to sessionStorage', e)
+    }
+    return s
+  })()
+
+  const seedRef = useRef<number>(initialSeed)
+  const adSequenceRef = useRef<number[]>([])
 
   const [postAds, setPostAds] = useState<Ad[]>([])
   const [loadingAds, setLoadingAds] = useState(false)
@@ -64,11 +86,21 @@ export function usePostFeed(authorId?: string, showAds = false) {
     }
   }, [shouldShowFeedAds])
 
+  useEffect(() => {
+    const slots = Math.floor(posts.length / 3)
+    const count = postAds.length
+    adSequenceRef.current = createAdSequence(count, slots, seedRef.current)
+  }, [postAds, posts.length])
+
   const pickAdForSlot = useCallback(
     (slotIndex: number): Ad | null => {
       if (!postAds.length) return null
-      const mixed = (seedRef.current + (slotIndex + 1) * 2654435761) >>> 0
-      const idx = mixed % postAds.length
+      const seq = adSequenceRef.current
+      if (seq && seq.length > 0) {
+        const idx = seq[slotIndex % seq.length]
+        return postAds[idx] ?? null
+      }
+      const idx = (seedRef.current + slotIndex) % postAds.length
       return postAds[idx] ?? null
     },
     [postAds]
@@ -89,7 +121,7 @@ export function usePostFeed(authorId?: string, showAds = false) {
       const post = posts[i]
       items.push({ type: 'post', key: post.id, post })
 
-      if ((i + 1) % 3 !== 0) continue
+      if ((i + 1) % 5 !== 0) continue
 
       if (loadingAds) {
         items.push({ type: 'ad', key: `ad-loading-${slotIndex}`, loading: true })
@@ -183,6 +215,8 @@ export function usePostFeed(authorId?: string, showAds = false) {
     refreshPost,
     refreshUser,
     removePost,
+    usersById,
+    setUser,
     listRootRef,
     renderedItems,
     lastPostRef,

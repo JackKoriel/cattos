@@ -17,6 +17,7 @@ import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { uploadPostMedia } from '@/services/uploads'
 import type { Post } from '@cattos/shared'
+import { createTempPost } from '@/utils/optimistic'
 import { emojis } from '../../constants/emojis'
 
 interface CreatePostProps {
@@ -45,13 +46,9 @@ export const CreatePost = ({ onBeforeCreate, onPostCreated, onPostFailed }: Crea
 
     setLoading(true)
     setError(null)
-    const tempId = `temp-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
-
     const curUser = user!
 
-    const tempPost: Post = {
-      id: tempId,
-      authorId: curUser.id,
+    const tempPost = createTempPost({
       author: {
         id: curUser.id,
         username: curUser.username,
@@ -59,17 +56,8 @@ export const CreatePost = ({ onBeforeCreate, onPostCreated, onPostFailed }: Crea
         avatar: curUser.avatar,
       },
       content,
-      mediaUrls: mediaFiles.length > 0 ? undefined : undefined,
-      likesCount: 0,
-      commentsCount: 0,
-      repostsCount: 0,
-      bookmarksCount: 0,
-      isLiked: false,
-      isBookmarked: false,
-      visibility: 'public',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    })
+    const tempId = tempPost.id
 
     try {
       // notify parent to optimistically insert

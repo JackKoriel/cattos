@@ -6,6 +6,7 @@ import usePostFeed from '@/hooks/usePostFeed'
 import { usePostActions } from '@/hooks/posts/usePostActions'
 import { CommentDialog } from '@/features/comments/components'
 import { useNavigate } from 'react-router-dom'
+import resolvePostAuthors from '@/utils/resolvePostAuthors'
 
 export interface PostFeedHandle {
   refresh: () => void
@@ -48,6 +49,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
       handleCloseSnackbar,
       showSnackbar,
       handleComment,
+      usersById,
     } = usePostFeed(authorId, showAds)
 
     const { like, bookmark, repost } = usePostActions()
@@ -126,6 +128,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
                 <PostCard
                   key={item.key}
                   post={item.post}
+                  resolvedUsers={usersById}
                   onLike={like}
                   onRepost={handleRepostWithFeedback}
                   onBookmark={bookmark}
@@ -154,7 +157,7 @@ export const PostFeed = forwardRef<PostFeedHandle, PostFeedProps>(
         <CommentDialog
           open={!!commentDialogPost}
           onClose={handleCloseCommentDialog}
-          post={commentDialogPost}
+          post={commentDialogPost ? resolvePostAuthors(commentDialogPost, usersById) : null}
           onLike={like}
           onBookmark={bookmark}
           onCommentCreated={handleCommentCreated}
