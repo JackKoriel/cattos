@@ -73,6 +73,7 @@ export const AppLayout = () => {
       <Box display="flex" width="100%" minHeight="100vh">
         <Box
           component="aside"
+          aria-label="main-sidebar"
           width="20%"
           p={2}
           sx={{
@@ -204,6 +205,7 @@ export const AppLayout = () => {
         <Box
           width="20%"
           p={3}
+          aria-label="sidebar-ads"
           sx={{
             display: { xs: 'none', md: 'block' },
             position: 'sticky',
