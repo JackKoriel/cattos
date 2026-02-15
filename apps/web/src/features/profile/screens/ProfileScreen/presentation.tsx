@@ -117,9 +117,45 @@ export const ProfileScreenPresentation = ({ user }: { user: User }) => {
           <Typography color="text.secondary" variant="body2" gutterBottom>
             @{profile.username}
           </Typography>
-          <Typography variant="body1" paragraph color="text.primary">
+          <Typography
+            variant="body1"
+            paragraph
+            color="text.primary"
+            sx={{
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'normal',
+            }}
+          >
             {profile.bio || 'No bio yet.'}
           </Typography>
+
+          <Box mb={1}>
+            {profile.location && (
+              <Typography variant="body2" color="text.secondary">
+                {profile.location}
+              </Typography>
+            )}
+            {profile.website && (
+              <Typography variant="body2" color="primary">
+                <a
+                  href={
+                    profile.website.startsWith('http')
+                      ? profile.website
+                      : `http://${profile.website}`
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: 'inherit', textDecoration: 'none' }}
+                >
+                  {profile.website}
+                </a>
+              </Typography>
+            )}
+          </Box>
 
           <Stack direction="row" spacing={2}>
             <Typography variant="body2" color="text.primary">
