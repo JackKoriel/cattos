@@ -7,6 +7,7 @@ import { RefreshToken, User } from '../models/index.js'
 import type { Model } from 'mongoose'
 import type { IUser } from '../interfaces/user.interface.js'
 import { authUtils } from '../utils/auth.utils.js'
+import { logger } from '../utils/logger.js'
 
 type PublicUser = {
   id: string
@@ -164,13 +165,17 @@ const login = async (input: { identifier: string; password: string }) => {
   try {
     await UserModel.findByIdAndUpdate(user._id, { $set: { lastLoginAt: now } }).exec()
   } catch (err) {
-    if (typeof user.save === 'function') {
-      user.lastLoginAt = now
-      await user.save()
-    } else if (typeof UserModel.updateOne === 'function') {
-      await UserModel.updateOne({ _id: user._id }, { $set: { lastLoginAt: now } }).exec()
+    logger.error('Failed to update lastLoginAt atomically', err)
+    try {
+      if (typeof user.save === 'function') {
+        user.lastLoginAt = now
+        await user.save()
+      } else if (typeof UserModel.updateOne === 'function') {
+        await UserModel.updateOne({ _id: user._id }, { $set: { lastLoginAt: now } }).exec()
+      }
+    } catch (fallbackErr) {
+      logger.error('Fallback update for lastLoginAt failed', fallbackErr)
     }
-    // swallow errors from model helpers in test/mocked environments
   }
 
   const accessToken = issueAccessToken(String(user._id))

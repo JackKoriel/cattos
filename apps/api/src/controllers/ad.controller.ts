@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import { cloudinary } from '../config/cloudinary.js'
+import { logger } from '../utils/logger.js'
 
 type AdPlacement = 'sidebar' | 'post'
 
@@ -54,8 +55,8 @@ const fetchFolderVideos = async (folder: string) => {
     }>
 
     if (resources.length > 0) return resources
-  } catch {
-    console.warn(`Cloudinary search failed for folder ${folder}, falling back to list API`)
+  } catch (err) {
+    logger.warn(`Cloudinary search failed for folder ${folder}, falling back to list API`, err)
   }
 
   const listResult = await cloudinary.api.resources({

@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express'
+import { logger } from '../utils/logger.js'
 
 interface AppError extends Error {
   statusCode?: number
@@ -6,7 +7,7 @@ interface AppError extends Error {
 }
 
 export const errorHandler = (err: AppError, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('[Error]', err.message, err.stack)
+  logger.error('[Error]', { message: err.message, stack: err.stack })
 
   if (err.name === 'MulterError') {
     res.status(400).json({ success: false, error: err.message })

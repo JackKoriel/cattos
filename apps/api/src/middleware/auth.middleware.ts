@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { env } from '../config/env.js'
+import { logger } from '../utils/logger.js'
 
 export type AuthenticatedRequest = Request & {
   user?: {
@@ -39,7 +40,8 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 
     req.user = { id: decoded.sub }
     next()
-  } catch {
+  } catch (err) {
+    logger.warn('Auth verification failed', err)
     res.status(401).json({ success: false, error: 'Unauthorized' })
   }
 }
@@ -57,8 +59,8 @@ export const optionalAuth = (req: Request, _res: Response, next: NextFunction) =
     if (decoded.sub) {
       req.user = { id: decoded.sub }
     }
-  } catch {
-    console.warn('Optional auth failed, proceeding without user info')
+  } catch (err) {
+    logger.warn('Optional auth failed, proceeding without user info', err)
   }
 
   next()
