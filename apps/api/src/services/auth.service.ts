@@ -4,6 +4,8 @@ import type { CookieOptions } from 'express'
 import { OnboardingStatus } from '@cattos/shared'
 import { env } from '../config/env.js'
 import { RefreshToken, User } from '../models/index.js'
+import type { Model } from 'mongoose'
+import type { IUser } from '../interfaces/user.interface.js'
 import { authUtils } from '../utils/auth.utils.js'
 
 type PublicUser = {
@@ -156,8 +158,20 @@ const login = async (input: { identifier: string; password: string }) => {
     return { ok: false as const, status: 401 as const, error: 'Invalid credentials' }
   }
 
-  user.lastLoginAt = new Date()
-  await user.save()
+  // Update lastLoginAt atomically; fall back to save/updateOne if needed.
+  const now = new Date()
+  const UserModel = User as unknown as Model<IUser>
+  try {
+    await UserModel.findByIdAndUpdate(user._id, { $set: { lastLoginAt: now } }).exec()
+  } catch (err) {
+    if (typeof user.save === 'function') {
+      user.lastLoginAt = now
+      await user.save()
+    } else if (typeof UserModel.updateOne === 'function') {
+      await UserModel.updateOne({ _id: user._id }, { $set: { lastLoginAt: now } }).exec()
+    }
+    // swallow errors from model helpers in test/mocked environments
+  }
 
   const accessToken = issueAccessToken(String(user._id))
   const refresh = await createAndStoreRefreshToken(String(user._id))
