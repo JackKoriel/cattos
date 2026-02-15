@@ -42,8 +42,53 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
   const formik = useFormik({
     initialValues,
     enableReinitialize: true,
+    validate: (values) => {
+      const errors: Record<string, string> = {}
+
+      // Display name length validation
+      if (values.displayName && values.displayName.length > 50) {
+        errors.displayName = 'Display name must be 50 characters or less.'
+      }
+
+      // Bio length validation
+      if (values.bio && values.bio.length > 160) {
+        errors.bio = 'Bio must be 160 characters or less.'
+      }
+
+      // Website validation (stricter, max 100)
+      if (values.website) {
+        const v = values.website.trim()
+        if (v.length > 100) {
+          errors.website = 'Website URL must be 100 characters or less.'
+        } else if (/\s/.test(v)) {
+          errors.website = 'Website must not contain spaces.'
+        } else if (v.includes(',')) {
+          errors.website = 'Website must not contain commas; use dots (.) instead.'
+        } else {
+          let testUrl = v
+          if (!/^https?:\/\//i.test(testUrl)) testUrl = `http://${testUrl}`
+          try {
+            const parsed = new URL(testUrl)
+            if (!parsed.hostname || !parsed.hostname.includes('.')) {
+              errors.website = 'Please enter a valid website URL.'
+            }
+          } catch (err) {
+            errors.website = 'Please enter a valid website URL.'
+          }
+        }
+      }
+
+      return errors
+    },
     onSubmit: async (values) => {
-      await onSubmit(values)
+      const processed = { ...values }
+      if (processed.website) {
+        let w = processed.website.trim().toLowerCase()
+        if (!/^https?:\/\//i.test(w)) w = `http://${w}`
+        processed.website = w
+      }
+
+      await onSubmit(processed)
       onClose()
     },
   })
@@ -109,6 +154,15 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 onChange={formik.handleChange}
                 fullWidth
                 placeholder="Enter your display name"
+                inputProps={{ maxLength: 50 }}
+                error={Boolean(
+                  (formik.touched.displayName || formik.submitCount > 0) &&
+                  formik.errors.displayName
+                )}
+                helperText={
+                  (formik.touched.displayName || formik.submitCount > 0) &&
+                  formik.errors.displayName
+                }
                 sx={{ mb: 0 }}
               />
             </Box>
@@ -124,6 +178,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 rows={3}
                 fullWidth
                 placeholder="Tell us about yourself"
+                inputProps={{ maxLength: 160 }}
+                error={Boolean((formik.touched.bio || formik.submitCount > 0) && formik.errors.bio)}
+                helperText={
+                  (formik.touched.bio || formik.submitCount > 0) && formik.errors.bio
+                    ? formik.errors.bio
+                    : `${formik.values.bio?.length || 0}/160`
+                }
                 sx={{ mb: 0 }}
               />
               <IconButton
@@ -255,6 +316,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 onChange={formik.handleChange}
                 fullWidth
                 placeholder="Your website or link"
+                inputProps={{ maxLength: 100 }}
+                error={Boolean(
+                  (formik.touched.website || formik.submitCount > 0) && formik.errors.website
+                )}
+                helperText={
+                  (formik.touched.website || formik.submitCount > 0) && formik.errors.website
+                }
                 sx={{ mb: 0 }}
               />
             </Box>
