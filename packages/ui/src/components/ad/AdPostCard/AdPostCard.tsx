@@ -39,7 +39,7 @@ export const AdPostCard = ({ ad, onClick, loading }: AdPostCardProps) => {
       </Box>
 
       <Box p={2} pt={0} bgcolor="white">
-        <VideoPlayer src={ad.videoUrl} onClick={(e) => e.stopPropagation()} />
+        <VideoPlayer src={ad.videoUrl} onClick={(e) => e.stopPropagation()} width="75%" />
       </Box>
     </Card>
   )

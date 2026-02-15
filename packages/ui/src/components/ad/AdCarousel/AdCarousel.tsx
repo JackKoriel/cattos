@@ -77,7 +77,7 @@ export const AdCarousel = ({ ads, title = 'Ads', loading }: AdCarouselProps) => 
         </IconButton>
 
         <Box flex={1}>
-          <VideoPlayer key={current.videoUrl} src={current.videoUrl} height="317px" />
+          <VideoPlayer key={current.videoUrl} src={current.videoUrl} aspectRatio="9/16" />
         </Box>
 
         <IconButton aria-label="Next ad" size="small" onClick={goNext}>
