@@ -149,6 +149,36 @@ yarn test                     # Run tests
 yarn test:api                 # Run backend tests only
 ```
 
+### CI & test commands (coverage)
+
+GitHub Actions workflow that detects whether changes touch the frontend or backend and runs only the relevant tests, collects coverage and uploads the reports. The workflow lives at `.github/workflows/ci-tests.yml`.
+
+To run tests with coverage locally, from the repository root use these commands:
+
+- Only web (frontend) with coverage and verbose output:
+
+```bash
+yarn workspace @cattos/web run test --run --coverage --reporter=verbose
+```
+
+- Only api (backend) with coverage and verbose output:
+
+```bash
+yarn workspace @cattos/api run test:coverage --reporter=verbose
+```
+
+- Both sequentially (web then api):
+
+```bash
+yarn workspace @cattos/web run test --run --coverage --reporter=verbose && yarn workspace @cattos/api run test:coverage --reporter=verbose
+```
+
+- Both in parallel (bash / MINGW):
+
+```bash
+yarn workspace @cattos/web run test --run --coverage --reporter=verbose & yarn workspace @cattos/api run test:coverage --reporter=verbose & wait
+```
+
 ## 🏗️ Architecture Decisions
 
 ### Why Monorepo?
