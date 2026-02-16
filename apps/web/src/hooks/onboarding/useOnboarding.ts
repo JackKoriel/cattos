@@ -322,7 +322,7 @@ export const useOnboarding = () => {
     if (file) {
       const preview = URL.createObjectURL(file)
       setAvatarPreviewUrl(preview)
-      formik.setFieldValue('avatarUrl', '')
+      formik.setFieldValue('avatarUrl', preview)
     } else {
       setAvatarPreviewUrl(null)
     }
