@@ -40,7 +40,17 @@ export const AdPostCard = ({ ad, onClick, loading }: AdPostCardProps) => {
         </Typography>
       </Box>
 
-      <Box p={2} pt={0} bgcolor="white">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 2,
+          paddingTop: 0,
+          bgcolor: 'white',
+        }}
+      >
         <VideoPlayer src={ad.videoUrl} onClick={(e) => e.stopPropagation()} width="75%" />
       </Box>
     </Card>
