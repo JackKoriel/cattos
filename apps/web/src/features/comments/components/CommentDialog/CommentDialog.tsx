@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, Box, IconButton, Divider, CloseIcon, useAppTheme } from '@cattos/ui'
+import { Dialog, DialogContent, Box, IconButton, CloseIcon, useAppTheme } from '@cattos/ui'
 import { PostCardContainer as PostCard } from '@/features/posts/components/PostCardContainer'
 import { Post } from '@cattos/shared'
 import { useNavigate } from 'react-router-dom'
