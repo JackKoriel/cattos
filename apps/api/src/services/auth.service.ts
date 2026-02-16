@@ -4,8 +4,6 @@ import type { CookieOptions } from 'express'
 import { OnboardingStatus } from '@cattos/shared'
 import { env } from '../config/env.js'
 import { RefreshToken, User } from '../models/index.js'
-import type { Model } from 'mongoose'
-import type { IUser } from '../interfaces/user.interface.js'
 import { authUtils } from '../utils/auth.utils.js'
 import { logger } from '../utils/logger.js'
 
@@ -159,19 +157,18 @@ const login = async (input: { identifier: string; password: string }) => {
     return { ok: false as const, status: 401 as const, error: 'Invalid credentials' }
   }
 
-  // Update lastLoginAt atomically; fall back to save/updateOne if needed.
+  // Update lastLoginAt atomically; fall back to document save or updateOne if needed.
   const now = new Date()
-  const UserModel = User as unknown as Model<IUser>
   try {
-    await UserModel.findByIdAndUpdate(user._id, { $set: { lastLoginAt: now } }).exec()
+    await User.findByIdAndUpdate(user._id, { $set: { lastLoginAt: now } }).exec()
   } catch (err) {
     logger.error('Failed to update lastLoginAt atomically', err)
     try {
       if (typeof user.save === 'function') {
         user.lastLoginAt = now
         await user.save()
-      } else if (typeof UserModel.updateOne === 'function') {
-        await UserModel.updateOne({ _id: user._id }, { $set: { lastLoginAt: now } }).exec()
+      } else {
+        await User.updateOne({ _id: user._id }, { $set: { lastLoginAt: now } }).exec()
       }
     } catch (fallbackErr) {
       logger.error('Fallback update for lastLoginAt failed', fallbackErr)
