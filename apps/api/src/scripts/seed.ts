@@ -41,6 +41,29 @@ const pickOne = <T>(items: T[]): T => {
   return items[randInt(items.length)]
 }
 
+const seedPostMediaUrls = [
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197616/cattos/seeds/cat_avatar_9_qp1j7s.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197621/cattos/seeds/cat_avatar_18_ypaqij.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197621/cattos/seeds/cat_avatar_19_onjr3l.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197619/cattos/seeds/cat_avatar_17_ykb5mj.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197618/cattos/seeds/cat_avatar_16_rybhp9.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197618/cattos/seeds/cat_avatar_15_utfq7c.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197615/cattos/seeds/cat_avatar_14_lw0yxr.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197613/cattos/seeds/cat_avatar_10_cyrooy.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197615/cattos/seeds/cat_avatar_12_rl1dwg.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197614/cattos/seeds/cat_avatar_13_w8uomr.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197614/cattos/seeds/cat_avatar_11_ok8ewh.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197611/cattos/seeds/cat_avatar_8_og8ucl.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197611/cattos/seeds/cat_avatar_7_cnsx1y.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197609/cattos/seeds/cat_avatar_6_hw6twy.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197609/cattos/seeds/cat_avatar_5_rsbinc.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197608/cattos/seeds/cat_avatar_4_zzs1t2.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197607/cattos/seeds/cat_avatar_3_hio0va.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197607/cattos/seeds/cat_avatar_2_wgedow.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197606/cattos/seeds/cat_avatar_1_a9nkih.png',
+  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197606/cattos/seeds/cat_avatar_20_ca9e0p.png',
+]
+
 const slug = (input: string) =>
   input
     .toLowerCase()
@@ -58,6 +81,7 @@ const generateUser = (i: number) => {
     displayName: `Cat ${i}`,
     bio: i % 3 === 0 ? 'Meow. I post cat photos.' : undefined,
     isVerified: i % 10 === 0,
+    avatar: pickOne(seedPostMediaUrls),
     website: 'https://www.google.com',
     location: 'Montreal, Canada',
   }
@@ -82,29 +106,6 @@ const generatePostContent = () => {
 
   return { content, hashtags }
 }
-
-const seedPostMediaUrls = [
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197616/cattos/seeds/cat_avatar_9_qp1j7s.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197621/cattos/seeds/cat_avatar_18_ypaqij.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197621/cattos/seeds/cat_avatar_19_onjr3l.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197619/cattos/seeds/cat_avatar_17_ykb5mj.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197618/cattos/seeds/cat_avatar_16_rybhp9.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197618/cattos/seeds/cat_avatar_15_utfq7c.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197615/cattos/seeds/cat_avatar_14_lw0yxr.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197613/cattos/seeds/cat_avatar_10_cyrooy.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197615/cattos/seeds/cat_avatar_12_rl1dwg.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197614/cattos/seeds/cat_avatar_13_w8uomr.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197614/cattos/seeds/cat_avatar_11_ok8ewh.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197611/cattos/seeds/cat_avatar_8_og8ucl.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197611/cattos/seeds/cat_avatar_7_cnsx1y.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197609/cattos/seeds/cat_avatar_6_hw6twy.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197609/cattos/seeds/cat_avatar_5_rsbinc.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197608/cattos/seeds/cat_avatar_4_zzs1t2.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197607/cattos/seeds/cat_avatar_3_hio0va.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197607/cattos/seeds/cat_avatar_2_wgedow.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197606/cattos/seeds/cat_avatar_1_a9nkih.png',
-  'https://res.cloudinary.com/dhj5ncbxs/image/upload/v1771197606/cattos/seeds/cat_avatar_20_ca9e0p.png',
-]
 
 const run = async () => {
   if (env.NODE_ENV !== 'development' && env.NODE_ENV !== 'test') {
