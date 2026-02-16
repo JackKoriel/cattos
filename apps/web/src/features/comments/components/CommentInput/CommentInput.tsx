@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Avatar, TextField, ActionButton, Stack } from '@cattos/ui'
+import { Box, Avatar, TextField, ActionButton, Stack, useAppTheme } from '@cattos/ui'
 import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
 import { Post } from '@cattos/shared'
@@ -22,6 +22,7 @@ export const CommentInput = ({
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const appTheme = useAppTheme()
 
   const handleSubmit = async () => {
     if (!content.trim()) return
@@ -74,7 +75,7 @@ export const CommentInput = ({
     <Box
       p={2}
       bgcolor="white"
-      borderRadius={3}
+      borderRadius={appTheme.radii.radix2}
       boxShadow="0 4px 12px rgba(0,0,0,0.1)"
       sx={{ transition: 'box-shadow 0.2s' }}
     >

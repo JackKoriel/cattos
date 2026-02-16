@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Stack, Typography, Button } from '@cattos/ui'
+import { Box, CircularProgress, Stack, Typography, Button, useAppTheme } from '@cattos/ui'
 import { PostCardContainer as PostCard } from '@/features/posts/components/PostCardContainer'
 import { useFetchComments } from '@/hooks/useFetchComments'
 import { CommentInput } from '../CommentInput/CommentInput'
@@ -13,6 +13,7 @@ interface CommentListProps {
 
 export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
   const navigate = useNavigate()
+  const appTheme = useAppTheme()
   const {
     comments,
     loading,
@@ -58,7 +59,7 @@ export const CommentList = ({ postId, onCommentCreated }: CommentListProps) => {
           p={4}
           textAlign="center"
           bgcolor="white"
-          borderRadius={3}
+          borderRadius={appTheme.radii.radix2}
           boxShadow="0 4px 12px rgba(0,0,0,0.1)"
         >
           <Typography color="text.secondary">No replies yet. Be the first to reply!</Typography>

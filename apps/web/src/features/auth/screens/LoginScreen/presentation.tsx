@@ -1,4 +1,13 @@
-import { Box, FormTextField, Button, Alert, EmailIcon, LockIcon, PawLoader } from '@cattos/ui'
+import {
+  Box,
+  FormTextField,
+  Button,
+  Alert,
+  EmailIcon,
+  LockIcon,
+  PawLoader,
+  useAppTheme,
+} from '@cattos/ui'
 import type { FormikProps } from 'formik'
 import type { LoginFormValues } from '@/hooks/auth/useLoginForm'
 import { AuthCard } from '../../components/AuthCard'
@@ -10,6 +19,8 @@ export const LoginScreenPresentation = ({
   formik: FormikProps<LoginFormValues>
   authError: string | null
 }) => {
+  const appTheme = useAppTheme()
+
   return (
     <AuthCard mode="login">
       <Box component="form" onSubmit={formik.handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
@@ -48,12 +59,12 @@ export const LoginScreenPresentation = ({
           startIcon={<LockIcon color="action" fontSize="small" />}
         />
         {authError && (
-          <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
+          <Alert severity="error" sx={{ mt: 2, borderRadius: appTheme.radii.radix1 }}>
             {authError}
           </Alert>
         )}
         <Button type="submit" fullWidth variant="orange" disabled={formik.isSubmitting}>
-          {formik.isSubmitting ? <PawLoader size="xSmall" color="inherit" /> : 'Enter the Catverse'}
+          {formik.isSubmitting ? <PawLoader size="xSmall" color="inherit" /> : 'Enter Cattos'}
         </Button>
       </Box>
     </AuthCard>

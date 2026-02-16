@@ -1,4 +1,13 @@
-import { Box, FormTextField, Button, Alert, EmailIcon, LockIcon, PawLoader } from '@cattos/ui'
+import {
+  Box,
+  FormTextField,
+  Button,
+  Alert,
+  EmailIcon,
+  LockIcon,
+  PawLoader,
+  useAppTheme,
+} from '@cattos/ui'
 import type { FormikProps } from 'formik'
 import type { RegisterFormValues } from '@/hooks/auth/useRegisterForm'
 import { AuthCard } from '../../components/AuthCard'
@@ -10,6 +19,8 @@ export const RegisterScreenPresentation = ({
   formik: FormikProps<RegisterFormValues>
   authError: string | null
 }) => {
+  const appTheme = useAppTheme()
+
   return (
     <AuthCard mode="register">
       <Box component="form" onSubmit={formik.handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
@@ -48,7 +59,7 @@ export const RegisterScreenPresentation = ({
           startIcon={<LockIcon color="action" fontSize="small" />}
         />
         {authError && (
-          <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
+          <Alert severity="error" sx={{ mt: 2, borderRadius: appTheme.radii.radix1 }}>
             {authError}
           </Alert>
         )}

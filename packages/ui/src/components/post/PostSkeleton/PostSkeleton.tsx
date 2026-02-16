@@ -1,8 +1,11 @@
 import { Card, CardContent, CardHeader, Skeleton, Box } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
+import type { Theme } from '../../../theme'
 
 export const PostSkeleton = () => {
+  const theme = useTheme<Theme>()
   return (
-    <Card variant="outlined" sx={{ display: 'flex', p: 2, borderRadius: 3 }}>
+    <Card variant="outlined" sx={{ display: 'flex', p: 2, borderRadius: theme.radii.radix2 }}>
       <Box sx={{ mr: 2 }}>
         <Skeleton variant="circular" width={40} height={40} />
       </Box>

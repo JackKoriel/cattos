@@ -11,6 +11,7 @@ import {
   IconButton,
   CloseIcon,
   PawLoader,
+  useAppTheme,
 } from '@cattos/ui'
 import { useFormik } from 'formik'
 
@@ -128,13 +129,15 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
     formik.setFieldValue('coverImage', null)
   }
 
+  const appTheme = useAppTheme()
+
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
       <DialogContent
         sx={{
           bgcolor: 'white',
           p: 4,
-          borderRadius: 3,
+          borderRadius: appTheme.radii.radix2,
           width: '100%',
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
         }}
@@ -242,7 +245,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                       width: 120,
                       height: 64,
                       objectFit: 'cover',
-                      borderRadius: 2,
+                      borderRadius: appTheme.radii.radix1,
                       border: '1px solid #eee',
                     }}
                   />
@@ -255,7 +258,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                       alignItems: 'center',
                       justifyContent: 'center',
                       bgcolor: 'grey.100',
-                      borderRadius: 2,
+                      borderRadius: appTheme.radii.radix1,
                       border: '1px solid #eee',
                       color: 'grey.400',
                       fontSize: 32,

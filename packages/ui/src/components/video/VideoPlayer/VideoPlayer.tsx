@@ -1,4 +1,6 @@
 import { Box } from '../../box'
+import { useTheme } from '@mui/material/styles'
+import type { Theme } from '../../../theme'
 
 export type VideoPlayerProps = {
   src: string
@@ -25,11 +27,12 @@ export const VideoPlayer = ({
   width,
   aspectRatio,
 }: VideoPlayerProps) => {
+  const theme = useTheme<Theme>()
   return (
     <Box
       sx={{
         width: width ?? '100%',
-        borderRadius: 2,
+        borderRadius: theme.radii.radix1,
         overflow: 'hidden',
         bgcolor: 'grey.200',
         height: height ?? '100%',

@@ -1,4 +1,5 @@
 import { Avatar, Box, Card, CardContent, CardHeader, IconButton, Typography } from '@mui/material'
+import { useAppTheme } from '../../..'
 import type { Post } from '@cattos/shared'
 import {
   ChatBubbleOutline,
@@ -68,6 +69,7 @@ export const PostCard = ({
   onOpen,
   onProfileClick,
 }: PostCardProps) => {
+  const appTheme = useAppTheme()
   const timeAgo = createdAt
     ? formatDistanceToNowStrict(new Date(createdAt), { addSuffix: false })
     : ''
@@ -91,11 +93,11 @@ export const PostCard = ({
   return (
     <Card
       variant="outlined"
-      onClick={() => onOpen?.(postId)}
+          onClick={() => onOpen?.(postId)}
       sx={{
         display: 'flex',
         p: 2,
-        borderRadius: 3,
+          borderRadius: appTheme.radii.radix2,
         cursor: onOpen ? 'pointer' : 'default',
         bgcolor: 'white',
       }}
@@ -152,14 +154,19 @@ export const PostCard = ({
           }
         />
         <CardContent sx={{ p: 0, mb: 1 }}>
-          <Typography variant="body1">{content}</Typography>
+          <Typography
+            variant="body1"
+            sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+          >
+            {content}
+          </Typography>
           {mediaCount > 0 && (
             <Box
               sx={{
                 display: 'grid',
                 gap: 1,
                 mt: 1.5,
-                borderRadius: 2,
+                  borderRadius: appTheme.radii.radix1,
                 overflow: 'hidden',
                 gridTemplateColumns:
                   mediaCount === 1 ? '1fr' : mediaCount === 2 ? '1fr 1fr' : '1fr 1fr',
@@ -180,7 +187,7 @@ export const PostCard = ({
                     gridColumn: mediaCount === 3 && idx === 0 ? '1 / span 2' : undefined,
                     gridRow: mediaCount === 3 && idx === 0 ? '1' : undefined,
                     overflow: 'hidden',
-                    borderRadius: 2,
+                    borderRadius: appTheme.radii.radix1,
                     background: '#e0e0e0',
                   }}
                 >

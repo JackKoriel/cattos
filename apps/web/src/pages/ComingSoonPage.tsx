@@ -1,8 +1,9 @@
-import { Box, Button, Typography, GRADIENTS } from '@cattos/ui'
+import { Box, Button, Typography, GRADIENTS, useAppTheme } from '@cattos/ui'
 import { useNavigate } from 'react-router-dom'
 
 export const ComingSoonPage = () => {
   const navigate = useNavigate()
+  const appTheme = useAppTheme()
 
   return (
     <Box
@@ -16,7 +17,7 @@ export const ComingSoonPage = () => {
     >
       <Box
         bgcolor="white"
-        borderRadius={3}
+        borderRadius={appTheme.radii.radix2}
         p={4}
         width="100%"
         display="flex"

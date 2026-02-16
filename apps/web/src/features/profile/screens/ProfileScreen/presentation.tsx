@@ -1,6 +1,6 @@
 import React from 'react'
 import { updateRegister, type UpdateRegisterPayload } from '@/services/register'
-import { Box, Typography, Avatar, Button, Stack } from '@cattos/ui'
+import { Box, Typography, Avatar, Button, Stack, useAppTheme } from '@cattos/ui'
 import type { User } from '@cattos/shared'
 import { PostFeed } from '@/features/posts/components'
 import { useAuthUser } from '@/stores/authStore'
@@ -43,21 +43,23 @@ export const ProfileScreenPresentation = ({ user }: { user: User }) => {
     }
   }
 
+  const appTheme = useAppTheme()
+
   return (
     <Box>
       <Box
         pb={3}
         m={2}
         bgcolor="white"
-        borderRadius={3}
+        borderRadius={appTheme.radii.radix2}
         boxShadow="0 4px 12px rgba(0,0,0,0.1)"
         sx={{ transition: 'box-shadow 0.2s' }}
       >
         <Box
           sx={{
             height: 150,
-            borderTopLeftRadius: 12,
-            borderTopRightRadius: 12,
+            borderTopLeftRadius: appTheme.radii.radix5,
+            borderTopRightRadius: appTheme.radii.radix5,
             backgroundColor: profile.coverImage ? undefined : 'grey.300',
             backgroundImage: profile.coverImage ? `url(${profile.coverImage})` : undefined,
             backgroundSize: profile.coverImage ? 'cover' : undefined,
@@ -81,7 +83,7 @@ export const ProfileScreenPresentation = ({ user }: { user: User }) => {
                 <Button
                   variant="contained"
                   sx={{
-                    borderRadius: 20,
+                    borderRadius: appTheme.radii.radix6,
                     backgroundColor: '#ff9800',
                     color: 'white',
                     textTransform: 'none',

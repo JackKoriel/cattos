@@ -1,8 +1,11 @@
 import { Box } from '../../box'
 import { Skeleton } from '../../skeleton'
 import { Stack } from '../../stack'
+import { useTheme } from '@mui/material/styles'
+import type { Theme } from '../../../theme'
 
 export const AdCarouselSkeleton = () => {
+  const theme = useTheme<Theme>()
   return (
     <Box
       sx={{
@@ -24,7 +27,7 @@ export const AdCarouselSkeleton = () => {
             width="100%"
             height="260px"
             sx={{
-              borderRadius: 2,
+              borderRadius: theme.radii.radix1,
             }}
           />
         </Box>

@@ -33,5 +33,5 @@ test('Login page shows inputs and submit button', () => {
 
   expect(screen.getByPlaceholderText(/e\.g\. catty@example.com or catty123/i)).toBeInTheDocument()
   expect(screen.getByPlaceholderText(/•{2,}/i)).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /enter the catverse/i })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /enter cattos/i })).toBeInTheDocument()
 })

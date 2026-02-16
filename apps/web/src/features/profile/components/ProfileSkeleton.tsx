@@ -1,12 +1,13 @@
-import { Box, Skeleton, Stack, PawLoader } from '@cattos/ui'
+import { Box, Skeleton, Stack, PawLoader, useAppTheme } from '@cattos/ui'
 
 export const ProfileSkeleton = () => {
+  const appTheme = useAppTheme()
   return (
     <Box>
       <Box
         m={2}
         bgcolor="white"
-        borderRadius={3}
+        borderRadius={appTheme.radii.radix2}
         boxShadow="0 4px 12px rgba(0,0,0,0.1)"
         overflow="hidden"
       >

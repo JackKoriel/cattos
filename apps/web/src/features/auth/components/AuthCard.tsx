@@ -1,4 +1,4 @@
-import { Paper, Typography, Box, Button, Container } from '@cattos/ui'
+import { Paper, Typography, Box, Button, Container, useAppTheme } from '@cattos/ui'
 import { useNavigate } from 'react-router-dom'
 import { ReactNode } from 'react'
 import backgroundCity from '@/assets/backgrounds/background_city.jpg'
@@ -11,6 +11,7 @@ interface AuthCardProps {
 
 export const AuthCard = ({ children, mode }: AuthCardProps) => {
   const navigate = useNavigate()
+  const appTheme = useAppTheme()
 
   return (
     <Box
@@ -48,7 +49,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
               flexDirection: 'column',
               alignItems: 'center',
               padding: 4,
-              borderRadius: 4,
+              borderRadius: appTheme.radii.radix3,
               width: '100%',
               maxWidth: 600,
               minHeight: 480,
@@ -71,7 +72,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
                 mb: 3,
                 bgcolor: '#f5f5f5',
                 p: 0.5,
-                borderRadius: 2,
+                borderRadius: appTheme.radii.radix1,
               }}
             >
               <Button
@@ -79,7 +80,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
                 variant={mode === 'login' ? 'contained' : 'text'}
                 onClick={() => navigate('/login')}
                 sx={{
-                  borderRadius: 1.5,
+                  borderRadius: appTheme.radii.radix1,
                   ...(mode === 'login' ? {} : { color: '#666666' }),
                 }}
               >
@@ -90,7 +91,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
                 variant={mode === 'register' ? 'contained' : 'text'}
                 onClick={() => navigate('/register')}
                 sx={{
-                  borderRadius: 1.5,
+                  borderRadius: appTheme.radii.radix1,
                   ...(mode === 'register' ? {} : { color: '#666666' }),
                 }}
               >

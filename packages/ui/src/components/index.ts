@@ -29,3 +29,4 @@ export * from './icons'
 export * from './video'
 export * from './ad'
 export { Popover } from './popover'
+// SurfaceCard removed to avoid accidental style regressions

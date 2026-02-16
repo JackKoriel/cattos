@@ -1,12 +1,15 @@
 import { Box } from '../../box'
 import { Card } from '../../card'
 import { Skeleton } from '../../skeleton'
+import { useTheme } from '@mui/material/styles'
+import type { Theme } from '../../../theme'
 
 export const AdPostCardSkeleton = () => {
+  const theme = useTheme<Theme>()
   return (
     <Card
       sx={{
-        borderRadius: 3,
+        borderRadius: theme.radii.radix2,
         overflow: 'hidden',
         boxShadow: 'none',
         border: '1px solid rgba(0,0,0,0.1)',
@@ -22,7 +25,7 @@ export const AdPostCardSkeleton = () => {
           width="100%"
           sx={{
             pt: '56.25%', // 16:9 aspect ratio
-            borderRadius: 2,
+            borderRadius: theme.radii.radix1,
           }}
         />
       </Box>

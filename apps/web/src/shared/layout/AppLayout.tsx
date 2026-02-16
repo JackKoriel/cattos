@@ -12,6 +12,7 @@ import {
 import { Button } from '@cattos/ui'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useAppTheme } from '@cattos/ui'
 import { useAuthLogout, useAuthUser } from '@/stores/authStore'
 import type { Ad } from '@cattos/shared'
 import { adsService } from '@/services/ads'
@@ -66,6 +67,7 @@ export const AppLayout = () => {
   }
 
   const { title, showBack } = getHeaderInfo()
+  const appTheme = useAppTheme()
 
   return (
     <>
@@ -214,7 +216,12 @@ export const AppLayout = () => {
             background: GRADIENTS.main,
           }}
         >
-          <Box bgcolor="white" borderRadius={3} p={2} boxShadow="0 4px 12px rgba(0,0,0,0.1)">
+          <Box
+            bgcolor="white"
+            borderRadius={appTheme.radii.radix2}
+            p={2}
+            boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+          >
             <AdCarousel ads={sidebarAds} title="Purrfect Finds ✨" loading={loadingAds} />
           </Box>
         </Box>

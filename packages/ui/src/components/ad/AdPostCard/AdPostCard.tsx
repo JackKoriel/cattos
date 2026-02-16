@@ -3,6 +3,7 @@ import { Box } from '../../box'
 import { Card } from '../../card'
 import { Typography } from '../../typography'
 import { VideoPlayer } from '../../video'
+import { useAppTheme } from '../../..'
 
 import { AdPostCardSkeleton } from './AdPostCardSkeleton'
 
@@ -13,6 +14,7 @@ type AdPostCardProps = {
 }
 
 export const AdPostCard = ({ ad, onClick, loading }: AdPostCardProps) => {
+  const appTheme = useAppTheme()
   if (loading || !ad) {
     return <AdPostCardSkeleton />
   }
@@ -20,7 +22,7 @@ export const AdPostCard = ({ ad, onClick, loading }: AdPostCardProps) => {
   return (
     <Card
       sx={{
-        borderRadius: 3,
+        borderRadius: appTheme.radii.radix2,
         overflow: 'hidden',
         cursor: onClick ? 'pointer' : 'default',
       }}

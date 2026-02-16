@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Ad } from '@cattos/shared'
 import { Box } from '../../box'
+import { useTheme } from '@mui/material/styles'
+import type { Theme } from '../../../theme'
 import { IconButton } from '../../icon-button'
 import { Stack } from '../../stack'
 import { Typography } from '../../typography'
@@ -17,6 +19,7 @@ export type AdCarouselProps = {
 
 export const AdCarousel = ({ ads, title = 'Ads', loading }: AdCarouselProps) => {
   const [index, setIndex] = useState(0)
+  const theme = useTheme<Theme>()
 
   const safeAds = useMemo(() => ads ?? [], [ads])
 
@@ -33,10 +36,10 @@ export const AdCarousel = ({ ads, title = 'Ads', loading }: AdCarouselProps) => 
       <Box
         p={2}
         bgcolor="#f5f5f5"
-        borderRadius={2}
         display="flex"
         flexDirection="column"
         alignItems="center"
+        sx={{ borderRadius: theme.radii.radix1 }}
       >
         <Typography variant="h2" mb={1}>
           🐱

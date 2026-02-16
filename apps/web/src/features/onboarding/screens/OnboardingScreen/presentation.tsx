@@ -18,6 +18,7 @@ import {
   CloudUploadIcon,
   LogoutIcon,
   EmailIcon,
+  useAppTheme,
 } from '@cattos/ui'
 import type { FormikProps } from 'formik'
 import type { FocusEventHandler, MouseEventHandler, RefObject } from 'react'
@@ -76,6 +77,7 @@ export const OnboardingScreenPresentation = ({
   onFinishIntent,
   onLogout,
 }: OnboardingScreenPresentationProps) => {
+  const appTheme = useAppTheme()
   const usernameStatusAdornment =
     usernameAvailability === 'checking' ? (
       <CircularProgress size={18} />
@@ -124,7 +126,7 @@ export const OnboardingScreenPresentation = ({
         <Paper
           elevation={3}
           sx={{
-            borderRadius: 4,
+            borderRadius: appTheme.radii.radix3,
             overflow: 'hidden',
             backgroundColor: 'rgba(255, 255, 255, 0.98)',
             backdropFilter: 'blur(10px)',
@@ -207,10 +209,10 @@ export const OnboardingScreenPresentation = ({
                     value={((activeStep + 1) / steps.length) * 100}
                     sx={{
                       height: 10,
-                      borderRadius: 5,
+                      borderRadius: appTheme.radii.radix3,
                       bgcolor: 'grey.200',
                       '& .MuiLinearProgress-bar': {
-                        borderRadius: 5,
+                        borderRadius: appTheme.radii.radix3,
                         background: 'linear-gradient(90deg, #42a5f5 0%, #1976d2 100%)',
                         textAlign: 'center',
                       },
@@ -389,7 +391,12 @@ export const OnboardingScreenPresentation = ({
 
                 <Stack direction="row" justifyContent="space-between" mt={4}>
                   {activeStep > 0 ? (
-                    <Button type="button" variant="outlined" disabled={formik.isSubmitting} onClick={onBack}>
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      disabled={formik.isSubmitting}
+                      onClick={onBack}
+                    >
                       Back
                     </Button>
                   ) : (

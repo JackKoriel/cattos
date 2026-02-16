@@ -12,6 +12,7 @@ import {
   ImageIcon,
   EmojiEmotionsIcon,
   Popover,
+  useAppTheme,
 } from '@cattos/ui'
 import { useAuthUser } from '@/stores/authStore'
 import { apiClient, handleApiError } from '@/services/client'
@@ -35,6 +36,7 @@ export const CreatePost = ({ onBeforeCreate, onPostCreated, onPostFailed }: Crea
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [emojiAnchor, setEmojiAnchor] = useState<HTMLButtonElement | null>(null)
+  const appTheme = useAppTheme()
 
   const handleEmojiClick = (emoji: string) => {
     setContent((prev) => prev + emoji)
@@ -97,7 +99,7 @@ export const CreatePost = ({ onBeforeCreate, onPostCreated, onPostFailed }: Crea
     <Box
       p={3}
       bgcolor="white"
-      borderRadius={3}
+      borderRadius={appTheme.radii.radix2}
       boxShadow="0 4px 12px rgba(0,0,0,0.1)"
       sx={{ transition: 'box-shadow 0.2s' }}
     >
@@ -182,7 +184,7 @@ export const CreatePost = ({ onBeforeCreate, onPostCreated, onPostFailed }: Crea
                       width: 350,
                       maxHeight: 300,
                       overflowY: 'auto',
-                      borderRadius: 2,
+                      borderRadius: appTheme.radii.radix1,
                       boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
                     },
                   },

@@ -1,4 +1,6 @@
 import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
+import type { Theme } from '../../theme'
 
 export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   /**
@@ -8,6 +10,8 @@ export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
 }
 
 export const Button = ({ variant = 'contained', sx, ...props }: ButtonProps) => {
+  const theme = useTheme<Theme>()
+
   let muiVariant: 'contained' | 'outlined' | 'text' = 'contained'
   let customSx = {}
 
@@ -51,7 +55,7 @@ export const Button = ({ variant = 'contained', sx, ...props }: ButtonProps) => 
       {...props}
       variant={muiVariant}
       sx={{
-        borderRadius: 2,
+        borderRadius: theme.radii.radix1,
         alignItems: 'center',
         justifyContent: 'center',
         py: 1.2,
