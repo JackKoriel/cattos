@@ -62,7 +62,7 @@ export const AuthCard = ({ children, mode }: AuthCardProps) => {
             }}
           >
             <Typography component="h1" variant="h5" sx={{ fontWeight: 'bold', mb: 3 }}>
-              Welcome back!
+              {mode === 'register' ? 'Register now!' : 'Welcome back!'}
             </Typography>
 
             <Box
