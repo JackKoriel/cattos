@@ -93,11 +93,11 @@ export const PostCard = ({
   return (
     <Card
       variant="outlined"
-          onClick={() => onOpen?.(postId)}
+      onClick={() => onOpen?.(postId)}
       sx={{
         display: 'flex',
         p: 2,
-          borderRadius: appTheme.radii.radix2,
+        borderRadius: appTheme.radii.radix2,
         cursor: onOpen ? 'pointer' : 'default',
         bgcolor: 'white',
       }}
@@ -106,6 +106,10 @@ export const PostCard = ({
         <Avatar
           src={avatar}
           alt={displayName}
+          onClick={(e) => {
+            e.stopPropagation()
+            onProfileClick?.(username ?? '')
+          }}
           sx={{ cursor: onProfileClick ? 'pointer' : 'inherit' }}
         >
           {displayName.charAt(0)}
@@ -166,7 +170,7 @@ export const PostCard = ({
                 display: 'grid',
                 gap: 1,
                 mt: 1.5,
-                  borderRadius: appTheme.radii.radix1,
+                borderRadius: appTheme.radii.radix1,
                 overflow: 'hidden',
                 gridTemplateColumns:
                   mediaCount === 1 ? '1fr' : mediaCount === 2 ? '1fr 1fr' : '1fr 1fr',
