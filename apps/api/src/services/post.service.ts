@@ -230,7 +230,7 @@ const getReplies = async (
       path: 'repostOfId',
       populate: { path: 'authorId', select: '_id username displayName avatar' },
     })
-    .sort({ createdAt: 1 })
+    .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
     .lean()
