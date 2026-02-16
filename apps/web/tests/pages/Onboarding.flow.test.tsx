@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { renderWithTheme, screen } from '../utils/render'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import '@testing-library/jest-dom'
@@ -93,7 +93,7 @@ test('Onboarding stepper: username -> pick avatar -> finish', async () => {
 
   const user = userEvent.setup()
 
-  const { rerender } = render(
+  const { rerender } = renderWithTheme(
     <MemoryRouter>
       <OnboardingPage />
     </MemoryRouter>

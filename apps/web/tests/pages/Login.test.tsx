@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { renderWithTheme, screen } from '../utils/render'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('@/hooks/auth/useLoginForm', () => ({
@@ -25,7 +25,7 @@ vi.mock('@/stores/authStore', () => ({
 import { LoginPage } from '../../src/pages/LoginPage'
 
 test('Login page shows inputs and submit button', () => {
-  render(
+  renderWithTheme(
     <MemoryRouter>
       <LoginPage />
     </MemoryRouter>

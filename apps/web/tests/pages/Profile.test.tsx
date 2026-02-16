@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { renderWithTheme, screen } from '../utils/render'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('@/features/profile/screens/ProfileScreen', () => ({
@@ -11,7 +11,7 @@ import { ProfilePage } from '../../src/pages/ProfilePage'
 import { AppLayout } from '../../src/shared/layout/AppLayout'
 
 test('ProfilePage renders header with username and profile screen', () => {
-  render(
+  renderWithTheme(
     <MemoryRouter initialEntries={['/profile/tester']}>
       <Routes>
         <Route element={<AppLayout />}>

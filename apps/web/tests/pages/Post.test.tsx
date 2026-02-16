@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { renderWithTheme, screen } from '../utils/render'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('@/features/posts/screens/PostScreen', () => ({
@@ -11,7 +11,7 @@ import { PostPage } from '../../src/pages/PostPage'
 import { AppLayout } from '../../src/shared/layout/AppLayout'
 
 test('PostPage renders header and post screen', () => {
-  render(
+  renderWithTheme(
     <MemoryRouter initialEntries={['/post/123']}>
       <Routes>
         <Route element={<AppLayout />}>

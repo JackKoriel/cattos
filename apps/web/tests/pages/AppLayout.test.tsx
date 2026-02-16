@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { renderWithTheme, screen, waitFor } from '../utils/render'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('@/stores/authStore', () => ({
@@ -16,7 +16,7 @@ vi.mock('@/services/ads', () => ({
 import { AppLayout } from '../../src/shared/layout/AppLayout'
 
 test('AppLayout renders sidebar and sidebar ads area', async () => {
-  render(
+  renderWithTheme(
     <MemoryRouter>
       <AppLayout />
     </MemoryRouter>

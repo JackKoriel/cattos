@@ -1,10 +1,10 @@
 import { test, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { renderWithTheme, screen } from '../utils/render'
 import { MemoryRouter } from 'react-router-dom'
 import { ComingSoonPage } from '../../src/pages/ComingSoonPage'
 
 test('renders Coming Soon page', () => {
-  render(
+  renderWithTheme(
     <MemoryRouter>
       <ComingSoonPage />
     </MemoryRouter>

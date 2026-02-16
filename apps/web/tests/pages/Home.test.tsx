@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { renderWithTheme, screen } from '../utils/render'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('@/stores/authStore', () => ({
@@ -53,7 +53,7 @@ import { HomePage } from '../../src/pages/HomePage'
 import { AppLayout } from '../../src/shared/layout/AppLayout'
 
 test('HomePage shows CreatePost, header and empty feed message', () => {
-  render(
+  renderWithTheme(
     <MemoryRouter initialEntries={['/']}>
       <Routes>
         <Route element={<AppLayout />}>

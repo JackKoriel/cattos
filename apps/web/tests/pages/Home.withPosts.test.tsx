@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { renderWithTheme, screen } from '../utils/render'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('@/stores/authStore', () => ({
@@ -59,7 +59,7 @@ vi.mock('@/hooks/usePostFeed', () => {
 import { HomePage } from '../../src/pages/HomePage'
 
 test('HomePage shows post when posts exist', () => {
-  render(
+  renderWithTheme(
     <MemoryRouter>
       <HomePage />
     </MemoryRouter>
