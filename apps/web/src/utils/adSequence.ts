@@ -4,8 +4,11 @@
 const gcd = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcd(b, a % b))
 
 const createAdSequence = (
+  // Number of unique ads available
   count: number,
+  // Number of ad slots to fill
   slots: number,
+  // Session specific number
   seed = Math.floor(Math.random() * 1_000_000_000)
 ) => {
   if (count <= 0 || slots <= 0) return [] as number[]
@@ -25,6 +28,7 @@ const createAdSequence = (
   const seq: number[] = []
   let rotation = 0
   while (seq.length < targetLength) {
+    // rotation offsets the starting point in the base to ensure better distribution
     const r = rotation % count
     const rotated = base.slice(r).concat(base.slice(0, r))
     seq.push(...rotated)

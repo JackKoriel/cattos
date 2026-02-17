@@ -87,7 +87,7 @@ export function usePostFeed(authorId?: string, showAds = false) {
   }, [shouldShowFeedAds])
 
   useEffect(() => {
-    const slots = Math.floor(posts.length / 3)
+    const slots = Math.floor(posts.length / 5)
     const count = postAds.length
     adSequenceRef.current = createAdSequence(count, slots, seedRef.current)
   }, [postAds, posts.length])
@@ -97,6 +97,7 @@ export function usePostFeed(authorId?: string, showAds = false) {
       if (!postAds.length) return null
       const seq = adSequenceRef.current
       if (seq && seq.length > 0) {
+        // wrap around to ensure we don't go out of bounds in case there are more slots than ads
         const idx = seq[slotIndex % seq.length]
         return postAds[idx] ?? null
       }
@@ -106,6 +107,7 @@ export function usePostFeed(authorId?: string, showAds = false) {
     [postAds]
   )
 
+  // insert one ad after every 5 posts and render them together
   const renderedItems = useMemo(() => {
     if (!shouldShowFeedAds || (postAds.length === 0 && !loadingAds)) {
       return posts.map((post) => ({ type: 'post' as const, key: post.id, post }))
